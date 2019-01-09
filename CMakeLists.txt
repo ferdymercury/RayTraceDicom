@@ -227,8 +227,11 @@ endif()
 #~ if (SEPARATE_COMPILATION)
 #~ set(CUDA_SEPARABLE_COMPILATION ON)
 set(sources
-    main.cu)
+    cuda_errchk.cu
+    main.cu
+    )
 set(headers
+    cuda_errchk.cuh
     )
 cuda_add_executable(${EXECUTABLE_NAME} "${sources}" "${headers}")
 #~ else()
