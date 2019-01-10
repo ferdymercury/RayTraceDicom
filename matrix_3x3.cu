@@ -1,6 +1,6 @@
 /**
  * \file
- * \brief 3x3 matrix class implementation
+ * \brief Matrix3x3 class implementation
  */
 
 #include "matrix_3x3.cuh"

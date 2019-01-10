@@ -1,6 +1,6 @@
 /**
  * \file
- * \brief 3x3 matrix class declaration
+ * \brief Matrix3x3 class declaration
  */
 #ifndef MATRIX_3x3_CUH
 #define MATRIX_3x3_CUH

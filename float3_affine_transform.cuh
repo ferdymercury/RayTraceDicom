@@ -72,6 +72,7 @@ public:
 
     /**
      * \brief Print affine transformation to console
+     * \return void
      */
     void print() const;
 
