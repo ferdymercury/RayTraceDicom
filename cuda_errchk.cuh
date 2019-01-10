@@ -4,7 +4,7 @@
  * \see https://stackoverflow.com/questions/14038589/what-is-the-canonical-way-to-check-for-errors-using-the-cuda-runtime-api
  */
 #ifndef CUDA_ERRCHK_CUH
-#define CUDA_ERRCHK_CUH
+#define CUDA_ERRCHK_CUH///< Header guard
 
 /**
  * \brief This function is used for checking GPU errors

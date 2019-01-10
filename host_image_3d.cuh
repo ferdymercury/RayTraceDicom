@@ -69,10 +69,14 @@ public:
     HostPinnedOrientedImage3D(const HostPinnedImage3D<T> hostIm3D, const Float3AffineTransform imageIdxToWorld) :
     HostPinnedImage3D<T>(hostIm3D), iITW(imageIdxToWorld) {}
 
+    /**
+     * \brief Get internally stored affine transformation
+     * \return Float3AffineTransform
+     */
     Float3AffineTransform getTransf() const {return iITW;}
 
 private:
-    const Float3AffineTransform iITW;
+    const Float3AffineTransform iITW;///<Affine transformation of the 3D image
 };
 
 #endif // HOST_IMAGE_3D_CUH
