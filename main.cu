@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "cuda_errchk.cuh"
+#include "host_image_3d.cuh"
 
 int main()
 {

@@ -41,10 +41,6 @@
 ## <tr><td>CUDA_TOOLKIT_ROOT_DIR        <td>/usr/local/cuda
 ## <tr><td>CUDA_USE_STATIC_CUDA_RUNTIME <td>ON (OFF)
 ## <tr><td>CUDA_rt_LIBRARY              <td>usr/lib/x86_64-linux-gnu/librt.so
-#### <tr><td>Qt5Core_DIR                  <td>/usr/lib/x86_64-linux-gnu/cmake/Qt5Core
-#### <tr><td>Qt5Gui_DIR                   <td>/usr/lib/x86_64-linux-gnu/cmake/Qt5Gui
-#### <tr><td>Qt5Network_DIR               <td>/usr/lib/x86_64-linux-gnu/cmake/Qt5Network
-#### <tr><td>Qt5WebKit_DIR                <td>/usr/lib/x86_64-linux-gnu/cmake/Qt5WebKit
 ## </table>
 ##
 ## CMAKE_DOCUMENTATION_END
@@ -228,10 +224,18 @@ endif()
 #~ set(CUDA_SEPARABLE_COMPILATION ON)
 set(sources
     cuda_errchk.cu
+    float3_affine_transform.cu
+    helper_float3.cu
     main.cu
+    matrix_3x3.cu
     )
 set(headers
     cuda_errchk.cuh
+    cuda_member.cuh
+    float3_affine_transform.cuh
+    helper_float3.cuh
+    host_image_3d.cuh
+    matrix_3x3.cuh
     )
 cuda_add_executable(${EXECUTABLE_NAME} "${sources}" "${headers}")
 #~ else()
