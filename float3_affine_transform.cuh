@@ -10,7 +10,7 @@
 #include "matrix_3x3.cuh"
 
 /**
- * \brief Class definining an affine transform defined by a 3x3 matrix and a float3
+ * \brief Affine transform class defined by a 3x3 matrix and a float3
  */
 class Float3AffineTransform {
 private:
