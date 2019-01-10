@@ -1,3 +1,7 @@
+/**
+ * \file
+ * \brief CUDA error assert function implementations
+ */
 #include "cuda_errchk.cuh"
 
 #include <iostream>

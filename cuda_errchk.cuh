@@ -1,6 +1,6 @@
 /**
  * \file
- * \brief Header of helper functions and macros to check CUDA errors
+ * \brief CUDA error assert function declarations
  * \see https://stackoverflow.com/questions/14038589/what-is-the-canonical-way-to-check-for-errors-using-the-cuda-runtime-api
  */
 #ifndef CUDA_ERRCHK_CUH
@@ -20,6 +20,7 @@
  * \param line ...
  * \param abort ...
  * \return void
+ * \throw std::runtime_error if code!=cudaSuccess
  */
 void cudaAssert(const cudaError_t code, char* const file, const int line, const bool abort=true);
 
