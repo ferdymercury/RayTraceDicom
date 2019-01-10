@@ -4,6 +4,7 @@
  */
 #include "float3_affine_transform.cuh"
 #include "helper_math.h"
+#include "helper_float3.cuh"
 #include <iostream>
 
 Float3AffineTransform::Float3AffineTransform() : m(1.0f, 1.0f, 1.0f), v(make_float3(0.0f, 0.0f, 0.0f)) {}

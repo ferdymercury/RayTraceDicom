@@ -6,8 +6,10 @@
 #define FLOAT3_IDX_TRANSFORM_CUH
 
 #include "cuda_member.cuh"
-#include "helper_float3.cuh"
 
+/**
+ * \brief Transform ...
+ */
 class Float3IdxTransform {
 private:
     const float3 delta; ///< The 3D delta

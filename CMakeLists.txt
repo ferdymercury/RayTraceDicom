@@ -225,7 +225,9 @@ endif()
 set(sources
     cuda_errchk.cu
     float3_affine_transform.cu
+    float3_from_fan_transform.cu
     float3_idx_transform.cu
+    float3_to_fan_transform.cu
     helper_float3.cu
     main.cu
     matrix_3x3.cu
@@ -234,11 +236,14 @@ set(headers
     cuda_errchk.cuh
     cuda_member.cuh
     float3_affine_transform.cuh
+    float3_from_fan_transform.cuh
     float3_idx_transform.cuh
+    float3_to_fan_transform.cuh
     helper_float3.cuh
     host_image_3d.cuh
     matrix_3x3.cuh
     vector_find.h
+    vector_interpolate.h
     )
 cuda_add_executable(${EXECUTABLE_NAME} "${sources}" "${headers}")
 #~ else()

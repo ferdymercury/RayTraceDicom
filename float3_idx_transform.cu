@@ -4,6 +4,7 @@
  */
 #include "float3_idx_transform.cuh"
 #include "helper_math.h"
+#include "helper_float3.cuh"
 
 Float3IdxTransform::Float3IdxTransform() : delta(make_float3(1.0f, 1.0f, 1.0f)), offset(make_float3(0.0f, 0.0f, 0.0f)) {}
 

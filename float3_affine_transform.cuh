@@ -6,7 +6,6 @@
 #define FLOAT3_AFFINE_TRANSFORM_CUH
 
 #include "cuda_member.cuh"
-#include "helper_float3.cuh"
 #include "matrix_3x3.cuh"
 
 /**
