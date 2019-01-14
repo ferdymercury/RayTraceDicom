@@ -231,6 +231,8 @@ set(sources
     helper_float3.cu
     main.cu
     matrix_3x3.cu
+    tracer_param_struct_div3.cu
+    transfer_param_struct_div3.cu
     )
 set(headers
     cuda_errchk.cuh
@@ -242,6 +244,9 @@ set(headers
     helper_float3.cuh
     host_image_3d.cuh
     matrix_3x3.cuh
+    tracer_param_struct_div3.cuh
+    tracer_param_struct3.h
+    transfer_param_struct_div3.cuh
     vector_find.h
     vector_interpolate.h
     )
