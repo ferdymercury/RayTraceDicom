@@ -11,6 +11,9 @@
 #include <vector>
 //#include "float3_from_fan_transform.cuh"
 
+/**
+ * \brief ...
+ */
 class BeamSettings {
 public:
     /**
