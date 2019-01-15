@@ -13,7 +13,7 @@
  */
 class Float3AffineTransform {
 private:
-    Matrix3x3 m;        ///< 3x3 matrix containing orientation
+    const Matrix3x3 m;  ///< 3x3 matrix containing orientation
     float3 v;           ///< 3d vector containing offset position
 
 public:
@@ -29,6 +29,12 @@ public:
      * \param vIn the offset vector
      */
     Float3AffineTransform(const Matrix3x3 mIn, const float3 vIn);
+
+    /**
+     * \brief Copy constructor of affine transform
+     * \param in the transform to copy
+     */
+    Float3AffineTransform(const Float3AffineTransform& in);
 
     /**
      * \brief ...

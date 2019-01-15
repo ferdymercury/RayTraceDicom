@@ -11,6 +11,8 @@ Float3AffineTransform::Float3AffineTransform() : m(1.0f, 1.0f, 1.0f), v(make_flo
 
 Float3AffineTransform::Float3AffineTransform(const Matrix3x3 mIn, const float3 vIn) : m(mIn), v(vIn) {}
 
+Float3AffineTransform::Float3AffineTransform(const Float3AffineTransform& in) : Float3AffineTransform(in.getMatrix(),in.getOffset()) {}
+
 CUDA_CALLABLE_MEMBER float3 Float3AffineTransform::transformPoint(const float3 point) const {return m*point + v;}
 
 CUDA_CALLABLE_MEMBER float3 Float3AffineTransform::transformVector(const float3 vector) const {return m*vector;}
