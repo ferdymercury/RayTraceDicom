@@ -1,3 +1,7 @@
+/**
+ * \file
+ * \brief Kernel wrapper function implementations
+ */
 #include <iostream>
 #include <limits>
 #include <ctime>
@@ -21,17 +25,17 @@
 #include "vector_interpolate.h"
 #include "gpu_convolution_2d.cuh"
 
-texture<float, cudaTextureType3D, cudaReadModeElementType> imVolTex;
-texture<float, cudaTextureType2D, cudaReadModeElementType> cumulIddTex;
-texture<float, cudaTextureType1D, cudaReadModeElementType> peakDepthTex;
-texture<float, cudaTextureType1D, cudaReadModeElementType> densityTex;
-texture<float, cudaTextureType1D, cudaReadModeElementType> stoppingPowerTex;
-texture<float, cudaTextureType1D, cudaReadModeElementType> rRadiationLengthTex;
-texture<float, cudaTextureType3D, cudaReadModeElementType> bevPrimDoseTex;
+texture<float, cudaTextureType3D, cudaReadModeElementType> imVolTex;            ///< ...
+texture<float, cudaTextureType2D, cudaReadModeElementType> cumulIddTex;         ///< ...
+texture<float, cudaTextureType1D, cudaReadModeElementType> peakDepthTex;        ///< ...
+texture<float, cudaTextureType1D, cudaReadModeElementType> densityTex;          ///< ...
+texture<float, cudaTextureType1D, cudaReadModeElementType> stoppingPowerTex;    ///< ...
+texture<float, cudaTextureType1D, cudaReadModeElementType> rRadiationLengthTex; ///< ...
+texture<float, cudaTextureType3D, cudaReadModeElementType> bevPrimDoseTex;      ///< ...
 #ifdef NUCLEAR_CORR
-texture<float, cudaTextureType2D, cudaReadModeElementType> nucWeightTex;
-texture<float, cudaTextureType2D, cudaReadModeElementType> nucSqSigmaTex;
-texture<float, cudaTextureType3D, cudaReadModeElementType> bevNucDoseTex;
+texture<float, cudaTextureType2D, cudaReadModeElementType> nucWeightTex;        ///< ...
+texture<float, cudaTextureType2D, cudaReadModeElementType> nucSqSigmaTex;       ///< ...
+texture<float, cudaTextureType3D, cudaReadModeElementType> bevNucDoseTex;       ///< ...
 #endif // NUCLEAR_CORR
 
 int roundTo(const int val, const int multiple)

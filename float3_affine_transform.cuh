@@ -13,7 +13,7 @@
  */
 class Float3AffineTransform {
 private:
-    const Matrix3x3 m;  ///< 3x3 matrix containing orientation
+    Matrix3x3 m;        ///< 3x3 matrix containing orientation
     float3 v;           ///< 3d vector containing offset position
 
 public:

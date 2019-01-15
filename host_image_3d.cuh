@@ -10,6 +10,7 @@
 
 /**
  * \brief Templated class containing a 3D matrix of data type T
+ * \tparam T the data type (e.g. int)
  */
 template <typename T>
 class HostPinnedImage3D {
@@ -49,12 +50,14 @@ private:
 
 /**
  * \brief Template class containing a 3D matrix oriented in space (affine transform)
+ * \tparam T the data type (e.g. int)
  */
 template <typename T>
 class HostPinnedOrientedImage3D : public HostPinnedImage3D<T> {
 public:
     /**
      * \brief Class constructor that stores an input 3D matrix and its associated affine transform
+     * \tparam T the data type (e.g. int)
      * \param imagePtr a pointer to the 3D matrix of data
      * \param dimensions a triad of unsigned integers, namely the number of bins along axis x, y and z
      * \param imageIdxToWorld an affine transform
@@ -64,6 +67,7 @@ public:
 
     /**
      * \brief Class constructor that stores an HostPinnedImage3D and its associated affine transform
+     * \tparam T the data type (e.g. int)
      * \param hostIm3D the host pinned image base class
      * \param imageIdxToWorld an affine transform
      */

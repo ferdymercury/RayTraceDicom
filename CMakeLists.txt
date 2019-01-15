@@ -184,7 +184,7 @@ add_definitions(-DKS_SIGMA_CUTOFF=${CUTOFF_KS_SIGMA})
 add_definitions(-DRAY_WEIGHT_CUTOFF=${CUTOFF_RAY_WEIGHT})
 
 set(EXECUTABLE_NAME "RayTraceDicom" CACHE STRING "Compiled binary name")
-set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -std=c++11 -gencode arch=compute_35,code=sm_35 -D_MWAITXINTRIN_H_INCLUDED -D_FORCE_INLINES --expt-relaxed-constexpr )
+set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -std=c++11 -gencode arch=compute_35,code=sm_35 -D_MWAITXINTRIN_H_INCLUDED -D_FORCE_INLINES --expt-relaxed-constexpr)# -rdc=true
 
 ### Registers per thread in kernel info
 option(REGISTERS_INFO "Outputs register per thread and memory information per kernel" OFF)
@@ -272,5 +272,5 @@ cuda_add_executable(${EXECUTABLE_NAME} "${sources}" "${headers}")
 #~ endif()
 
 ### Add libraries
-cuda_add_cublas_to_target(${EXECUTABLE_NAME})
+#cuda_add_cublas_to_target(${EXECUTABLE_NAME})
 target_link_libraries(${EXECUTABLE_NAME} ${CUDA_LIBRARIES})# ${GDCM_LIBRARIES} ${VTK_LIBRARIES}
