@@ -6,6 +6,7 @@
 #define HOST_IMAGE_3D_CUH
 
 #include "float3_affine_transform.cuh"
+#include "cuda_runtime_api.h"
 
 /**
  * \brief Templated class containing a 3D matrix of data type T

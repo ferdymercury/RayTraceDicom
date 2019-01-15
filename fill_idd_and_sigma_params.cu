@@ -1,3 +1,7 @@
+/**
+ * \file
+ * \brief FillIddAndSigmaParams class implementation
+ */
 #include "fill_idd_and_sigma_params.cuh"
 #include "float3_from_fan_transform.cuh"
 

@@ -223,6 +223,7 @@ endif()
 #~ if (SEPARATE_COMPILATION)
 #~ set(CUDA_SEPARABLE_COMPILATION ON)
 set(headers
+    beam_settings.h
     cpu_convolution_1d.h
     cuda_errchk.cuh
     cuda_member.cuh
@@ -244,6 +245,7 @@ set(headers
     vector_interpolate.h
     )
 set(sources
+    beam_settings.cpp
     cpu_convolution_1d.cpp
     cuda_errchk.cu
     energy_reader.cpp

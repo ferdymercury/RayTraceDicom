@@ -12,6 +12,7 @@
 #include "energy_struct.h"
 #include "energy_reader.h"
 #include "fill_idd_and_sigma_params.cuh"
+#include "beam_settings.h"
 
 int main()
 {

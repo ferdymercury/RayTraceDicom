@@ -6,6 +6,7 @@
 #define MATRIX_3x3_CUH
 
 #include "cuda_member.cuh"
+#include "vector_types.h"
 
 /**
  * \brief 3x3 matrix of floats
