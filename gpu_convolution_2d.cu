@@ -1,3 +1,7 @@
+/**
+ * \file
+ * \brief GPU 2D Convolution function implementations
+ */
 #include "gpu_convolution_2d.cuh"
 #include <cmath>
 #include "cuda_runtime.h"

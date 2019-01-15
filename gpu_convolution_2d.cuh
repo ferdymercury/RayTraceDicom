@@ -1,6 +1,6 @@
 /**
  * \file
- * \brief GPU 2D Convolution function declaration
+ * \brief GPU 2D Convolution function declarations
  */
 #ifndef GPU_CONVOLUTION_2D_CUH
 #define GPU_CONVOLUTION_2D_CUH

@@ -226,6 +226,9 @@ set(headers
     cpu_convolution_1d.h
     cuda_errchk.cuh
     cuda_member.cuh
+    energy_reader.h
+    energy_struct.h
+    fill_idd_and_sigma_params.cuh
     float3_affine_transform.cuh
     float3_from_fan_transform.cuh
     float3_idx_transform.cuh
@@ -243,6 +246,8 @@ set(headers
 set(sources
     cpu_convolution_1d.cpp
     cuda_errchk.cu
+    energy_reader.cpp
+    fill_idd_and_sigma_params.cu
     float3_affine_transform.cu
     float3_from_fan_transform.cu
     float3_idx_transform.cu

@@ -9,6 +9,9 @@
 #include "transfer_param_struct_div3.cuh"
 #include "cpu_convolution_1d.h"
 #include "gpu_convolution_2d.cuh"
+#include "energy_struct.h"
+#include "energy_reader.h"
+#include "fill_idd_and_sigma_params.cuh"
 
 int main()
 {
