@@ -10,7 +10,7 @@
 TracerParamStructDiv3::TracerParamStructDiv3(const Float3FromFanTransform fanIdxToImIdx)
 {
     float2 d2 = fanIdxToImIdx.getSourceDist();
-    dist = sqrt(d2.x*d2.x+d2.y*d2.y);//@todo is this right??
+    dist = sqrt(d2.x*d2.x+d2.y*d2.y);///< @todo is this right??
     float3 fanIdxMin = fanIdxToImIdx.getFanIdxToFan().getOffset();
     float3 fanIdxDelta = fanIdxToImIdx.getFanIdxToFan().getDelta();
     Matrix3x3 tTransp = fanIdxToImIdx.getGantryToImIdx().getMatrix().transpose();

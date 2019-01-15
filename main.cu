@@ -7,6 +7,8 @@
 #include "tracer_param_struct_div3.cuh"
 #include "tracer_param_struct3.h"
 #include "transfer_param_struct_div3.cuh"
+#include "cpu_convolution_1d.h"
+#include "gpu_convolution_2d.cuh"
 
 int main()
 {

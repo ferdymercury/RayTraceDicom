@@ -84,13 +84,3 @@ public:
     friend Float3AffineTransform concatFloat3AffineTransform(const Float3AffineTransform t1, const Float3AffineTransform t2);
 };
 #endif // FLOAT3_AFFINE_TRANSFORM_CUH
-
-//Float3AffineTransform::Float3AffineTransform()
-//Float3AffineTransform::Float3AffineTransform(Matrix3x3 mIn, float3 vIn)
-//float3 Float3AffineTransform::transformPoint(float3 point)
-//float3 Float3AffineTransform::transformVector(float3 vector)
-//Float3AffineTransform Float3AffineTransform::inverse()
-//Matrix3x3 Float3AffineTransform::getMatrix()
-//float3 Float3AffineTransform::getOffset()
-//void Float3AffineTransform::print()
-//Float3AffineTransform concatFloat3AffineTransform(Float3AffineTransform t1, Float3AffineTransform t2)

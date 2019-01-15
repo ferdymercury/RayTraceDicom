@@ -9,7 +9,7 @@
 #include "float3_affine_transform.cuh"
 #include "float3_idx_transform.cuh"
 
-class Float3ToFanTransform; //Forward declaration
+class Float3ToFanTransform;
 
 /**
  * \brief Transform ...
