@@ -5,7 +5,6 @@
 #include "gpu_convolution_2d.cuh"
 #include <cmath>
 #include "cuda_runtime.h"
-#include "device_launch_parameters.h"
 
 __global__ void xConvGathResampGpu(float* const in, float* const out, float2* const sigma, const int inWidth, const int outWidth, const int height, const float pixelSp, const float inOutOffset, const float inOutDelta)
 {

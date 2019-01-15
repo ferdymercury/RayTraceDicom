@@ -132,7 +132,7 @@ public:
      * \note if NO_NOZZLE defined, return 0
      * \return float2 ...
      */
-    __host__ __device__ float2 sigmaSqAirCoefs(const float r0);
+    static __host__ __device__ float2 sigmaSqAirCoefs(const float r0);
 
 private:
     float energyIdx;        ///< ...

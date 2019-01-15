@@ -22,6 +22,6 @@
  * \return void
  * \throw std::runtime_error if code!=cudaSuccess
  */
-void cudaAssert(const cudaError_t code, char* const file, const int line, const bool abort=true);
+void cudaAssert(const cudaError_t code, const char* file, const int line, const bool abort=true);
 
 #endif // CUDA_ERRCHK_CUH

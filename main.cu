@@ -14,6 +14,7 @@
 #include "fill_idd_and_sigma_params.cuh"
 #include "beam_settings.h"
 #include "density_and_sp_tracer_params.cuh"
+#include "kernel_wrapper.cuh"
 
 int main()
 {

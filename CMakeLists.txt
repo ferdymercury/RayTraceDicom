@@ -238,6 +238,7 @@ set(headers
     gpu_convolution_2d.cuh
     helper_float3.cuh
     host_image_3d.cuh
+    kernel_wrapper.cuh
     matrix_3x3.cuh
     tracer_param_struct_div3.cuh
     tracer_param_struct3.h
@@ -258,6 +259,7 @@ set(sources
     float3_to_fan_transform.cu
     gpu_convolution_2d.cu
     helper_float3.cu
+    kernel_wrapper.cu
     main.cu
     matrix_3x3.cu
     tracer_param_struct_div3.cu
@@ -270,5 +272,5 @@ cuda_add_executable(${EXECUTABLE_NAME} "${sources}" "${headers}")
 #~ endif()
 
 ### Add libraries
-#~ cuda_add_cublas_to_target(${EXECUTABLE_NAME})
+cuda_add_cublas_to_target(${EXECUTABLE_NAME})
 target_link_libraries(${EXECUTABLE_NAME} ${CUDA_LIBRARIES})# ${GDCM_LIBRARIES} ${VTK_LIBRARIES}

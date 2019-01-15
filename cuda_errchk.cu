@@ -8,7 +8,7 @@
 #include <sstream>
 #include <stdexcept>
 
-void cudaAssert(const cudaError_t code, char* const file, const int line, const bool abort)
+void cudaAssert(const cudaError_t code, const char* file, const int line, const bool abort)
 {
     if (code != cudaSuccess)
     {
