@@ -227,6 +227,7 @@ set(headers
     cpu_convolution_1d.h
     cuda_errchk.cuh
     cuda_member.cuh
+    density_and_sp_tracer_params.cuh
     energy_reader.h
     energy_struct.h
     fill_idd_and_sigma_params.cuh
@@ -248,6 +249,7 @@ set(sources
     beam_settings.cpp
     cpu_convolution_1d.cpp
     cuda_errchk.cu
+    density_and_sp_tracer_params.cu
     energy_reader.cpp
     fill_idd_and_sigma_params.cu
     float3_affine_transform.cu

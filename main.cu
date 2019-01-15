@@ -13,6 +13,7 @@
 #include "energy_reader.h"
 #include "fill_idd_and_sigma_params.cuh"
 #include "beam_settings.h"
+#include "density_and_sp_tracer_params.cuh"
 
 int main()
 {
