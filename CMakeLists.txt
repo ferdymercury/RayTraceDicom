@@ -216,12 +216,11 @@ if (DEVICE_DEBUGGING)
     set(CUDA_NVCC_FLAGS -G -g -Xcompiler -Wall ${CUDA_NVCC_FLAGS})#-rdynamic
 endif()
 
-#~ if (SEPARATE_COMPILATION)
-    #~ add_definitions(-DSEPARATE_COMPILATION )
-#~ endif()
+if (SEPARATE_COMPILATION)
+    add_definitions(-DSEPARATE_COMPILATION )
+    set(CUDA_SEPARABLE_COMPILATION ON)
+endif()
 
-#~ if (SEPARATE_COMPILATION)
-#~ set(CUDA_SEPARABLE_COMPILATION ON)
 set(headers
     beam_settings.h
     cpu_convolution_1d.h
