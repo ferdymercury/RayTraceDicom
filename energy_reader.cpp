@@ -61,10 +61,10 @@ EnergyStruct energyReader(const std::string dataPath) {
     fileReader.close();
 
     try {
-        fileReader.open((dataPath + "HU_to_SP_CNAO_H&N_adj.txt").c_str());
+        fileReader.open((dataPath + "HU_to_SP_H&N_adj.txt").c_str());
     }
     catch (const std::runtime_error&) {
-        std::string msg = "Failed to open " + dataPath + "HU_to_SP_CNAO_H&N_adj.txt";
+        std::string msg = "Failed to open " + dataPath + "HU_to_SP_H&N_adj.txt";
         throw std::runtime_error(msg.c_str());
     }
     fileReader >> eStr.nSpSamples >> eStr.spScaleFact;
