@@ -20,9 +20,9 @@ int main()
     EnergyStruct ciddData = energyReader(dataPath);
     t = clock()-t;
 
-#ifdef WATER_CUBE_TEST
     uint N;
     uint3 dim;
+#ifdef WATER_CUBE_TEST
     dim = make_uint3(256, 256, 256);
     N = dim.x*dim.y*dim.z;
     imageData.resize(N, 1000.0f);
@@ -134,6 +134,7 @@ int main()
     //  Matrix3x3 imSpacing(make_float3(itkImSpacing.GetDataPointer()));
     //  float3 imOrigin = make_float3(itkImOrigin.GetDataPointer());
     //  Float3AffineTransform imIdxToWorld(imDir*imSpacing, imOrigin);
+    Float3AffineTransform imIdxToWorld;
 
     //}
     //catch (itk::ExceptionObject &ex) {

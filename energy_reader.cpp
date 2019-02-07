@@ -16,7 +16,7 @@ EnergyStruct energyReader(const std::string dataPath) {
     fileReader.exceptions(std::ifstream::failbit);
 
     try {
-        fileReader.open(dataPath + "proton_cumul_ddd_data.txt");
+        fileReader.open((dataPath + "proton_cumul_ddd_data.txt").c_str());
     }
     catch (const std::exception&) {
         std::string msg = "Failed to open " + dataPath + "proton_cumul_ddd_data.txt";
@@ -47,7 +47,7 @@ EnergyStruct energyReader(const std::string dataPath) {
     fileReader.close();
 
     try {
-        fileReader.open(dataPath + "density_Schneider2000_adj.txt");
+        fileReader.open((dataPath + "density_Schneider2000_adj.txt").c_str());
     }
     catch (const std::runtime_error&) {
         std::string msg = "Failed to open " + dataPath + "density_Schneider2000_adj.txt";
@@ -61,7 +61,7 @@ EnergyStruct energyReader(const std::string dataPath) {
     fileReader.close();
 
     try {
-        fileReader.open(dataPath + "HU_to_SP_CNAO_H&N_adj.txt");
+        fileReader.open((dataPath + "HU_to_SP_CNAO_H&N_adj.txt").c_str());
     }
     catch (const std::runtime_error&) {
         std::string msg = "Failed to open " + dataPath + "HU_to_SP_CNAO_H&N_adj.txt";
@@ -76,7 +76,7 @@ EnergyStruct energyReader(const std::string dataPath) {
 
 #ifdef WATER_CUBE_TEST
     try {
-        fileReader.open(dataPath + "radiation_length_inc_water.txt");
+        fileReader.open((dataPath + "radiation_length_inc_water.txt").c_str());
     }
     catch (const std::runtime_error& e) {
         std::string msg = "Failed to open " + dataPath + "radiation_length_inc_water.txt";
@@ -84,7 +84,7 @@ EnergyStruct energyReader(const std::string dataPath) {
     }
 #else // WATER_CUBE_TEST
     try {
-        fileReader.open(dataPath + "radiation_length.txt");
+        fileReader.open((dataPath + "radiation_length.txt").c_str());
     }
     catch (const std::runtime_error&) {
         std::string msg = "Failed to open " + dataPath + "radiation_length.txt";

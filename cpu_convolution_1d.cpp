@@ -6,6 +6,8 @@
 #include <cmath>
 #include <vector>
 #include <iostream>
+#include <cstdio>
+#include <cstdlib>
 
 //float erf(float x)
 //{
@@ -49,7 +51,7 @@ void xConvCpu(float* const in, float* const out, const float rSigmaEff, const in
             for (int i=-rad; i<rad+1; ++i) {
                 int xIn = xOut - inOutOffset + i;
                 if (xIn>=0 && xIn<inWidth) {
-                    res += erfDiffs[abs(i)] * in[yOffsetIn + xIn];
+                    res += erfDiffs[std::abs(i)] * in[yOffsetIn + xIn];
                 }
             }
             out[yOffsetOut + xOut] = res;
@@ -79,7 +81,7 @@ void xConvCpuScat(float* const in, float* const out, const float rSigmaEff, cons
             float val = in[yOffsetIn + xIn];
             for (int i=-rad; i<rad+1; ++i) {
                 int xOut = xIn + inOutOffset + i;
-                out[yOffsetOut + xOut] += erfDiffs[abs(i)] * val;
+                out[yOffsetOut + xOut] += erfDiffs[std::abs(i)] * val;
             }
         }
     }
@@ -107,7 +109,7 @@ void xConvCpuSparse(float* const in, float* const out, const float rSigmaEff, co
             float val = in[yOffsetIn + xIn];
             for (int i=-rad; i<rad+1; ++i) {
                 int xOut = xIn * inOutDelta + inOutOffset + i;
-                out[yOffsetOut + xOut] += erfDiffs[abs(i)] * val;
+                out[yOffsetOut + xOut] += erfDiffs[std::abs(i)] * val;
             }
         }
     }
@@ -128,7 +130,7 @@ void xConvCpuSparse(float* const in, float* const out, const float rSigmaEff, co
 //      for (int i=-rad; i<rad+1; ++i) {
 //          int yIn = yOut - inOutOffset + i;
 //          if (yIn>=0 && yIn<inHeight) {
-//              float erfDiff = erfDiffs[abs(i)];
+//              float erfDiff = erfDiffs[std::abs(i)];
 //              int yOutOffset = yOut*width;
 //              int yInOffset = yIn*width;
 //              for (int x=0; x<width; ++x) {
@@ -157,7 +159,7 @@ void yConvCpu(float* const in, float* const out, const float rSigmaEff, const in
     for (int yIn=0; yIn<inHeight; ++yIn) {
         for (int i=-rad; i<rad+1; ++i) {
             int yOut = yIn + inOutOffset + i;
-            float erfDiff = erfDiffs[abs(i)];
+            float erfDiff = erfDiffs[std::abs(i)];
             int yOutOffset = yOut*width;
             int yInOffset = yIn*width;
             for (int x=0; x<width; ++x) {
@@ -185,7 +187,7 @@ void yConvCpuSparse(float* const in, float* const out, const float rSigmaEff, co
     for (int yIn=0; yIn<inHeight; ++yIn) {
         for (int i=-rad; i<rad+1; ++i) {
             int yOut = yIn * inOutDelta + inOutOffset + i;
-            float erfDiff = erfDiffs[abs(i)];
+            float erfDiff = erfDiffs[std::abs(i)];
             int yOutOffset = yOut*width;
             int yInOffset = yIn*width;
             for (int x=0; x<width; ++x) {
