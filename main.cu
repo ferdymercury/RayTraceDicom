@@ -13,7 +13,7 @@ int main()
 {
     typedef unsigned int uint;
     std::vector<float> imageData;
-    std::string dataPath("C:\\temp\\");
+    const std::string dataPath(PHYS_DATA_DIRECTORY);
 
     int t;
     t = clock();

@@ -15,6 +15,7 @@
 ## <tr><td>CUTOFF_CONV_SIGMA    <td>3.0f                    <td>Cutoff value in sigmas for the pre-convolution
 ## <tr><td>CUTOFF_KS_SIGMA      <td>3.0f                    <td>Cutoff value in sigmas for the kernel superposition
 ## <tr><td>CUTOFF_RAY_WEIGHT    <td>1.0f                    <td>Only trace rays with weight (particle number) above the cutoff
+## <tr><td>PHYS_DATA_DIRECTORY  <td>LUTs/                   <td>Directory where the LUTs are stored
 ## <tr><td>DEVICE_DEBUGGING     <td>OFF (ON)                <td>Debug code run on device
 ## <tr><td>EXECUTABLE_NAME      <td>RayTraceDicom           <td>Compiled binary name
 ## <tr><td>FAST_MATH            <td>ON (OFF)                <td>If use_fast_math is turned on/off
@@ -130,12 +131,9 @@ endif()
     #~ message(FATAL_ERROR "RTION_INTF_DIR (" ${RTION_INTF_DIR} "), namely the path to the RTION-MC interface library, does not exist.")
 #~ endif()
 
-### Code directories
-# add_definitions(-DSRC_DIRECTORY=${CMAKE_CURRENT_SOURCE_DIR})
-#~ set(PHYS_DATA_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/input)
-#~ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/environment.h.in ${CMAKE_CURRENT_SOURCE_DIR}/environment.h)
-
-## <tr><td>NUCL_CORR            <td>-1 (0, 1, 2)            <td>Nuclear correlation, set to -1 to disable, Soukup=0, Fluka=1, GaussianFit=2
+### LUT directory
+set(PHYS_DATA_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/LUTs/ CACHE STRING "Directory where the LUTs are stored")
+add_definitions(-DPHYS_DATA_DIRECTORY="${PHYS_DATA_DIRECTORY}")
 
 ### Code options
 option(WATER_CUBE_TEST "If water cube test phantom is turned on/off" OFF)
@@ -166,9 +164,9 @@ add_definitions(-DGAUSS_FIT=2) ## Gaussian fit method
 set(NUCLEAR_CORR "OFF" CACHE STRING "If nuclear correlation is calculated and how")
 set_property(CACHE NUCLEAR_CORR PROPERTY STRINGS "SOUKUP" "FLUKA" "GAUSS_FIT" "OFF")
 if(NUCLEAR_CORR STREQUAL "SOUKUP")
-  add_definitions(-DNUCLEAR_CORR=SOUKUP )## Calculate NUCLEAR_CORR according to Soukup et al.
+  add_definitions(-DNUCLEAR_CORR=SOUKUP )   ## Calculate NUCLEAR_CORR according to Soukup et al.
 elseif(NUCLEAR_CORR STREQUAL "FLUKA")
-  add_definitions(-DNUCLEAR_CORR=FLUKA )## Calculate NUCLEAR_CORR according to Fluka
+  add_definitions(-DNUCLEAR_CORR=FLUKA )    ## Calculate NUCLEAR_CORR according to Fluka
 elseif(NUCLEAR_CORR STREQUAL "GAUSS_FIT")
   add_definitions(-DNUCLEAR_CORR=GAUSS_FIT )## Calculate NUCLEAR_CORR according to Gaussian fit
 endif()
