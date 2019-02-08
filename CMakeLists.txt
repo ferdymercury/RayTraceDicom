@@ -24,6 +24,7 @@
 #### <tr><td>RTION_INTF_DIR       <td>/opt/rtion-interface-mc <td>Path to the RTION-MC interface library
 ## <tr><td>SEPARATE_COMPILATION <td>OFF (ON)                <td>Compile each source file separately. Results in less optimized code but good for debugging
 #### <tr><td>VTK_DIR              <td>/usr/lib/cmake/vtk-6.2  <td>Path to libvtk shared library directory
+## <tr><td>ITK_DIR              <td>/usr/lib/cmake/ITK-4.10 <td>Path to itk shared library directory
 ## </table>
 ##
 ## Some parameters depend on each other, for example if you set release mode
@@ -56,6 +57,7 @@ endif()
 find_package(CUDA REQUIRED)
 #find_package(VTK REQUIRED)
 #find_package(GDCM REQUIRED)
+find_package(ITK REQUIRED)
 
 ### CUDA libraries
 if(CUDA_FOUND)
@@ -112,6 +114,12 @@ endif()
 #~ else()
     #~ message(FATAL_ERROR "Cannot find GDCM, did you set GDCM_DIR?")
 #~ endif()
+
+if(ITK_FOUND)
+    include(${ITK_USE_FILE})
+else()
+    message(FATAL_ERROR "Cannot find ITK, did you set ITK_DIR?")
+endif()
 
 ### RTION INTERFACE
 #~ set(RTION_INTF_DIR "/opt/rtion-interface-mc" CACHE STRING "Path to rtion-interface-mc")
@@ -269,4 +277,4 @@ endif()
 
 ### Add libraries
 #cuda_add_cublas_to_target(${EXECUTABLE_NAME})
-target_link_libraries(${EXECUTABLE_NAME} ${CUDA_LIBRARIES})# ${GDCM_LIBRARIES} ${VTK_LIBRARIES}
+target_link_libraries(${EXECUTABLE_NAME} ${CUDA_LIBRARIES} ${ITK_LIBRARIES})# ${GDCM_LIBRARIES} ${VTK_LIBRARIES}

@@ -6,6 +6,7 @@
 #define VECTOR_INTERPOLATE_H
 
 #include <vector>
+#include <cmath>
 
 /**
  * \brief Linearly interpolates into list at decimal index idx

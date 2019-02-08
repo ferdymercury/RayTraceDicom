@@ -8,19 +8,14 @@
 
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
+#include <cmath>
 #include "helper_math.h"
 
 #include "cuda_errchk.cuh"
-#include "energy_struct.h"
 #include "float3_affine_transform.cuh"
 #include "float3_from_fan_transform.cuh"
 #include "float3_to_fan_transform.cuh"
-#include "density_and_sp_tracer_params.cuh"
-#include "fill_idd_and_sigma_params.cuh"
-#include "transfer_param_struct_div3.cuh"
 #include "kernel_wrapper.cuh"
-#include "host_image_3d.cuh"
-#include "beam_settings.h"
 #include "vector_find.h"
 #include "vector_interpolate.h"
 #include "gpu_convolution_2d.cuh"
@@ -438,7 +433,7 @@ void cudaWrapperProtons(const HostPinnedImage3D<float> imVol, const HostPinnedIm
     outStream << "    Copy data to GPU and bind to textures: " << timeCopyAndBind << " ms\n\n";
 #endif // FINE_GRAINED_TIMING
 
-    for (int beamNo=0; beamNo<beams.size(); ++beamNo)
+    for (unsigned int beamNo=0; beamNo<beams.size(); ++beamNo)
     {
 
 #ifdef FINE_GRAINED_TIMING
@@ -453,7 +448,7 @@ void cudaWrapperProtons(const HostPinnedImage3D<float> imVol, const HostPinnedIm
         const size_t nLayers = beam.getEnergies().size();
         std::vector<float> xSigmas(nLayers);
         std::vector<float> ySigmas(nLayers);
-        for (int layerNo=0; layerNo<nLayers; ++layerNo) {
+        for (unsigned int layerNo=0; layerNo<nLayers; ++layerNo) {
             xSigmas[layerNo] = beam.getSpotSigmas()[layerNo].x;
             ySigmas[layerNo] = beam.getSpotSigmas()[layerNo].y;
         }
@@ -688,7 +683,7 @@ void cudaWrapperProtons(const HostPinnedImage3D<float> imVol, const HostPinnedIm
         std::vector<float> energyScaleFacts(nLayers);
         std::vector<float> peakDepths(nLayers);
         std::vector<float2> entrySigmas(nLayers);
-        for (int layerNo=0; layerNo<nLayers; ++layerNo) {
+        for (unsigned int layerNo=0; layerNo<nLayers; ++layerNo) {
             float energyPerU = beam.getEnergies()[layerNo];
             energyIdcs[layerNo] = findDecimalOrdered<float, float> (iddData.energiesPerU, energyPerU);
             energyScaleFacts[layerNo] = vectorInterpolate<float,float> (iddData.scaleFacts, energyIdcs[layerNo]);
@@ -812,7 +807,7 @@ void cudaWrapperProtons(const HostPinnedImage3D<float> imVol, const HostPinnedIm
 
             if (tilePrimRadCtrs[maxSuperpR+1] > 0) { throw("Found larger than allowed kernel superposition radius"); }
             int layerMaxPrimSuperpR = 0;
-            for (int i=0; i<maxSuperpR+2; ++i) { if( tilePrimRadCtrs[i]>0 ) { layerMaxPrimSuperpR=i; }  }
+            for (unsigned int i=0; i<maxSuperpR+2; ++i) { if( tilePrimRadCtrs[i]>0 ) { layerMaxPrimSuperpR=i; }  }
             int recPrimRad = layerMaxPrimSuperpR;
             std::vector<int> batchedPrimTileRadCtrs(maxSuperpR+1, 0);
             batchedPrimTileRadCtrs[0] = tilePrimRadCtrs[0];
