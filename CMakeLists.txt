@@ -6,7 +6,7 @@
 ## <caption id="config-cmake">Table of configurable CMake parameters</caption>
 ## <tr><th>Variable             <th>Values                  <th>Description
 ## <tr><td>CMAKE_BUILD_TYPE     <td>Release (Debug)         <td>Choose the type of build
-## <tr><td>WATER_CUBE_TEST      <td>OFF (ON)                <td>Use a water cube as test phantom
+## <tr><td>WATER_CUBE_TEST      <td>OFF (ON)                <td>Use a water cube as test phantom, ignore IMG_DATA_DIRECTORY
 ## <tr><td>DOSE_TO_WATER        <td>ON (OFF)                <td>Calculate dose to water
 ## <tr><td>FINE_GRAINED_TIMING  <td>OFF (ON)                <td>Unset it to get more accurate total time, reports up to 30 ms longer execution time
 ## <tr><td>NOZZLE               <td>ON (OFF)                <td>Take into account air in the nozzle for sigma sq calculation
@@ -15,6 +15,7 @@
 ## <tr><td>CUTOFF_CONV_SIGMA    <td>3.0f                    <td>Cutoff value in sigmas for the pre-convolution
 ## <tr><td>CUTOFF_KS_SIGMA      <td>3.0f                    <td>Cutoff value in sigmas for the kernel superposition
 ## <tr><td>CUTOFF_RAY_WEIGHT    <td>1.0f                    <td>Only trace rays with weight (particle number) above the cutoff
+## <tr><td>IMG_DATA_DIRECTORY   <td>/tmp/                   <td>Directory where the DICOM image series are stored
 ## <tr><td>PHYS_DATA_DIRECTORY  <td>LUTs/                   <td>Directory where the LUTs are stored
 ## <tr><td>DEVICE_DEBUGGING     <td>OFF (ON)                <td>Debug code run on device
 ## <tr><td>EXECUTABLE_NAME      <td>RayTraceDicom           <td>Compiled binary name
@@ -142,6 +143,10 @@ endif()
 ### LUT directory
 set(PHYS_DATA_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/LUTs/ CACHE STRING "Directory where the LUTs are stored")
 add_definitions(-DPHYS_DATA_DIRECTORY="${PHYS_DATA_DIRECTORY}")
+
+### DICOM directory
+set(IMG_DATA_DIRECTORY /tmp/ CACHE STRING "Directory where the DICOM image series are stored")
+add_definitions(-DIMG_DATA_DIRECTORY="${IMG_DATA_DIRECTORY}")
 
 ### Code options
 option(WATER_CUBE_TEST "If water cube test phantom is turned on/off" OFF)

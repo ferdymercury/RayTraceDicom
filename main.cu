@@ -41,7 +41,7 @@ int main()
     typedef itk::MetaDataDictionary DictionaryType;
     typedef itk::GDCMImageIO ImageIOType;
     typedef itk::GDCMSeriesFileNames NamesGeneratorType;
-    std::string imagePath("C:\\temp\\Helical");
+    std::string imagePath(IMG_DATA_DIRECTORY);
 
     Matrix3x3 imSpacing(0.);
     Matrix3x3 imDir(0.);
