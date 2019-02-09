@@ -115,25 +115,19 @@ __global__  void fillIddAndSigma(float* const bevDensity, float* const bevCumulS
 void cudaWrapperProtons(const HostPinnedImage3D<float> imVol, const HostPinnedImage3D<float> doseVol, const std::vector<BeamSettings> beams, const EnergyStruct iddData, std::ostream &outStream);
 
 /**
- * \brief ...
+ * \brief Finds the largest value in each slice of devIn
  * \tparam T ...
- * \tparam blockSize ...
+ * \tparam blockSize must divide n and be equal to blockDim.x
  * \param devIn ...
  * \param devResult ...
- * \param n ...
+ * \param n the total number of elements in each slice (i.e. dim.x*dim.y)
+ * \note blockDim.y, gridDim.x and gridDim.y must all be equal to 1.
+ * \note gridDim.z must be equal to the number of slices.
  * \return void
  */
 template <typename T, unsigned int blockSize>
 __global__  void sliceMaxVar(T* const devIn, T* const devResult, const unsigned int n)
 {
-    //////////////////////////////////////////////////////////////////////////////////
-    // Finds the largest value in each slice of devIn
-    // n is the total number of elements in each slice (i.e. dim.x*dim.y)
-    // The template parameter blockSize must divide n and be equal to blockDim.x.
-    // blockDim.y, gridDim.x and gridDim.y must all be equal to 1.
-    // gridDim.z must be equal to the number of slices.
-    //////////////////////////////////////////////////////////////////////////////////
-
     extern __shared__ char threadMaxBuff[]; // Can't make it type T if using different T since extern
     T *threadMax = (T*)(threadMaxBuff);
 
@@ -164,25 +158,19 @@ __global__  void sliceMaxVar(T* const devIn, T* const devResult, const unsigned 
 }
 
 /**
- * \brief ...
+ * \brief Finds the smallest value in each slice of devIn
  * \tparam T ...
- * \tparam blockSize ...
+ * \tparam blockSize must divide n and be equal to blockDim.x
  * \param devIn ...
  * \param devResult ...
- * \param n ...
+ * \param n the total number of elements in each slice (i.e. dim.x*dim.y)
+ * \note blockDim.y and gridDim.y must both be equal to 1.
+ * \note gridDim.z must be equal to the number of slices.
  * \return void
  */
 template <typename T, unsigned int blockSize>
 __global__  void sliceMinVar(T* const devIn, T* const devResult, const unsigned int n)
 {
-    //////////////////////////////////////////////////////////////////////////////////
-    // Finds the smallest value in each slice of devIn
-    // n is the total number of elements in each slice (i.e. dim.x*dim.y)
-    // The template parameter blockSize must divide n and be equal to blockDim.x
-    // blockDim.y and gridDim.y must both be equal to 1.
-    // gridDim.z must be equal to the number of slices.
-    //////////////////////////////////////////////////////////////////////////////////
-
     extern __shared__ char threadMinBuff[]; // Can't make it type T if using different T since extern
     T *threadMin = (T*)(threadMinBuff);
 
@@ -212,24 +200,18 @@ __global__  void sliceMinVar(T* const devIn, T* const devResult, const unsigned 
 }
 
 /**
- * \brief ...
+ * \brief Finds the smallest value in each tile of devIn
  * \tparam blockY ...
  * \param devIn ...
  * \param startZ ...
  * \param tilePrimRadCtrs ...
  * \param inOutIdcs ...
  * \param noTiles ...
+ * \note blockDim.x must be equalt to superpTileX and blockDim.y must be an even power of 2 and divide superpTileY.
  */
 template <unsigned int blockY>
 __global__  void tileRadCalc(float* const devIn, const int startZ, int* const tilePrimRadCtrs, int2* const inOutIdcs, const int noTiles)
 {
-    //////////////////////////////////////////////////////////////////////////////////
-    // Finds the smallest value in each tile of devIn
-    // blockDim.x must be equalt to superpTileX and blockDim.y must be an even power of
-    // 2 and divide superpTileY.
-    //
-    //////////////////////////////////////////////////////////////////////////////////
-
     __shared__ float tile[superpTileX*blockY]; // Can't make it type T if using different T since extern
 
     const int tileIdx = superpTileX*threadIdx.y + threadIdx.x;
@@ -305,31 +287,22 @@ __global__  void fillDevMem(T* const devMem, const unsigned int N, const T val)
     }
 }
 
-// Handles different source distances for x and y, ~15 % slower
 //template <int rad>
 //
-//brief ...
+//brief Handles different source distances for x and y, ~15 % slower ...
 //param inDose ...
 //param inRSigmaEff ...
 //param outDose ...
 //param zFirst ...
 //return void
+//note Requires blockDim.x to be equal to (or smaller than?) the warp size!
+//Otherwise requires atomicAdd when incrementing tile[row+i][threadIdx.x+j]
+//note blockDim.x must also be equal to superpTileX
+//note blockDim.y has to divide superpTileY to avoid having __synchthreads inside branching statement
+//note Dynamic array size must be sizeof(float)*(superpTileY+2*rad)*(superpTileX+2*rad)
 //
 //__global__  void kernelSuperposition(float *inDose, float *inRSigmaEff, float *outDose, unsigned int zFirst);
 //{
-//
-//  ////////////////////////////////////////////////////////////////////////////////
-//  //
-//  // WARNING: Requires blockDim.x to be equal to (or smaller than?) the warp size!
-//  // Otherwise requires atomicAdd when incrementing tile[row+i][threadIdx.x+j]
-//  // blockDim.x must also be equal to superpTileX
-//  //
-//  // WARNING: blockDim.y has to divide superpTileY to avoid having
-//  // __synchthreads inside branching statement
-//  //
-//  // Dynamic array size must be sizeof(float)*(superpTileY+2*rad)*(superpTileX+2*rad)
-//  //
-//  ////////////////////////////////////////////////////////////////////////////////
 //
 //  extern volatile __shared__ float tile[];
 //  for (int i = threadIdx.y*blockDim.x+threadIdx.x; i<(superpTileY+2*rad)*(superpTileX+2*rad); i+=blockDim.x*blockDim.y)
@@ -408,23 +381,15 @@ __global__  void fillDevMem(T* const devMem, const unsigned int N, const T val)
  * \param inOutIdxPitch ...
  * \param tileCtrs ...
  * \return void
+ * \note Requires blockDim.x to be equal to (or smaller than?) the wrap size
+ * Otherwise requires atomicAdd when incrementing tile[row+i][threadIdx.x+j]
+ * \note blockDim.x must also be equal to superpTileX
+ * \note blockDim.y has to divide superpTileY to avoid having __synchthreads inside branching statement
  */
 template <int rad>
 __global__  void kernelSuperposition(float const* __restrict__ inDose, float const* __restrict__ inRSigmaEff, float* const outDose, const int inDosePitch, int2* const inOutIdcs, const int inOutIdxPitch, int* const tileCtrs)
 //void kernelSuperposition(float const* __restrict__ inDose, float const* __restrict__ inRSigmaEff, float* const outDose, const int inIdx, const int outIdx, const int inPitch)
 {
-
-    ////////////////////////////////////////////////////////////////////////////////
-    //
-    // WARNING: Requires blockDim.x to be equal to (or smaller than?) the warp size!
-    // Otherwise requires atomicAdd when incrementing tile[row+i][threadIdx.x+j]
-    // blockDim.x must also be equal to superpTileX
-    //
-    // WARNING: blockDim.y has to divide superpTileY to avoid having
-    // __synchthreads inside branching statement
-    //
-    ////////////////////////////////////////////////////////////////////////////////
-
     volatile __shared__ float tile[(superpTileX+2*rad)*(superpTileY+2*rad)];
     for (int i = threadIdx.y*blockDim.x+threadIdx.x; i<(superpTileY+2*rad)*(superpTileX+2*rad); i+=blockDim.x*blockDim.y)
     {
@@ -439,8 +404,7 @@ __global__  void kernelSuperposition(float const* __restrict__ inDose, float con
         radIdx -= 1;
     }
 
-    // __synchtreads inside this block  requires that blockDim.y divides superpTileY
-    // to avoid branching
+    // __synchtreads inside this block requires that blockDim.y divides superpTileY to avoid branching
     for (int row = threadIdx.y; row<superpTileY; row+=blockDim.y)
     {
         int inIdx = inOutIdcs[radIdx*inOutIdxPitch + tileIdx].x + row*inDosePitch + threadIdx.x;
