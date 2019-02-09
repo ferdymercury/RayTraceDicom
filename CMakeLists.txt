@@ -236,6 +236,7 @@ if (SEPARATE_COMPILATION)
         cuda_errchk.cuh
         cuda_member.cuh
         density_and_sp_tracer_params.cuh
+        dicom_reader.h
         energy_reader.h
         energy_struct.h
         fill_idd_and_sigma_params.cuh
@@ -259,6 +260,7 @@ if (SEPARATE_COMPILATION)
         cpu_convolution_1d.cpp
         cuda_errchk.cu
         density_and_sp_tracer_params.cu
+        dicom_reader.cpp
         energy_reader.cpp
         fill_idd_and_sigma_params.cu
         float3_affine_transform.cu
