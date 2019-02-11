@@ -23,6 +23,7 @@ int main()
     t = clock()-t;
     std::cout << "Read energy matrix: " << (float)t/CLOCKS_PER_SEC << " seconds.\n\n";
 
+
     uint N;
     uint3 dim;
 #ifdef WATER_CUBE_TEST
@@ -68,7 +69,9 @@ int main()
         beamData[i] = 90.0f + 10.0f * float(rand())/float(RAND_MAX);
     }
     //beamData[0] = 100.0f;
+
     HostPinnedImage3D<float> spotWeights(&beamData[0], beamDim);
+
     float currentEnergy = 118.12f;
     float lastEnergy = 172.51f;
     float energyStep = (lastEnergy-currentEnergy) / float(nLayers-1);
@@ -91,7 +94,7 @@ int main()
     ///< @todo: change to have fITDI different from fITII
     ///< @todo: Testing, change to real vector argument
     std::vector<BeamSettings> beams;
-    beams.push_back(BeamSettings(spotWeights, energiesPerU, sigmas, make_float2(1.0f, 1.0f), tracerSteps, sourceDist, fanIdxToFan, gantryToImIdx, gantryToImIdx));
+    beams.push_back(BeamSettings(&spotWeights, energiesPerU, sigmas, make_float2(1.0f, 1.0f), tracerSteps, sourceDist, fanIdxToFan, gantryToImIdx, gantryToImIdx));
 
     //std::cout << doseData[512*512*25 + 512*275 + 275] << '\n';
 
@@ -99,6 +102,9 @@ int main()
     std::cout << "Read cumulative energy matrix: " << (float)t/CLOCKS_PER_SEC << " seconds.\n\n";
 
     std::cout << "Executing code on GPU...\n\n";
+
+    return 0;
+
 
     cudaWrapperProtons(imVol, doseVol, beams, ciddData, std::cout);
 

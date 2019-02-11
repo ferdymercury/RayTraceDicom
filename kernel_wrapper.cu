@@ -142,15 +142,6 @@ __global__ void fillIddAndSigma(float* const bevDensity, float* const bevCumulSp
 #else // NUCLEAR_CORR
 __global__ void fillIddAndSigma(float* const bevDensity, float* const bevCumulSp, float* const bevIdd, float* const bevRSigmaEff, float* const rayWeights, int* const firstInside, int* const firstOutside, int* const firstPassive, FillIddAndSigmaParams params) {
 #endif
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Calculate sigma as described in M. Soukup, M. Fippel, and M. Alber, “A pencil beam algorithm for intensity modulated proton therapy derived from
-    // Monte Carlo simulations.,” Physics in medicine and biology, vol. 50, no. 21. pp. 5089–104, 2005.
-    //
-    // WARNING: This function is a bit of a mine field, only rearrange expressions if clear that they do not (explicitly or implicitly) affect
-    // subsequent expressions etc.
-    //
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
     const unsigned int x = blockDim.x*blockIdx.x + threadIdx.x;
     const unsigned int y = blockDim.y*blockIdx.y + threadIdx.y;
     const unsigned int memStep = gridDim.y*blockDim.y*gridDim.x*blockDim.x;
@@ -498,7 +489,7 @@ void cudaWrapperProtons(const HostPinnedImage3D<float> imVol, const HostPinnedIm
 
 
 
-        const uint3 spotGridDims = make_uint3(beam.getWeights().getDims().x, beam.getWeights().getDims().y, beam.getWeights().getDims().z);
+        const uint3 spotGridDims = make_uint3(beam.getWeights()->getDims().x, beam.getWeights()->getDims().y, beam.getWeights()->getDims().z);
         const unsigned int spotGridN = spotGridDims.x * spotGridDims.y * spotGridDims.z;
 
         // We want a coordinate system which includes all rays within the estimated (since the real value of maxSpotSigma depends on entry depth,
@@ -513,7 +504,7 @@ void cudaWrapperProtons(const HostPinnedImage3D<float> imVol, const HostPinnedIm
         Float3IdxTransform primRayIdxToGantry(primRayRes, primRayOffset);
         Float3FromFanTransform rayIdxToImIdx(primRayIdxToGantry, beam.getSourceDist(), beam.getGantryToImIdx());
 
-        const uint3 primRayDims = make_uint3( roundTo(rSteps-lSteps+1, superpTileX), roundTo(tSteps-bSteps+1, superpTileY), beam.getWeights().getDims().z);
+        const uint3 primRayDims = make_uint3( roundTo(rSteps-lSteps+1, superpTileX), roundTo(tSteps-bSteps+1, superpTileY), beam.getWeights()->getDims().z);
         const unsigned int convIntermN = primRayDims.x * spotGridDims.y * spotGridDims.z;
         const unsigned int rayWeightsN = primRayDims.x * primRayDims.y * spotGridDims.z;
 
@@ -525,7 +516,7 @@ void cudaWrapperProtons(const HostPinnedImage3D<float> imVol, const HostPinnedIm
         int nucIddN = nucRayDims.x * nucRayDims.y * beam.getSteps();
 
 
-        //const int3 iddDim = make_int3(beam.getWeights().getDims().x, beam.getWeights().getDims().y, beam.getSteps());
+        //const int3 iddDim = make_int3(beam.getWeights()->getDims().x, beam.getWeights()->getDims().y, beam.getSteps());
         dim3 tracerBlock(32, 8); // Both desktop and laptop
         dim3 tracerGrid(primRayDims.x/tracerBlock.x, primRayDims.y/tracerBlock.y);
         const unsigned int tracerThreadN = primRayDims.x*primRayDims.y;
@@ -701,7 +692,7 @@ void cudaWrapperProtons(const HostPinnedImage3D<float> imVol, const HostPinnedIm
         }
         float2 pxSpMult = make_float2(1.0f - entryZ/beam.getSourceDist().x, 1.0f - entryZ/beam.getSourceDist().y);
 
-        cudaErrchk(cudaMemcpy(devSpotWeights, beam.getWeights().getImData(), spotGridN*sizeof(float), cudaMemcpyHostToDevice));
+        cudaErrchk(cudaMemcpy(devSpotWeights, beam.getWeights()->getImData(), spotGridN*sizeof(float), cudaMemcpyHostToDevice));
         cudaErrchk(cudaMemcpy(devEntrySigmas, &entrySigmas[0], spotGridDims.z*sizeof(float2), cudaMemcpyHostToDevice));
         gpuConvolution2D(devSpotWeights, devConvInterm, devPrimRayWeights, devEntrySigmas, spotGridDims, primRayDims, beam.getSpotIdxToGantry().getDelta(),
             beam.getSpotIdxToGantry().getOffset(), primRayRes, primRayOffset, pxSpMult);

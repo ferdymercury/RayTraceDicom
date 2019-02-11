@@ -69,7 +69,9 @@ __global__  void fillBevDensityAndSp(float* const bevDensity, float* const bevCu
 
 #ifdef NUCLEAR_CORR
 /**
- * \brief ...
+ * \brief Calculate sigma as described in M. Soukup, M. Fippel, and M. Alber
+ * A pencil beam algorithm for intensity modulated proton therapy derived from  Monte Carlo simulations.,
+ * Physics in medicine and biology, vol. 50, no. 21. pp. 5089--104, 2005.
  * \param bevDensity ...
  * \param bevCumulSp ...
  * \param bevIdd ...
@@ -84,11 +86,14 @@ __global__  void fillBevDensityAndSp(float* const bevDensity, float* const bevCu
  * \param firstPassive ...
  * \param params ...
  * \return void
+ * \warning This function is a bit of a mine field, only rearrange expressions if clear that they do not (explicitly or implicitly) affect subsequent expressions etc.
  */
 __global__  void fillIddAndSigma(float* const bevDensity, float* const bevCumulSp, float* const bevIdd, float* const bevRSigmaEff, float* const rayWeights, float* const bevNucIdd, float* const bevNucRSigmaEff, float* const nucRayWeights, int* const nucIdcs, int* const firstInside, int* const firstOutside, int* const firstPassive, FillIddAndSigmaParams params);
 #else // NUCLEAR_CORR
 /**
- * \brief ...
+ * \brief Calculate sigma as described in M. Soukup, M. Fippel, and M. Alber
+ * A pencil beam algorithm for intensity modulated proton therapy derived from  Monte Carlo simulations.,
+ * Physics in medicine and biology, vol. 50, no. 21. pp. 5089--104, 2005.
  * \param bevDensity ...
  * \param bevCumulSp ...
  * \param bevIdd ...
@@ -99,6 +104,7 @@ __global__  void fillIddAndSigma(float* const bevDensity, float* const bevCumulS
  * \param firstPassive ...
  * \param params ...
  * \return void
+ * \warning This function is a bit of a mine field, only rearrange expressions if clear that they do not (explicitly or implicitly) affect subsequent expressions etc.
  */
 __global__  void fillIddAndSigma(float* const bevDensity, float* const bevCumulSp, float* const bevIdd, float* const bevRSigmaEff, float* const rayWeights, int* const firstInside, int* const firstOutside, int* const firstPassive, const FillIddAndSigmaParams params);
 #endif
@@ -390,9 +396,11 @@ template <int rad>
 __global__  void kernelSuperposition(float const* __restrict__ inDose, float const* __restrict__ inRSigmaEff, float* const outDose, const int inDosePitch, int2* const inOutIdcs, const int inOutIdxPitch, int* const tileCtrs)
 //void kernelSuperposition(float const* __restrict__ inDose, float const* __restrict__ inRSigmaEff, float* const outDose, const int inIdx, const int outIdx, const int inPitch)
 {
+    return;
     volatile __shared__ float tile[(superpTileX+2*rad)*(superpTileY+2*rad)];
     for (int i = threadIdx.y*blockDim.x+threadIdx.x; i<(superpTileY+2*rad)*(superpTileX+2*rad); i+=blockDim.x*blockDim.y)
     {
+        if(i>=(superpTileX+2*rad)*(superpTileY+2*rad)) printf("ASD");
         tile[i] = 0.0f;
     }
     __syncthreads();
