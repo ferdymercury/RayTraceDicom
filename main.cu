@@ -58,8 +58,8 @@ int main()
     Float3ToFanTransform imIdxToFanIdx(gantryToImIdx.inverse(), sourceDist, fanIdxToFan.inverse());
 
     std::vector<float> doseData(N, 0.0f);
-    HostPinnedImage3D<float> doseVol(&doseData[0], dim);
-    HostPinnedImage3D<float> imVol(&imageData[0], dim);
+    HostPinnedImage3D<float>* doseVol = new HostPinnedImage3D<float>(&doseData[0], dim);// to be deleted by cudaWrapperProtons, before cudaDeviceReset
+    HostPinnedImage3D<float>* imVol = new HostPinnedImage3D<float>(&imageData[0], dim);// to be deleted by cudaWrapperProtons, before cudaDeviceReset
 
     const uint nLayers = 20;
     const uint3 beamDim = make_uint3(33, 33, nLayers);
@@ -70,7 +70,7 @@ int main()
     }
     //beamData[0] = 100.0f;
 
-    HostPinnedImage3D<float> spotWeights(&beamData[0], beamDim);
+    HostPinnedImage3D<float>* spotWeights = new HostPinnedImage3D<float>(&beamData[0], beamDim);// to be deleted by cudaWrapperProtons, before cudaDeviceReset
 
     float currentEnergy = 118.12f;
     float lastEnergy = 172.51f;
@@ -94,7 +94,7 @@ int main()
     ///< @todo: change to have fITDI different from fITII
     ///< @todo: Testing, change to real vector argument
     std::vector<BeamSettings> beams;
-    beams.push_back(BeamSettings(&spotWeights, energiesPerU, sigmas, make_float2(1.0f, 1.0f), tracerSteps, sourceDist, fanIdxToFan, gantryToImIdx, gantryToImIdx));
+    beams.push_back(BeamSettings(spotWeights, energiesPerU, sigmas, make_float2(1.0f, 1.0f), tracerSteps, sourceDist, fanIdxToFan, gantryToImIdx, gantryToImIdx));
 
     //std::cout << doseData[512*512*25 + 512*275 + 275] << '\n';
 
@@ -102,9 +102,6 @@ int main()
     std::cout << "Read cumulative energy matrix: " << (float)t/CLOCKS_PER_SEC << " seconds.\n\n";
 
     std::cout << "Executing code on GPU...\n\n";
-
-    return 0;
-
 
     cudaWrapperProtons(imVol, doseVol, beams, ciddData, std::cout);
 

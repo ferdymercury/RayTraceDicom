@@ -302,7 +302,7 @@ __global__ void fillIddAndSigma(float* const bevDensity, float* const bevCumulSp
     firstPassive[y*gridDim.x*blockDim.x + x] = afterLast;
 }
 
-void cudaWrapperProtons(const HostPinnedImage3D<float> imVol, const HostPinnedImage3D<float> doseVol, const std::vector<BeamSettings> beams, const EnergyStruct iddData, std::ostream &outStream) {
+void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D<float>* const doseVol, const std::vector<BeamSettings> beams, const EnergyStruct iddData, std::ostream &outStream) {
 
 
 #ifdef WATER_CUBE_TEST
@@ -342,10 +342,10 @@ void cudaWrapperProtons(const HostPinnedImage3D<float> imVol, const HostPinnedIm
     cudaChannelFormatDesc floatChannelDesc = cudaCreateChannelDesc<float>();
 
     cudaArray *devImVolArr;
-    const cudaExtent imExt = make_cudaExtent(imVol.getDims().x, imVol.getDims().y, imVol.getDims().z); // All sizes in elements since dealing with array
+    const cudaExtent imExt = make_cudaExtent(imVol->getDims().x, imVol->getDims().y, imVol->getDims().z); // All sizes in elements since dealing with array
     cudaErrchk(cudaMalloc3DArray(&devImVolArr, &floatChannelDesc, imExt));
     cudaMemcpy3DParms imCopyParams = {0};
-    imCopyParams.srcPtr = make_cudaPitchedPtr((void*)imVol.getImData(), imExt.width*sizeof(float), imExt.width, imExt.height);
+    imCopyParams.srcPtr = make_cudaPitchedPtr((void*)imVol->getImData(), imExt.width*sizeof(float), imExt.width, imExt.height);
     imCopyParams.dstArray = devImVolArr;
     imCopyParams.extent = imExt;
     imCopyParams.kind = cudaMemcpyHostToDevice;
@@ -391,9 +391,9 @@ void cudaWrapperProtons(const HostPinnedImage3D<float> imVol, const HostPinnedIm
     cudaErrchk(cudaBindTextureToArray(rRadiationLengthTex, devReciprocalRadiationLengthArr, floatChannelDesc));
 
     float *devDoseBox;
-    const int doseN = doseVol.getDims().x*doseVol.getDims().y*doseVol.getDims().z;
+    const int doseN = doseVol->getDims().x*doseVol->getDims().y*doseVol->getDims().z;
     cudaErrchk(cudaMalloc((void**)&devDoseBox, doseN*sizeof(float)));
-    cudaErrchk(cudaMemcpy(devDoseBox, doseVol.getImData(), doseN*sizeof(float), cudaMemcpyHostToDevice));
+    cudaErrchk(cudaMemcpy(devDoseBox, doseVol->getImData(), doseN*sizeof(float), cudaMemcpyHostToDevice));
 
 #ifdef NUCLEAR_CORR
     cudaArray *devNucWeightArr;
@@ -461,11 +461,11 @@ void cudaWrapperProtons(const HostPinnedImage3D<float> imVol, const HostPinnedIm
         float maxZ = -1.0f * std::numeric_limits<float>::infinity();
         float minZ = std::numeric_limits<float>::infinity();
         for (int k=0; k<2; ++k) {
-            float z = float(k*imVol.getDims().z) - 0.5f;
+            float z = float(k*imVol->getDims().z) - 0.5f;
             for (int j=0; j<2; ++j) {
-                float y = float(j*imVol.getDims().y) - 0.5f;
+                float y = float(j*imVol->getDims().y) - 0.5f;
                 for (int i=0; i<2; ++i) {
-                    float x = float(i*imVol.getDims().x) - 0.5f;
+                    float x = float(i*imVol->getDims().x) - 0.5f;
                     float3 cnr = beam.getGantryToImIdx().inverse().transformPoint(make_float3(x,y,z));
                     //outStream << cnr.x << " " << cnr.y << " " << cnr.z << '\n';
                     if ( cnr.z > maxZ) { maxZ = cnr.z; }
@@ -696,6 +696,8 @@ void cudaWrapperProtons(const HostPinnedImage3D<float> imVol, const HostPinnedIm
         cudaErrchk(cudaMemcpy(devEntrySigmas, &entrySigmas[0], spotGridDims.z*sizeof(float2), cudaMemcpyHostToDevice));
         gpuConvolution2D(devSpotWeights, devConvInterm, devPrimRayWeights, devEntrySigmas, spotGridDims, primRayDims, beam.getSpotIdxToGantry().getDelta(),
             beam.getSpotIdxToGantry().getOffset(), primRayRes, primRayOffset, pxSpMult);
+        //Delete weights, we do not need any more
+        delete beam.getWeights();
 
 #ifdef NUCLEAR_CORR
 
@@ -1002,13 +1004,13 @@ void cudaWrapperProtons(const HostPinnedImage3D<float> imVol, const HostPinnedIm
             }
         }
         int3 minIdx = make_int3( max( ((int(floor(primMinPoint.x)))/32) * 32, 0) , max( int(floor(primMinPoint.y)), 0), max( int(floor(primMinPoint.z)),0) );
-        int3 maxIdx = make_int3( min( int(ceil(primMaxPoint.x)), doseVol.getDims().x-1), min( int(ceil(primMaxPoint.y)), doseVol.getDims().y-1), min( int(ceil(primMaxPoint.z)), doseVol.getDims().z-1) );
+        int3 maxIdx = make_int3( min( int(ceil(primMaxPoint.x)), doseVol->getDims().x-1), min( int(ceil(primMaxPoint.y)), doseVol->getDims().y-1), min( int(ceil(primMaxPoint.z)), doseVol->getDims().z-1) );
         dim3 transfBlockDim(32, 8); // Desktop and laptop
         dim3 primTransfGridDim(roundTo(maxIdx.x - minIdx.x + 1, transfBlockDim.x)/transfBlockDim.x, roundTo(maxIdx.y - minIdx.y + 1, transfBlockDim.y)/transfBlockDim.y);
 
         //TransferParamStructDiv3 primTransfStruct(primRayIdxToDoseIdx.invertAndShift(make_float2(float(maxSuperpR), float(maxSuperpR))));
         TransferParamStructDiv3 primTransfStruct(primRayIdxToDoseIdx.invertAndShift(make_float3(float(maxSuperpR), float(maxSuperpR), -float(beamFirstInside))));
-        primTransfDiv<<<primTransfGridDim, transfBlockDim>>>(devDoseBox, primTransfStruct, minIdx, maxIdx.z, doseVol.getDims());
+        primTransfDiv<<<primTransfGridDim, transfBlockDim>>>(devDoseBox, primTransfStruct, minIdx, maxIdx.z, doseVol->getDims());
 
 #ifdef NUCLEAR_CORR
         Float3FromFanTransform nucRayIdxToDoseIdx(beam.getSpotIdxToGantry(), beam.getSourceDist(), beam.getGantryToDoseIdx());
@@ -1035,12 +1037,12 @@ void cudaWrapperProtons(const HostPinnedImage3D<float> imVol, const HostPinnedIm
             }
         }
         minIdx = make_int3( max( ((int(floor(nucMinPoint.x)))/32) * 32, 0) , max( int(floor(nucMinPoint.y)), 0), max( int(floor(nucMinPoint.z)),0) );
-        maxIdx = make_int3( min( int(ceil(nucMaxPoint.x)), doseVol.getDims().x-1), min( int(ceil(nucMaxPoint.y)), doseVol.getDims().y-1), min( int(ceil(nucMaxPoint.z)), doseVol.getDims().z-1) );
+        maxIdx = make_int3( min( int(ceil(nucMaxPoint.x)), doseVol->getDims().x-1), min( int(ceil(nucMaxPoint.y)), doseVol->getDims().y-1), min( int(ceil(nucMaxPoint.z)), doseVol->getDims().z-1) );
         dim3 nucTransfGridDim(roundTo(maxIdx.x - minIdx.x + 1, transfBlockDim.x)/transfBlockDim.x, roundTo(maxIdx.y - minIdx.y + 1, transfBlockDim.y)/transfBlockDim.y);
 
         //TransferParamStructDiv3 nucTransfStruct(nucRayIdxToDoseIdx.invertAndShift(make_float2(float(maxSuperpR), float(maxSuperpR))));
         TransferParamStructDiv3 nucTransfStruct(nucRayIdxToDoseIdx.invertAndShift(make_float3(float(maxSuperpR), float(maxSuperpR), -float(beamFirstInside))));
-        nucTransfDiv<<<nucTransfGridDim, transfBlockDim>>>(devDoseBox, nucTransfStruct, minIdx, maxIdx.z, doseVol.getDims());
+        nucTransfDiv<<<nucTransfGridDim, transfBlockDim>>>(devDoseBox, nucTransfStruct, minIdx, maxIdx.z, doseVol->getDims());
 #endif // NUCLEAR_CORR
 
 
@@ -1104,7 +1106,7 @@ void cudaWrapperProtons(const HostPinnedImage3D<float> imVol, const HostPinnedIm
     cudaEventRecord(start, 0);
 #endif // FINE_GRAINED_TIMING
 
-    cudaErrchk(cudaMemcpy(doseVol.getImData(), devDoseBox, doseN*sizeof(float), cudaMemcpyDeviceToHost));
+    cudaErrchk(cudaMemcpy(doseVol->getImData(), devDoseBox, doseN*sizeof(float), cudaMemcpyDeviceToHost));
 
 #ifdef FINE_GRAINED_TIMING
     cudaEventRecord(stop, 0);
@@ -1152,5 +1154,7 @@ void cudaWrapperProtons(const HostPinnedImage3D<float> imVol, const HostPinnedIm
 
 #endif // FINE_GRAINED_TIMING
 
+    delete imVol;
+    delete doseVol;
     cudaDeviceReset();
 }

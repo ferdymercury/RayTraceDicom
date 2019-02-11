@@ -111,14 +111,14 @@ __global__  void fillIddAndSigma(float* const bevDensity, float* const bevCumulS
 
 /**
  * \brief ...
- * \param imVol ...
- * \param doseVol ...
+ * \param imVol not-owning pointer to ...
+ * \param doseVol not-owning pointer to ...
  * \param beams ...
  * \param iddData ...
  * \param outStream ...
  * \return void
  */
-void cudaWrapperProtons(const HostPinnedImage3D<float> imVol, const HostPinnedImage3D<float> doseVol, const std::vector<BeamSettings> beams, const EnergyStruct iddData, std::ostream &outStream);
+void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D<float>* const doseVol, const std::vector<BeamSettings> beams, const EnergyStruct iddData, std::ostream &outStream);
 
 /**
  * \brief Finds the largest value in each slice of devIn
@@ -396,7 +396,6 @@ template <int rad>
 __global__  void kernelSuperposition(float const* __restrict__ inDose, float const* __restrict__ inRSigmaEff, float* const outDose, const int inDosePitch, int2* const inOutIdcs, const int inOutIdxPitch, int* const tileCtrs)
 //void kernelSuperposition(float const* __restrict__ inDose, float const* __restrict__ inRSigmaEff, float* const outDose, const int inIdx, const int outIdx, const int inPitch)
 {
-    return;
     volatile __shared__ float tile[(superpTileX+2*rad)*(superpTileY+2*rad)];
     for (int i = threadIdx.y*blockDim.x+threadIdx.x; i<(superpTileY+2*rad)*(superpTileX+2*rad); i+=blockDim.x*blockDim.y)
     {
@@ -420,7 +419,6 @@ __global__  void kernelSuperposition(float const* __restrict__ inDose, float con
 
         if (__syncthreads_or(dose>0.0f))
         {
-
             float rSigmaEff = inRSigmaEff[inIdx];
             float erfNew = erff(rSigmaEff*0.5f);
             float erfOld = -erfNew;
