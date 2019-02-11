@@ -213,7 +213,7 @@ __global__  void sliceMinVar(T* const devIn, T* const devResult, const unsigned 
  * \param tilePrimRadCtrs ...
  * \param inOutIdcs ...
  * \param noTiles ...
- * \note blockDim.x must be equalt to superpTileX and blockDim.y must be an even power of 2 and divide superpTileY.
+ * \note blockDim.x must be equal to superpTileX and blockDim.y must be an even power of 2 and divide superpTileY.
  */
 template <unsigned int blockY>
 __global__  void tileRadCalc(float* const devIn, const int startZ, int* const tilePrimRadCtrs, int2* const inOutIdcs, const int noTiles)
@@ -399,7 +399,6 @@ __global__  void kernelSuperposition(float const* __restrict__ inDose, float con
     volatile __shared__ float tile[(superpTileX+2*rad)*(superpTileY+2*rad)];
     for (int i = threadIdx.y*blockDim.x+threadIdx.x; i<(superpTileY+2*rad)*(superpTileX+2*rad); i+=blockDim.x*blockDim.y)
     {
-        if(i>=(superpTileX+2*rad)*(superpTileY+2*rad)) printf("ASD");
         tile[i] = 0.0f;
     }
     __syncthreads();
@@ -433,6 +432,7 @@ __global__  void kernelSuperposition(float const* __restrict__ inDose, float con
             {
                 for (int j=0; j<2*rad+1; ++j)
                 {
+                    if(((row+i)*(superpTileX+2*rad) + threadIdx.x+j)>=(superpTileX+2*rad)*(superpTileY+2*rad)) continue;///<@todo fix this bug
                     tile[(row+i)*(superpTileX+2*rad) + threadIdx.x+j] += dose*erfDiffs[abs(rad-i)]*erfDiffs[abs(rad-j)];
                 }
                 __syncthreads(); // Care has to be taken to leave this out of branching statement
