@@ -432,7 +432,8 @@ __global__  void kernelSuperposition(float const* __restrict__ inDose, float con
             {
                 for (int j=0; j<2*rad+1; ++j)
                 {
-                    if(((row+i)*(superpTileX+2*rad) + threadIdx.x+j)>=(superpTileX+2*rad)*(superpTileY+2*rad)) continue;///<@todo fix this bug
+                    if(((row+i)*(superpTileX+2*rad) + threadIdx.x+j)>=(superpTileX+2*rad)*(superpTileY+2*rad)) printf("Dummy %d, f=%f\n", threadIdx.x, i);///<@todo fix this bug
+
                     tile[(row+i)*(superpTileX+2*rad) + threadIdx.x+j] += dose*erfDiffs[abs(rad-i)]*erfDiffs[abs(rad-j)];
                 }
                 __syncthreads(); // Care has to be taken to leave this out of branching statement
