@@ -10,3 +10,8 @@ The core was later refactored and documented by Fernando Hueso-González.
 The code is licensed under GPLv3. When (re)using this code, attribution to Joakim da Silva must be granted and relevant papers must be cited:
 - https://doi.org/10.1088/0031-9155/60/12/4777
 - https://doi.org/10.1016/j.jpdc.2015.07.003
+
+REQUIREMENTS
+------------
+- CUDA
+- ITK
