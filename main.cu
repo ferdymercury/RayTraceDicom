@@ -1,5 +1,6 @@
 #include <iostream>
 #include <limits>
+#include <fstream>
 
 #include "kernel_wrapper.cuh"
 #include "energy_reader.h"
@@ -106,6 +107,11 @@ int main()
     cudaWrapperProtons(imVol, doseVol, beams, ciddData, std::cout);
 
     std::cout << "Done!\n\n";
+
+    //Export dose result to a binary file, that you can open with Amide
+    std::ofstream fout("/tmp/dose.dat", std::ios::out | std::ios::binary);
+    fout.write(reinterpret_cast<const char*>(&doseData[0]), doseData.size()*sizeof(float));
+    fout.close();
 
     //std::cout << doseData[512*512*25 + 512*275 + 275] << '\n';
 
