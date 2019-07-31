@@ -23,7 +23,7 @@
 ## <tr><td>REGISTERS_INFO       <td>OFF (ON)                <td>Outputs register per thread and memory information per kernel
 #### <tr><td>GDCM_DIR             <td>/usr/lib/x86_64-linux-gnu/gdcm-2.6<td>Path to libgdcm shared library directory
 #### <tr><td>RTION_INTF_DIR       <td>/opt/rtion-interface-mc <td>Path to the RTION-MC interface library
-## <tr><td>SEPARATE_COMPILATION <td>OFF (ON)                <td>Compile each source file separately. Results in less optimized code but good for debugging
+## <tr><td>SEPARATE_COMPILATION <td>ON (OFF)                <td>Compile each source file separately. Results in less optimized code but good for debugging. OFF not working currently.
 #### <tr><td>VTK_DIR              <td>/usr/lib/cmake/vtk-6.2  <td>Path to libvtk shared library directory
 ## <tr><td>ITK_DIR              <td>/usr/lib/cmake/ITK-4.10 <td>Path to itk shared library directory
 ## </table>
@@ -204,7 +204,7 @@ if (REGISTERS_INFO)
 endif()
 
 ### Set release mode as default build type
-set(default_build_type "Release")
+set(default_build_type "Debug")
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   message(STATUS "Setting build type to '${default_build_type}' as none was specified.")
   set(CMAKE_BUILD_TYPE "${default_build_type}" CACHE STRING "Choose the type of build." FORCE)

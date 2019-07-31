@@ -112,6 +112,7 @@ int main()
     std::ofstream fout("/tmp/dose.dat", std::ios::out | std::ios::binary);
     fout.write(reinterpret_cast<const char*>(&doseData[0]), doseData.size()*sizeof(float));
     fout.close();
+    std::cout << "Written /tmp/dose.dat with size " << dim.x << "x" << dim.y << "x" << dim.z <<  "\n\n";
 
     //std::cout << doseData[512*512*25 + 512*275 + 275] << '\n';
 
