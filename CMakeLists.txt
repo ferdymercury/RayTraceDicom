@@ -24,7 +24,6 @@
 #### <tr><td>GDCM_DIR             <td>/usr/lib/x86_64-linux-gnu/gdcm-2.6<td>Path to libgdcm shared library directory
 #### <tr><td>RTION_INTF_DIR       <td>/opt/rtion-interface-mc <td>Path to the RTION-MC interface library
 ## <tr><td>SEPARATE_COMPILATION <td>ON (OFF)                <td>Compile each source file separately. Results in less optimized code but good for debugging. OFF not working currently.
-#### <tr><td>VTK_DIR              <td>/usr/lib/cmake/vtk-6.2  <td>Path to libvtk shared library directory
 ## <tr><td>ITK_DIR              <td>/usr/lib/cmake/ITK-4.10 <td>Path to itk shared library directory
 ## </table>
 ##
@@ -195,7 +194,8 @@ add_definitions(-DKS_SIGMA_CUTOFF=${CUTOFF_KS_SIGMA})
 add_definitions(-DRAY_WEIGHT_CUTOFF=${CUTOFF_RAY_WEIGHT})
 
 set(EXECUTABLE_NAME "RayTraceDicom" CACHE STRING "Compiled binary name")
-set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -std=c++11 -gencode arch=compute_35,code=sm_35 -D_MWAITXINTRIN_H_INCLUDED -D_FORCE_INLINES --expt-relaxed-constexpr -rdc=true)#
+set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -std=c++14 -gencode arch=compute_35,code=sm_35 -D_MWAITXINTRIN_H_INCLUDED -D_FORCE_INLINES --expt-relaxed-constexpr -rdc=true)#
+set(CMAKE_CXX_STANDARD 14)
 
 ### Registers per thread in kernel info
 option(REGISTERS_INFO "Outputs register per thread and memory information per kernel" OFF)
@@ -227,6 +227,7 @@ if (DEVICE_DEBUGGING)
     set(CUDA_NVCC_FLAGS -G -g -Xcompiler -Wall ${CUDA_NVCC_FLAGS})#-rdynamic
 endif()
 
+include_directories(/home/huesof/Programs/RayTraceDicom/) # For QtCreator
 if (SEPARATE_COMPILATION)
     set(CUDA_SEPARABLE_COMPILATION ON)
 
@@ -284,4 +285,5 @@ endif()
 
 ### Add libraries
 #cuda_add_cublas_to_target(${EXECUTABLE_NAME})
-target_link_libraries(${EXECUTABLE_NAME} ${CUDA_LIBRARIES} ${ITK_LIBRARIES})# ${GDCM_LIBRARIES} ${VTK_LIBRARIES}
+target_link_libraries(${EXECUTABLE_NAME} ${CUDA_LIBRARIES} ${ITK_LIBRARIES})
+# ${GDCM_LIBRARIES} ${VTK_LIBRARIES}
