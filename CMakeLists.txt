@@ -16,6 +16,7 @@
 ## <tr><td>CUTOFF_KS_SIGMA      <td>3.0f                    <td>Cutoff value in sigmas for the kernel superposition
 ## <tr><td>CUTOFF_RAY_WEIGHT    <td>1.0f                    <td>Only trace rays with weight (particle number) above the cutoff
 ## <tr><td>IMG_DATA_DIRECTORY   <td>/tmp/                   <td>Directory where the DICOM image series are stored
+## <tr><td>OUT_DATA_DIRECTORY   <td>/tmp/                   <td>Directory where the calculated results will be stored
 ## <tr><td>PHYS_DATA_DIRECTORY  <td>LUTs/                   <td>Directory where the LUTs are stored
 ## <tr><td>DEVICE_DEBUGGING     <td>OFF (ON)                <td>Debug code run on device
 ## <tr><td>EXECUTABLE_NAME      <td>RayTraceDicom           <td>Compiled binary name
@@ -147,6 +148,10 @@ add_definitions(-DPHYS_DATA_DIRECTORY="${PHYS_DATA_DIRECTORY}")
 set(IMG_DATA_DIRECTORY /tmp/ CACHE STRING "Directory where the DICOM image series are stored")
 add_definitions(-DIMG_DATA_DIRECTORY="${IMG_DATA_DIRECTORY}")
 
+### DICOM directory
+set(OUT_DATA_DIRECTORY /tmp/ CACHE STRING "Directory where the output results are stored")
+add_definitions(-DOUT_DATA_DIRECTORY="${OUT_DATA_DIRECTORY}")
+
 ### Code options
 option(WATER_CUBE_TEST "If water cube test phantom is turned on/off" OFF)
 if(WATER_CUBE_TEST)
@@ -214,7 +219,7 @@ endif()
 
 ### When in release mode, no separate compilation or device debugging
 if (CMAKE_BUILD_TYPE STREQUAL Release)
-    set(SEPARATE_COMPILATION OFF CACHE BOOL "Compile each source file separately. Results in less optimized code but good for debugging.")
+    #~ set(SEPARATE_COMPILATION OFF CACHE BOOL "Compile each source file separately. Results in less optimized code but good for debugging.") DISABLE FOR THE MOMENT AS IT IS NOT WORKING
     set(DEVICE_DEBUGGING OFF CACHE BOOL "Debug device code.")
 endif()
 
@@ -228,60 +233,61 @@ if (DEVICE_DEBUGGING)
 endif()
 
 include_directories(/home/huesof/Programs/RayTraceDicom/) # For QtCreator
-if (SEPARATE_COMPILATION)
-    set(CUDA_SEPARABLE_COMPILATION ON)
+#~ if (SEPARATE_COMPILATION)
+set(CUDA_SEPARABLE_COMPILATION ON)
 
-    set(headers
-        beam_settings.h
-        cpu_convolution_1d.h
-        cuda_errchk.cuh
-        cuda_member.cuh
-        density_and_sp_tracer_params.cuh
-        dicom_reader.h
-        energy_reader.h
-        energy_struct.h
-        fill_idd_and_sigma_params.cuh
-        float3_affine_transform.cuh
-        float3_from_fan_transform.cuh
-        float3_idx_transform.cuh
-        float3_to_fan_transform.cuh
-        gpu_convolution_2d.cuh
-        helper_float3.cuh
-        host_image_3d.cuh
-        kernel_wrapper.cuh
-        matrix_3x3.cuh
-        tracer_param_struct_div3.cuh
-        tracer_param_struct3.h
-        transfer_param_struct_div3.cuh
-        vector_find.h
-        vector_interpolate.h
-        )
-    set(sources
-        beam_settings.cpp
-        cpu_convolution_1d.cpp
-        cuda_errchk.cu
-        density_and_sp_tracer_params.cu
-        dicom_reader.cpp
-        energy_reader.cpp
-        fill_idd_and_sigma_params.cu
-        float3_affine_transform.cu
-        float3_from_fan_transform.cu
-        float3_idx_transform.cu
-        float3_to_fan_transform.cu
-        gpu_convolution_2d.cu
-        helper_float3.cu
-        kernel_wrapper.cu
-        main.cu
-        matrix_3x3.cu
-        tracer_param_struct_div3.cu
-        transfer_param_struct_div3.cu
-        )
-    cuda_add_executable(${EXECUTABLE_NAME} "${sources}" "${headers}")
-else()
-    add_definitions(-DALL_IN_ONE_COMPILATION )
-    set(CUDA_SEPARABLE_COMPILATION OFF)
-    cuda_add_executable(${EXECUTABLE_NAME} main.cu)
-endif()
+set(headers
+    beam_settings.h
+    constants.h
+    cpu_convolution_1d.h
+    cuda_errchk.cuh
+    cuda_member.cuh
+    density_and_sp_tracer_params.cuh
+    dicom_reader.h
+    energy_reader.h
+    energy_struct.h
+    fill_idd_and_sigma_params.cuh
+    float3_affine_transform.cuh
+    float3_from_fan_transform.cuh
+    float3_idx_transform.cuh
+    float3_to_fan_transform.cuh
+    gpu_convolution_2d.cuh
+    helper_float3.cuh
+    host_image_3d.cuh
+    kernel_wrapper.cuh
+    matrix_3x3.cuh
+    tracer_param_struct_div3.cuh
+    tracer_param_struct3.h
+    transfer_param_struct_div3.cuh
+    vector_find.h
+    vector_interpolate.h
+    )
+set(sources
+    beam_settings.cpp
+    cpu_convolution_1d.cpp
+    cuda_errchk.cu
+    density_and_sp_tracer_params.cu
+    dicom_reader.cpp
+    energy_reader.cpp
+    fill_idd_and_sigma_params.cu
+    float3_affine_transform.cu
+    float3_from_fan_transform.cu
+    float3_idx_transform.cu
+    float3_to_fan_transform.cu
+    gpu_convolution_2d.cu
+    helper_float3.cu
+    kernel_wrapper.cu
+    main.cu
+    matrix_3x3.cu
+    tracer_param_struct_div3.cu
+    transfer_param_struct_div3.cu
+    )
+cuda_add_executable(${EXECUTABLE_NAME} "${sources}" "${headers}")
+#~ else()
+    #~ add_definitions(-DALL_IN_ONE_COMPILATION )
+    #~ set(CUDA_SEPARABLE_COMPILATION OFF)
+    #~ cuda_add_executable(${EXECUTABLE_NAME} main.cu)
+#~ endif()
 
 ### Add libraries
 #cuda_add_cublas_to_target(${EXECUTABLE_NAME})
