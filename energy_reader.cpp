@@ -9,7 +9,7 @@
 #include "energy_reader.h"
 #include "energy_struct.h"
 
-EnergyStruct energyReader(const std::string dataPath) {
+EnergyStruct energyReader(const std::string& dataPath) {
 
     EnergyStruct eStr;
     std::ifstream fileReader;

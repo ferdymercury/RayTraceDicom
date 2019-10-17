@@ -10,11 +10,11 @@ TransferParamStructDiv3::TransferParamStructDiv3(const Float3ToFanTransform imId
 {
     Matrix3x3 tTransp = imIdxToFanIdx.getImIdxToGantry().getMatrix().transpose();
     float3 delta = imIdxToFanIdx.getFanToFanIdx().getDelta();
-    coefIdxI = tTransp.r0*delta;
-    coefIdxJ = tTransp.r1*delta;
+    coefIdxI = tTransp.row0()*delta;
+    coefIdxJ = tTransp.row1()*delta;
     coefOffset = imIdxToFanIdx.getImIdxToGantry().getOffset()*delta;
     globalOffset = imIdxToFanIdx.getFanToFanIdx().getOffset();
-    inc = tTransp.r2*delta;
+    inc = tTransp.row2()*delta;
     start = make_float3(0.0f);
     normDist = make_float2(delta.z*imIdxToFanIdx.getSourceDist().x, delta.z*imIdxToFanIdx.getSourceDist().y);
 }

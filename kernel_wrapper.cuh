@@ -5,6 +5,7 @@
 #ifndef KERNEL_WRAPPER_CUH
 #define KERNEL_WRAPPER_CUH
 
+#include "constants.h"
 #include "host_image_3d.cuh"
 #include "beam_settings.h"
 #include "energy_struct.h"
@@ -262,7 +263,7 @@ __global__  void tileRadCalc(float* const devIn, const int startZ, int* const ti
         // Write devResult
         if (threadIdx.x == 0) {
             // Calc rad, atomically increment corresponding counter, and write back indices and pitches
-            int rad = min(int(KS_SIGMA_CUTOFF / (sqrtf(2.0f)*tile[0]) + 0.5f), maxSuperpR+1);
+            int rad = min(int(KS_SIGMA_CUTOFF / (sqrtf(2.0f)*tile[0]) + HALF), maxSuperpR+1);
             int radIdx = atomicAdd(tilePrimRadCtrs+rad, 1);
             //int tileNo = blockIdx.z * (gridDim.x * gridDim.y) + blockIdx.y * gridDim.x + blockIdx.x;
             //tileLists[rad*listPitch + radIdx] = tileNo;
@@ -330,29 +331,29 @@ __global__  void fillDevMem(T* const devMem, const unsigned int N, const T val)
 //      {
 //
 //          float rSigmaEff = inRSigmaEff[idx];
-//          float erfNew = erff(rSigmaEff*0.5f);
+//          float erfNew = erff(rSigmaEff*HALF);
 //          float erfOld = -erfNew;
 //          float erfDiffsI[rad+1];
 //          for (int i=0; i<=rad; ++i)
 //          {
-//              erfDiffsI[i] = 0.5f*(erfNew - erfOld);
+//              erfDiffsI[i] = HALF*(erfNew - erfOld);
 //              erfOld = erfNew;
 //              erfNew = erff(rSigmaEff*(float(i)+1.5f));
 //          }
 //          float fct = 1.0f;
-//          erfNew = erff(fct*rSigmaEff*0.5f);
+//          erfNew = erff(fct*rSigmaEff*HALF);
 //          erfOld = -erfNew;
 //          float erfDiffsJ[rad+1];
 //          for (int j=0; j<=rad; ++j)
 //          {
-//              erfDiffsJ[j] = 0.5f*(erfNew - erfOld);
+//              erfDiffsJ[j] = HALF*(erfNew - erfOld);
 //              erfOld = erfNew;
 //              erfNew = erff(fct*rSigmaEff*(float(j)+1.5f));
 //          }
 //
 //          for (int i=0; i<2*rad+1; ++i)
 //          {
-//              float erfDiffI = erff(1.0f*rSigmaEff*(float(rad-i)+0.5f)) - erff(1.0f*rSigmaEff*(float(rad-i)-0.5f));
+//              float erfDiffI = erff(1.0f*rSigmaEff*(float(rad-i)+HALF)) - erff(1.0f*rSigmaEff*(float(rad-i)-HALF));
 //              for (int j=0; j<2*rad+1; ++j)
 //              {
 //                  tile[(row+i)*(superpTileX+2*rad) + threadIdx.x+j] += dose*erfDiffsI[abs(rad-i)]*erfDiffsJ[abs(rad-j)];
@@ -419,12 +420,12 @@ __global__  void kernelSuperposition(float const* __restrict__ inDose, float con
         if (__syncthreads_or(dose>0.0f))
         {
             float rSigmaEff = inRSigmaEff[inIdx];
-            float erfNew = erff(rSigmaEff*0.5f);
+            float erfNew = erff(rSigmaEff*HALF);
             float erfOld = -erfNew;
             float erfDiffs[rad+1]; // Warning, changed, still works?
             for (int i=0; i<=rad; ++i)
             {
-                erfDiffs[i] = 0.5f*(erfNew - erfOld);
+                erfDiffs[i] = HALF*(erfNew - erfOld);
                 erfOld = erfNew;
                 erfNew = erff(rSigmaEff*(float(i)+1.5f));
             }
@@ -432,8 +433,7 @@ __global__  void kernelSuperposition(float const* __restrict__ inDose, float con
             {
                 for (int j=0; j<2*rad+1; ++j)
                 {
-                    if(((row+i)*(superpTileX+2*rad) + threadIdx.x+j)>=(superpTileX+2*rad)*(superpTileY+2*rad)) printf("Dummy %d, f=%f\n", threadIdx.x, i);///<@todo fix this bug
-
+                    //~ if(((row+i)*(superpTileX+2*rad) + threadIdx.x+j)>=(superpTileX+2*rad)*(superpTileY+2*rad)) printf("Dummy %d, f=%f\n", threadIdx.x, i);///<@todo fix this bug
                     tile[(row+i)*(superpTileX+2*rad) + threadIdx.x+j] += dose*erfDiffs[abs(rad-i)]*erfDiffs[abs(rad-j)];
                 }
                 __syncthreads(); // Care has to be taken to leave this out of branching statement

@@ -4,7 +4,7 @@
  */
 #include "beam_settings.h"
 
-BeamSettings::BeamSettings(HostPinnedImage3D<float>* const spotWeights, const std::vector<float> beamEnergies, const std::vector<float2> spotSigmas, const float2 raySpacing, const unsigned int tracerSteps, const float2 sourceDist, const Float3IdxTransform spotIdxToGantry, const Float3AffineTransform gantryToImIdx, const Float3AffineTransform gantryToDoseIdx) :
+BeamSettings::BeamSettings(HostPinnedImage3D<float>* const spotWeights, const std::vector<float>& beamEnergies, const std::vector<float2>& spotSigmas, const float2 raySpacing, const unsigned int tracerSteps, const float2 sourceDist, const Float3IdxTransform spotIdxToGantry, const Float3AffineTransform& gantryToImIdx, const Float3AffineTransform& gantryToDoseIdx) :
 sWghts(spotWeights), bEnergies(beamEnergies), sSigmas(spotSigmas), rSpacing(raySpacing), steps(tracerSteps), sDist(sourceDist), sITG(spotIdxToGantry), gTII(gantryToImIdx), gTDI(gantryToDoseIdx) {};
 
 HostPinnedImage3D<float>* BeamSettings::getWeights() {return sWghts;}

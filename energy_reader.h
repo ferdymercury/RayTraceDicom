@@ -12,6 +12,6 @@ struct EnergyStruct;
  * \param dataPath the directory where the data file is stored
  * \return ...
  */
-EnergyStruct energyReader(const std::string dataPath);
+EnergyStruct energyReader(const std::string& dataPath);
 
 #endif // ENERGY_READER_H

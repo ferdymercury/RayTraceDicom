@@ -24,15 +24,15 @@ CUDA_CALLABLE_MEMBER Matrix3x3::Matrix3x3(float* const ptr) : Matrix3x3(ptr[0], 
 
 CUDA_CALLABLE_MEMBER float3 Matrix3x3::operator*(const float3 a) const {
     Matrix3x3 m = *this;
-    return make_float3(dot(m.r0,a), dot(m.r1,a), dot(m.r2,a));
+    return make_float3(dot(m.row0(),a), dot(m.row1(),a), dot(m.row2(),a));
 }
 
 CUDA_CALLABLE_MEMBER Matrix3x3 Matrix3x3::operator*(const Matrix3x3 m) const {
     Matrix3x3 m1 = *this;
     Matrix3x3 m2 = m.transpose();
-    return Matrix3x3(dot(m1.r0, m2.r0), dot(m1.r0, m2.r1), dot(m1.r0, m2.r2),
-                    dot(m1.r1, m2.r0), dot(m1.r1, m2.r1), dot(m1.r1, m2.r2),
-                    dot(m1.r2, m2.r0), dot(m1.r2, m2.r1), dot(m1.r2, m2.r2));
+    return Matrix3x3(dot(m1.row0(), m2.row0()), dot(m1.row0(), m2.row1()), dot(m1.row0(), m2.row2()),
+                    dot(m1.row1(), m2.row0()), dot(m1.row1(), m2.row1()), dot(m1.row1(), m2.row2()),
+                    dot(m1.row2(), m2.row0()), dot(m1.row2(), m2.row1()), dot(m1.row2(), m2.row2()));
 }
 
 CUDA_CALLABLE_MEMBER void Matrix3x3::print() const {
@@ -55,3 +55,7 @@ CUDA_CALLABLE_MEMBER Matrix3x3 Matrix3x3::inverse() const {
 CUDA_CALLABLE_MEMBER Matrix3x3 Matrix3x3::transpose() const {
     return Matrix3x3(r0.x, r1.x, r2.x, r0.y, r1.y, r2.y, r0.z, r1.z, r2.z);
 }
+
+CUDA_CALLABLE_MEMBER float3 Matrix3x3::row0() const {return r0;}
+CUDA_CALLABLE_MEMBER float3 Matrix3x3::row1() const {return r1;}
+CUDA_CALLABLE_MEMBER float3 Matrix3x3::row2() const {return r2;}

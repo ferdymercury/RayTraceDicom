@@ -23,10 +23,10 @@ densityScale(densityScaleFact), spScale(spScaleFact), steps(tracerSteps)
     corner = fanIdxToImIdx.getFanIdxToFan().getOffset();
     delta = fanIdxToImIdx.getFanIdxToFan().getDelta();
     Matrix3x3 tTransp = fanIdxToImIdx.getGantryToImIdx().getMatrix().transpose();
-    coefOffset = tTransp.r2 - tTransp.r0*corner.x/dist.x - tTransp.r1*corner.y/dist.y;
-    coefIdxI = tTransp.r0*delta.x;
-    coefIdxJ = tTransp.r1*delta.y;
-    transl = fanIdxToImIdx.getGantryToImIdx().getOffset() + tTransp.r2*corner.z + tTransp.r0*corner.x*(1.0f-corner.z/dist.x) + tTransp.r1*corner.y*(1.0f-corner.z/dist.y);
+    coefOffset = tTransp.row2() - tTransp.row0()*corner.x/dist.x - tTransp.row1()*corner.y/dist.y;
+    coefIdxI = tTransp.row0()*delta.x;
+    coefIdxJ = tTransp.row1()*delta.y;
+    transl = fanIdxToImIdx.getGantryToImIdx().getOffset() + tTransp.row2()*corner.z + tTransp.row0()*corner.x*(1.0f-corner.z/dist.x) + tTransp.row1()*corner.y*(1.0f-corner.z/dist.y);
 }
 
 CUDA_CALLABLE_MEMBER float DensityAndSpTracerParams::stepLen(const int idxI, const int idxJ) const {

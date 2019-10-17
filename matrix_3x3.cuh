@@ -11,10 +11,13 @@
 /**
  * \brief 3x3 matrix of floats
  */
-struct Matrix3x3 {
-    float3 r0;///< Row 0
-    float3 r1;///< Row 1
-    float3 r2;///< Row 2
+class Matrix3x3 {
+    private:
+        float3 r0;///< Row 0
+        float3 r1;///< Row 1
+        float3 r2;///< Row 2
+
+    public:
 
     /**
      * \brief Struct constructor based on matrix rows
@@ -102,6 +105,9 @@ struct Matrix3x3 {
      */
     CUDA_CALLABLE_MEMBER void print() const;
 
+    CUDA_CALLABLE_MEMBER float3 row0() const;///< \return r0
+    CUDA_CALLABLE_MEMBER float3 row1() const;///< \return r1
+    CUDA_CALLABLE_MEMBER float3 row2() const;///< \return r2
 };
 
 #endif // MATRIX_3x3_CUH

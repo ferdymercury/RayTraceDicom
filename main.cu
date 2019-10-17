@@ -109,7 +109,7 @@ int main()
     std::cout << "Done!\n\n";
 
     //Export dose result to a binary file, that you can open with Amide
-    std::ofstream fout("/tmp/dose.dat", std::ios::out | std::ios::binary);
+    std::ofstream fout((std::string(OUT_DATA_DIRECTORY)+"dose.dat").c_str(), std::ios::out | std::ios::binary);
     fout.write(reinterpret_cast<const char*>(&doseData[0]), doseData.size()*sizeof(float));
     fout.close();
     std::cout << "Written /tmp/dose.dat with size " << dim.x << "x" << dim.y << "x" << dim.z <<  "\n\n";

@@ -5,6 +5,7 @@
 #include "gpu_convolution_2d.cuh"
 #include <cmath>
 #include "cuda_runtime.h"
+#include "constants.h"
 
 __global__ void xConvGathResampGpu(float* const in, float* const out, float2* const sigma, const int inWidth, const int outWidth, const int height, const float pixelSp, const float inOutOffset, const float inOutDelta)
 {
@@ -14,11 +15,11 @@ __global__ void xConvGathResampGpu(float* const in, float* const out, float2* co
         float res = 0.0f;
         float sigmaEff = sigma[blockIdx.z].x/pixelSp;
         float rSigmaEff = rsqrtf(2.0f)/sigmaEff;
-        int currentInIdxX = int( ceilf( (float(outIdxX) - (CONV_SIGMA_CUTOFF*sigmaEff+0.5f) - inOutOffset) / inOutDelta) ); // Furthest input idx left of  outIdxX within 3*sigma
+        int currentInIdxX = int( ceilf( (float(outIdxX) - (CONV_SIGMA_CUTOFF*sigmaEff+HALF) - inOutOffset) / inOutDelta) ); // Furthest input idx left of  outIdxX within 3*sigma
         float dist = currentInIdxX*inOutDelta+inOutOffset - float(outIdxX); // Distance in output between source and target
-        while (dist < (CONV_SIGMA_CUTOFF*sigmaEff+0.5f)){
+        while (dist < (CONV_SIGMA_CUTOFF*sigmaEff+HALF)){
             if (currentInIdxX >= 0 && currentInIdxX < inWidth) {
-                res += 0.5f * ( erf((dist+0.5f)*rSigmaEff) - erf((dist-0.5f)*rSigmaEff) ) * in[blockIdx.z*inWidth*height + idxY*inWidth + currentInIdxX];
+                res += HALF * ( erf((dist+HALF)*rSigmaEff) - erf((dist-HALF)*rSigmaEff) ) * in[blockIdx.z*inWidth*height + idxY*inWidth + currentInIdxX];
             }
             ++currentInIdxX;
             dist = currentInIdxX*inOutDelta+inOutOffset - float(outIdxX);
@@ -35,11 +36,11 @@ __global__ void yConvGathResampGpu(float* const in, float* const out, float2* co
         float res = 0.0f;
         float sigmaEff = sigma[blockIdx.z].y/pixelSp;
         float rSigmaEff = rsqrtf(2.0f)/sigmaEff;
-        int currentInIdxY = int( ceilf( (float(outIdxY) - (CONV_SIGMA_CUTOFF*sigmaEff+0.5f) - inOutOffset) / inOutDelta) ); // Furthest input idx left of  outIdxX within 3*sigma
+        int currentInIdxY = int( ceilf( (float(outIdxY) - (CONV_SIGMA_CUTOFF*sigmaEff+HALF) - inOutOffset) / inOutDelta) ); // Furthest input idx left of  outIdxX within 3*sigma
         float dist = currentInIdxY*inOutDelta+inOutOffset - float(outIdxY); // Distance in output between source and target
-        while (dist < (CONV_SIGMA_CUTOFF*sigmaEff+0.5f)){
+        while (dist < (CONV_SIGMA_CUTOFF*sigmaEff+HALF)){
             if (currentInIdxY >= 0 && currentInIdxY < inHeight) {
-                res += 0.5f * ( erf((dist+0.5f)*rSigmaEff) - erf((dist-0.5f)*rSigmaEff) ) * in[blockIdx.z*width*inHeight + currentInIdxY*width + idxX];
+                res += HALF * ( erf((dist+HALF)*rSigmaEff) - erf((dist-HALF)*rSigmaEff) ) * in[blockIdx.z*width*inHeight + currentInIdxY*width + idxX];
             }
             ++currentInIdxY;
             dist = currentInIdxY*inOutDelta+inOutOffset - float(outIdxY);

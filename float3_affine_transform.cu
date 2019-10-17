@@ -25,7 +25,7 @@ Float3AffineTransform Float3AffineTransform::inverse() const
 void Float3AffineTransform::oneBasedToZeroBased(const bool toIdx)
 {
     if (toIdx) v -= make_float3(1.0f, 1.0f, 1.0f);
-    else v += make_float3(sum_float3(m.r0), sum_float3(m.r1), sum_float3(m.r2));
+    else v += make_float3(sum_float3(m.row0()), sum_float3(m.row1()), sum_float3(m.row2()));
 }
 
 CUDA_CALLABLE_MEMBER Matrix3x3 Float3AffineTransform::getMatrix() const {return m;}
@@ -34,9 +34,9 @@ CUDA_CALLABLE_MEMBER float3 Float3AffineTransform::getOffset() const {return v;}
 
 void Float3AffineTransform::print() const
 {
-    printf("%f %f %f    %f\n", m.r0.x, m.r0.y, m.r0.z, v.x);
-    printf("%f %f %f    %f\n", m.r1.x, m.r1.y, m.r1.z, v.y);
-    printf("%f %f %f    %f\n", m.r2.x, m.r2.y, m.r2.z, v.z);
+    printf("%f %f %f    %f\n", m.row0().x, m.row0().y, m.row0().z, v.x);
+    printf("%f %f %f    %f\n", m.row1().x, m.row1().y, m.row1().z, v.y);
+    printf("%f %f %f    %f\n", m.row2().x, m.row2().y, m.row2().z, v.z);
 }
 
 Float3AffineTransform concatFloat3AffineTransform(const Float3AffineTransform t1, const Float3AffineTransform t2)

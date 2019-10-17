@@ -14,14 +14,14 @@ TracerParamStructDiv3::TracerParamStructDiv3(const Float3FromFanTransform fanIdx
     float3 fanIdxMin = fanIdxToImIdx.getFanIdxToFan().getOffset();
     float3 fanIdxDelta = fanIdxToImIdx.getFanIdxToFan().getDelta();
     Matrix3x3 tTransp = fanIdxToImIdx.getGantryToImIdx().getMatrix().transpose();
-    coefOffset = (tTransp.r0*fanIdxMin.x + tTransp.r1*fanIdxMin.y)/dist + tTransp.r2;
-    coefIdxI = tTransp.r0*fanIdxDelta.x/dist;
-    coefIdxJ = tTransp.r1*fanIdxDelta.y/dist;
-    transl = fanIdxToImIdx.getGantryToImIdx().getOffset() - dist*tTransp.r2;
+    coefOffset = (tTransp.row0()*fanIdxMin.x + tTransp.row1()*fanIdxMin.y)/dist + tTransp.row2();
+    coefIdxI = tTransp.row0()*fanIdxDelta.x/dist;
+    coefIdxJ = tTransp.row1()*fanIdxDelta.y/dist;
+    transl = fanIdxToImIdx.getGantryToImIdx().getOffset() - dist*tTransp.row2();
 
     // Test code, delete!
     print_float3(fanIdxToImIdx.getGantryToImIdx().getOffset());
-    print_float3(tTransp.r2);
+    print_float3(tTransp.row2());
 
     minDist = fanIdxMin.z + dist;
     deltaZ = fanIdxDelta.z;
@@ -42,10 +42,10 @@ TracerParamStructDiv3::TracerParamStructDiv3(const Float3FromFanTransform fanIdx
 //  float3 fanIdxMin = fanIdxToFan.getOffset();
 //  float3 fanIdxDelta = fanIdxToFan.getDelta();
 //  Matrix3x3 tTransp = gantryToWorldIdx.getMatrix().transpose();
-//  coefOffset = (tTransp.r0*fanIdxMin.x + tTransp.r1*fanIdxMin.y)/dist + tTransp.r2;
-//  coefIdxI = tTransp.r0*fanIdxDelta.x/dist;
-//  coefIdxJ = tTransp.r1*fanIdxDelta.y/dist;
-//  transl = gantryToWorldIdx.getOffset() - dist*tTransp.r2;
+//  coefOffset = (tTransp.row0()*fanIdxMin.x + tTransp.row1()*fanIdxMin.y)/dist + tTransp.row2();
+//  coefIdxI = tTransp.row0()*fanIdxDelta.x/dist;
+//  coefIdxJ = tTransp.row1()*fanIdxDelta.y/dist;
+//  transl = gantryToWorldIdx.getOffset() - dist*tTransp.row2();
 //  minDist = fanIdxMin.z + dist;
 //  deltaZ = fanIdxDelta.z;
 //
@@ -65,9 +65,9 @@ TracerParamStructDiv3::TracerParamStructDiv3(const Float3FromFanTransform fanIdx
 //  float3 fanIdxMin = fanIdxToFan.getOffset();
 //  float3 fanIdxDelta = fanIdxToFan.getDelta();
 //  Matrix3x3 tTransp = (gantryToWorldIdx.getMatrix()).transpose();
-//  coefOffset = (tTransp.r0*fanIdxMin.x + tTransp.r1*fanIdxMin.y)/sourceDist + tTransp.r2;
-//  coefIdxI = tTransp.r0*fanIdxDelta.x/sourceDist;
-//  coefIdxJ = tTransp.r1*fanIdxDelta.y/sourceDist;
+//  coefOffset = (tTransp.row0()*fanIdxMin.x + tTransp.row1()*fanIdxMin.y)/sourceDist + tTransp.row2();
+//  coefIdxI = tTransp.row0()*fanIdxDelta.x/sourceDist;
+//  coefIdxJ = tTransp.row1()*fanIdxDelta.y/sourceDist;
 //  transl = gantryToWorldIdx.getOffset();
 //  minDist = fanIdxMin.z;
 //  deltaZ = fanIdxDelta.z;
@@ -88,9 +88,9 @@ TracerParamStructDiv3::TracerParamStructDiv3(const Float3FromFanTransform fanIdx
 //  float3 fanIdxMin = fanIdxToImIdx.getFanIdxToFan().getOffset();
 //  float3 fanIdxDelta = fanIdxToImIdx.getFanIdxToFan().getDelta();
 //  Matrix3x3 tTransp = fanIdxToImIdx.getGantryToImIdx().getMatrix().transpose();
-//  coefOffset = (tTransp.r0*fanIdxMin.x + tTransp.r1*fanIdxMin.y)/dist + tTransp.r2;
-//  coefIdxI = tTransp.r0*fanIdxDelta.x/dist;
-//  coefIdxJ = tTransp.r1*fanIdxDelta.y/dist;
+//  coefOffset = (tTransp.row0()*fanIdxMin.x + tTransp.row1()*fanIdxMin.y)/dist + tTransp.row2();
+//  coefIdxI = tTransp.row0()*fanIdxDelta.x/dist;
+//  coefIdxJ = tTransp.row1()*fanIdxDelta.y/dist;
 //  transl = fanIdxToImIdx.getGantryToImIdx().getOffset();
 //  minDist = fanIdxMin.z;
 //  deltaZ = fanIdxDelta.z;

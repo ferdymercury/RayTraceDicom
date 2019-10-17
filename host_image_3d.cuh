@@ -62,7 +62,7 @@ public:
      * \param dimensions a triad of unsigned integers, namely the number of bins along axis x, y and z
      * \param imageIdxToWorld an affine transform
      */
-    HostPinnedOrientedImage3D(T* const imagePtr, const uint3 dimensions, const Float3AffineTransform imageIdxToWorld) :
+    HostPinnedOrientedImage3D(T* const imagePtr, const uint3 dimensions, const Float3AffineTransform& imageIdxToWorld) :
     HostPinnedImage3D<T>(imagePtr, dimensions), iITW(imageIdxToWorld) {}
 
     /**
@@ -71,7 +71,7 @@ public:
      * \param hostIm3D the host pinned image base class
      * \param imageIdxToWorld an affine transform
      */
-    HostPinnedOrientedImage3D(const HostPinnedImage3D<T> hostIm3D, const Float3AffineTransform imageIdxToWorld) :
+    HostPinnedOrientedImage3D(const HostPinnedImage3D<T> hostIm3D, const Float3AffineTransform& imageIdxToWorld) :
     HostPinnedImage3D<T>(hostIm3D), iITW(imageIdxToWorld) {}
 
     /**

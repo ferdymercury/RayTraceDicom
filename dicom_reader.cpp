@@ -12,14 +12,16 @@
 #include "itkGDCMImageIO.h"
 #include "itkGDCMSeriesFileNames.h"
 
-Float3AffineTransform itk_reader(const std::string imagePath, std::vector<float>& imageData, unsigned int& N, uint3& dim, clock_t &t)
+Float3AffineTransform itk_reader(const std::string& imagePath, std::vector<float>& imageData, unsigned int& N, uint3& dim, clock_t &t)
 {
-    typedef signed short PixelType;
-    typedef itk::Image<PixelType, 3> ImageType;
-    typedef itk::ImageSeriesReader<ImageType> ReaderType;
-    typedef itk::MetaDataDictionary DictionaryType;
-    typedef itk::GDCMImageIO ImageIOType;
-    typedef itk::GDCMSeriesFileNames NamesGeneratorType;
+    using PixelType = short;
+    using ImageType = itk::Image<PixelType, 3>;
+    using ReaderType = itk::ImageSeriesReader<ImageType>;
+    using DictionaryType = itk::MetaDataDictionary;
+    using ImageIOType = itk::GDCMImageIO;
+    using NamesGeneratorType = itk::GDCMSeriesFileNames;
+
+    constexpr short HUOFFSET = 1000;
 
     Matrix3x3 imSpacing(0.);
     Matrix3x3 imDir(0.);
@@ -34,31 +36,31 @@ Float3AffineTransform itk_reader(const std::string imagePath, std::vector<float>
     nameGenerator->SetDirectory(imagePath);
 
     try {        
-        typedef std::vector<std::string> SeriesIdContainer;
+        using SeriesIdContainer = std::vector<std::string>;
         const SeriesIdContainer &seriesUID = nameGenerator->GetSeriesUIDs();
 
-        if(seriesUID.size()==0)
+        if(seriesUID.empty())
         {
             std::cout << "The directory " << imagePath << " contains no DICOM Series:\n";
             throw itk::ExceptionObject();
         }
 
         std::cout << "The directory " << imagePath << " contains the following DICOM Series:\n";
-        SeriesIdContainer::const_iterator seriesItr = seriesUID.begin();
-        SeriesIdContainer::const_iterator seriesEnd = seriesUID.end();
+        auto seriesItr = seriesUID.begin();
+        auto seriesEnd = seriesUID.end();
         while( seriesItr != seriesEnd ) {
             std::cout << seriesItr->c_str() << std::endl << std::endl;
             ++seriesItr;
         }
 
         std::string seriesIdentifier;
-        seriesIdentifier = seriesUID.begin()->c_str();
+        seriesIdentifier = *seriesUID.begin();
 
         std::cout << "Please wait while reading series:\n";
         std::cout << seriesIdentifier << std::endl;
         t = clock();
 
-        typedef std::vector<std::string> FileNamesContainer;
+        using FileNamesContainer = std::vector<std::string>;
         FileNamesContainer fileNames;
 
         fileNames = nameGenerator->GetFileNames(seriesIdentifier);
@@ -99,7 +101,7 @@ Float3AffineTransform itk_reader(const std::string imagePath, std::vector<float>
         unsigned int idx = 0;
         while(!it.IsAtEnd())
         {
-            imageData[idx] = float(it.Get() + 1000); ///\todo Image should be in HU+1000, remember? ///rescale intercept??
+            imageData[idx] = float(it.Get() + HUOFFSET); ///\todo Image should be in HU+1000, remember? ///rescale intercept??
             ++idx;
             ++it;
         }

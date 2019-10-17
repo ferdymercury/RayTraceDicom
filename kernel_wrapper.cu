@@ -65,7 +65,7 @@ __global__ void primTransfDiv(float* const result, TransferParamStructDiv3 param
         params.init(x, y); // Initiate object with current index position
         float *res = result + startIdx.z*doseDims.x*doseDims.y + y*doseDims.x + x;
         for (int z = startIdx.z; z<=maxZ; ++z) {
-            float3 pos = params.getFanIdx(z) + make_float3(0.5f, 0.5f, 0.5f); // Compensate for voxel value sitting at centre of voxel
+            float3 pos = params.getFanIdx(z) + make_float3(HALF, HALF, HALF); // Compensate for voxel value sitting at centre of voxel
             float tmp = tex3D(bevPrimDoseTex, pos.x, pos.y, pos.z);
             if (tmp > 0.0f) { // Only write to global memory if non-zero
                 *res += tmp;
@@ -86,7 +86,7 @@ __global__ void nucTransfDiv(float* const result, const TransferParamStructDiv3 
         params.init(x, y); // Initiate object with current index position
         float *res = result + startIdx.z*doseDims.x*doseDims.y + y*doseDims.x + x;
         for (int z = startIdx.z; z<=maxZ; ++z) {
-            float3 pos = params.getFanIdx(z) + make_float3(0.5f, 0.5f, 0.5f); // Compensate for voxel value sitting at centre of voxel
+            float3 pos = params.getFanIdx(z) + make_float3(HALF, HALF, HALF); // Compensate for voxel value sitting at centre of voxel
             float tmp = tex3D(bevNucDoseTex, pos.x, pos.y, pos.z);
             if (tmp > 0.0f) { // Only write to global memory if non-zero
                 *res += tmp;
@@ -105,7 +105,7 @@ __global__ void fillBevDensityAndSp(float* const bevDensity, float* const bevCum
     unsigned int idx = y*gridDim.x*blockDim.x + x;
 
     // Compensate for value located at voxel corner instead of centre
-    float3 pos = params.getStart(x, y) + make_float3(0.5f, 0.5f, 0.5f);
+    float3 pos = params.getStart(x, y) + make_float3(HALF, HALF, HALF);
     float3 step = params.getInc(x, y);
     float stepLen = params.stepLen(x, y);
     //float huPlus1000;
@@ -118,9 +118,9 @@ __global__ void fillBevDensityAndSp(float* const bevDensity, float* const bevCum
         //huPlus1000 = tex3D(imVolTex, pos.x, pos.y, pos.z) + 1000.0f;
         float huPlus1000 = tex3D(imVolTex, pos.x, pos.y, pos.z);
         cumulHuPlus1000 += huPlus1000;
-        bevDensity[idx] = tex1D(densityTex, huPlus1000*params.getDensityScale() + 0.5f);
+        bevDensity[idx] = tex1D(densityTex, huPlus1000*params.getDensityScale() + HALF);
 
-        cumulSp += stepLen * tex1D(stoppingPowerTex, huPlus1000*params.getSpScale() + 0.5f);
+        cumulSp += stepLen * tex1D(stoppingPowerTex, huPlus1000*params.getSpScale() + HALF);
 
         if (cumulHuPlus1000 < 150.0f) {
             beforeFirstInside = i;
@@ -210,7 +210,7 @@ __global__ void fillIddAndSigma(float* const bevDensity, float* const bevCumulSp
     for (int stepNo=params.getFirstStep(); stepNo<params.getAfterLastStep(); ++stepNo) {
         if (beamLive) {
             cumulSp = bevCumulSp[idx];
-            cumulDose = tex2D(cumulIddTex, cumulSp*params.getEnergyScaleFact() + 0.5f, params.getEnergyIdx() + 0.5f);
+            cumulDose = tex2D(cumulIddTex, cumulSp*params.getEnergyScaleFact() + HALF, params.getEnergyIdx() + HALF);
 
             float density = bevDensity[idx]; // Consistently used throughout?
             float peakDepth = params.getPeakDepth();
@@ -218,10 +218,10 @@ __global__ void fillIddAndSigma(float* const bevDensity, float* const bevCumulSp
             // Sigma peaks 1 - 2 mm before the BP
             if (cumulSp < (params.getPeakDepth()))
             {
-                float resE = eCoef * __powf(params.getPeakDepth() - 0.5f*(cumulSp+cumulSpOld), pInv); // 7.1 / 16.5 ms for __powf / powf 128x128, 512 steps on laptop
+                float resE = eCoef * __powf(params.getPeakDepth() - HALF*(cumulSp+cumulSpOld), pInv); // 7.1 / 16.5 ms for __powf / powf 128x128, 512 steps on laptop
                 // See Rossi et al. 1941 p. 242 for expressions for calculationg beta*p
                 float betaP = resE + 938.3f - 938.3f*938.3f / (resE+938.3f); // 2.1 ms for 128x128, 512 steps on laptop
-                float rRl = density * tex1D(rRadiationLengthTex, density*params.getRRlScale() + 0.5f);
+                float rRl = density * tex1D(rRadiationLengthTex, density*params.getRRlScale() + HALF);
                 float thetaSq = eRefSq/(betaP*betaP) * params.getStepLength() * rRl;
 
                 sigmaSq += incScat + incDiv; // Adding 0.25f * thetaSq * params.getStepLength() * params.getStepLength() makes no difference
@@ -238,7 +238,7 @@ __global__ void fillIddAndSigma(float* const bevDensity, float* const bevCumulSp
             }
 
             // Todo: Change to account for different divergence in x and y?
-            rSigmaEff = 0.5f*(params.voxelWidth(stepNo).x + params.voxelWidth(stepNo).y) / (sqrt2 * (sqrtf(sigmaSq) + sigmaDelta)); // Empirical widening of beam
+            rSigmaEff = HALF*(params.voxelWidth(stepNo).x + params.voxelWidth(stepNo).y) / (sqrt2 * (sqrtf(sigmaSq) + sigmaDelta)); // Empirical widening of beam
             //sigma = sqrtf(sigmaSq) + sigmaDelta;
             if (cumulSp > params.getPeakDepth()*BP_DEPTH_CUTOFF || stepNo == afterLast) {
                 beamLive = false;
@@ -254,14 +254,14 @@ __global__ void fillIddAndSigma(float* const bevDensity, float* const bevCumulSp
 #ifdef NUCLEAR_CORR
             if (mass > 1e-2f) // Avoid 0/0 and ripling effect in low density materials
             {
-                float nucWeight = tex2D(nucWeightTex, 0.5f*(cumulSp+cumulSpOld)*params.getEnergyScaleFact() + 0.5f, params.getEnergyIdx() + 0.5f);
+                float nucWeight = tex2D(nucWeightTex, HALF*(cumulSp+cumulSpOld)*params.getEnergyScaleFact() + HALF, params.getEnergyIdx() + HALF);
                 res = (1.0f - nucWeight) * rayWeight * (cumulDose-cumulDoseOld) / mass;
                 nucRes = nucWeight * nucRayWeight * (cumulDose-cumulDoseOld) / (mass*params.getSpotDist()*params.getSpotDist());
             }
             if (nucIdx >= 0)
             {
-                float nucSqSigma = tex2D(nucSqSigmaTex, 0.5f*(cumulSp+cumulSpOld)*params.getEnergyScaleFact() + 0.5f, params.getEnergyIdx() + 0.5f);
-                nucRSigmaEff = 0.5f * params.getSpotDist() *(params.voxelWidth(stepNo).x + params.voxelWidth(stepNo).y) / (sqrt2 * sqrtf(sigmaSq + nucSqSigma + params.getEntrySigmaSq()));
+                float nucSqSigma = tex2D(nucSqSigmaTex, HALF*(cumulSp+cumulSpOld)*params.getEnergyScaleFact() + HALF, params.getEnergyIdx() + HALF);
+                nucRSigmaEff = HALF * params.getSpotDist() *(params.voxelWidth(stepNo).x + params.voxelWidth(stepNo).y) / (sqrt2 * sqrtf(sigmaSq + nucSqSigma + params.getEntrySigmaSq()));
             }
 #else // NUCLEAR_CORR
             if (mass > 1e-2f) // Avoid 0/0 and ripling effect in low density materials
@@ -284,7 +284,7 @@ __global__ void fillIddAndSigma(float* const bevDensity, float* const bevCumulSp
         }
         bevIdd[idx] = res;
         bevRSigmaEff[idx] = rSigmaEff;
-        //bevRSigmaEff[idx] = 0.5f*(params.voxelWidth(stepNo).x + params.voxelWidth(stepNo).y) / (sqrt2 * sigma);
+        //bevRSigmaEff[idx] = HALF*(params.voxelWidth(stepNo).x + params.voxelWidth(stepNo).y) / (sqrt2 * sigma);
         //bevRSigmaEff[idx] = 1.0f / (sqrt2 * sigma);
         //bevRSigmaEff[idx] = params.voxelWidth(stepNo).x / (sqrt2 * sigma);
 
@@ -461,11 +461,11 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
         float maxZ = -1.0f * std::numeric_limits<float>::infinity();
         float minZ = std::numeric_limits<float>::infinity();
         for (int k=0; k<2; ++k) {
-            float z = float(k*imVol->getDims().z) - 0.5f;
+            float z = float(k*imVol->getDims().z) - HALF;
             for (int j=0; j<2; ++j) {
-                float y = float(j*imVol->getDims().y) - 0.5f;
+                float y = float(j*imVol->getDims().y) - HALF;
                 for (int i=0; i<2; ++i) {
-                    float x = float(i*imVol->getDims().x) - 0.5f;
+                    float x = float(i*imVol->getDims().x) - HALF;
                     float3 cnr = beam.getGantryToImIdx().inverse().transformPoint(make_float3(x,y,z));
                     //outStream << cnr.x << " " << cnr.y << " " << cnr.z << '\n';
                     if ( cnr.z > maxZ) { maxZ = cnr.z; }
@@ -495,10 +495,10 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
         // We want a coordinate system which includes all rays within the estimated (since the real value of maxSpotSigma depends on entry depth,
         // which is not known yet) maximum convolution radius and is guaranteed to have ray a centred at gantry (0,0).
         // Find distances, in primRayRes steps, between gantry (0,0) and extreme position rays
-        int lSteps = int( ceil( ( beam.getSpotIdxToGantry().getOffset().x - (CONV_SIGMA_CUTOFF*maxSpotSigmas.x + 0.5f*primRayRes.x) ) / primRayRes.x ) );
-        int bSteps = int( ceil( ( beam.getSpotIdxToGantry().getOffset().y - (CONV_SIGMA_CUTOFF*maxSpotSigmas.y + 0.5f*primRayRes.y) ) / primRayRes.y ) );
-        int rSteps = int( floor ( ( (spotGridDims.x-1)*beam.getSpotIdxToGantry().getDelta().x + beam.getSpotIdxToGantry().getOffset().x + (CONV_SIGMA_CUTOFF*maxSpotSigmas.x + 0.5f*primRayRes.x) ) / primRayRes.x ) );
-        int tSteps = int( floor ( ( (spotGridDims.y-1)*beam.getSpotIdxToGantry().getDelta().y + beam.getSpotIdxToGantry().getOffset().y + (CONV_SIGMA_CUTOFF*maxSpotSigmas.y + 0.5f*primRayRes.y) ) / primRayRes.y ) );
+        int lSteps = int( ceil( ( beam.getSpotIdxToGantry().getOffset().x - (CONV_SIGMA_CUTOFF*maxSpotSigmas.x + HALF*primRayRes.x) ) / primRayRes.x ) );
+        int bSteps = int( ceil( ( beam.getSpotIdxToGantry().getOffset().y - (CONV_SIGMA_CUTOFF*maxSpotSigmas.y + HALF*primRayRes.y) ) / primRayRes.y ) );
+        int rSteps = int( floor ( ( (spotGridDims.x-1)*beam.getSpotIdxToGantry().getDelta().x + beam.getSpotIdxToGantry().getOffset().x + (CONV_SIGMA_CUTOFF*maxSpotSigmas.x + HALF*primRayRes.x) ) / primRayRes.x ) );
+        int tSteps = int( floor ( ( (spotGridDims.y-1)*beam.getSpotIdxToGantry().getDelta().y + beam.getSpotIdxToGantry().getOffset().y + (CONV_SIGMA_CUTOFF*maxSpotSigmas.y + HALF*primRayRes.y) ) / primRayRes.y ) );
         float3 primRayOffset = make_float3( primRayRes.x*lSteps, primRayRes.y*bSteps, beam.getSpotIdxToGantry().getOffset().z );
 
         Float3IdxTransform primRayIdxToGantry(primRayRes, primRayOffset);

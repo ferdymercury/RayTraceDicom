@@ -8,6 +8,7 @@
 #include <iostream>
 #include <cstdio>
 #include <cstdlib>
+#include "constants.h"
 
 //float erf(float x)
 //{
@@ -32,26 +33,26 @@
 //    return float(sign*y);
 //}
 
-void xConvCpu(float* const in, float* const out, const float rSigmaEff, const int rad, const int inWidth, const int outWidth, const int height, const int inOutOffset)
+void xConvCpu(const float* const in, float* const out, const float rSigmaEff, const unsigned int rad, const int inWidth, const int outWidth, const int height, const int inOutOffset)
 {
     std::vector<float> erfDiffs(rad+1);
-    float erfNew = erf(rSigmaEff*0.5f);
+    float erfNew = std::erf(rSigmaEff*HALF);
     float erfOld;
     erfDiffs[0] = erfNew;
-    for (int i=1; i<rad+1; ++i) {
+    for (unsigned int i=1; i<rad+1; ++i) {
         erfOld = erfNew;
-        erfNew = erf(rSigmaEff*(float(i)+0.5f));
-        erfDiffs[i] = 0.5f*(erfNew - erfOld);
+        erfNew = std::erf(rSigmaEff*(float(i)+HALF));
+        erfDiffs[i] = HALF*(erfNew - erfOld);
     }
     for (int y=0; y<height; ++y) {
         int yOffsetOut = y*outWidth;
         int yOffsetIn = y*inWidth;
         for (int xOut=0; xOut<outWidth; ++xOut) {
-            float res = 0.0f;
-            for (int i=-rad; i<rad+1; ++i) {
-                int xIn = xOut - inOutOffset + i;
+            float res = 0.0;
+            for (long i=-static_cast<long>(rad); i<rad+1; ++i) {
+                long xIn = xOut - inOutOffset + i;
                 if (xIn>=0 && xIn<inWidth) {
-                    res += erfDiffs[std::abs(i)] * in[yOffsetIn + xIn];
+                    res += erfDiffs[static_cast<size_t>(std::abs(i))] * in[yOffsetIn + xIn];
                 }
             }
             out[yOffsetOut + xOut] = res;
@@ -59,57 +60,57 @@ void xConvCpu(float* const in, float* const out, const float rSigmaEff, const in
     }
 }
 
-void xConvCpuScat(float* const in, float* const out, const float rSigmaEff, const int rad, const int inWidth, const int outWidth, const int height, const int inOutOffset)
+void xConvCpuScat(const float* const in, float* const out, const float rSigmaEff, const unsigned int rad, const unsigned int inWidth, const unsigned int outWidth, const unsigned int height, const unsigned int inOutOffset)
 {
     if (rad > inOutOffset) {
-        printf("Error: rad > inOutOffset in xConvCpuScat");
+        std::cout << "Error: rad > inOutOffset in xConvCpuScat" << std::endl;
         exit (1);
     }
     std::vector<float> erfDiffs(rad+1);
-    float erfNew = erf(rSigmaEff*0.5f);
+    float erfNew = std::erf(rSigmaEff*HALF);
     float erfOld;
     erfDiffs[0] = erfNew;
-    for (int i=1; i<rad+1; ++i) {
+    for (unsigned int i=1; i<rad+1; ++i) {
         erfOld = erfNew;
-        erfNew = erf(rSigmaEff*(float(i)+0.5f));
-        erfDiffs[i] = 0.5f*(erfNew - erfOld);
+        erfNew = std::erf(rSigmaEff*(float(i)+HALF));
+        erfDiffs[i] = HALF*(erfNew - erfOld);
     }
-    for (int y=0; y<height; ++y) {
-        int yOffsetOut = y*outWidth;
-        int yOffsetIn = y*inWidth;
-        for (int xIn=0; xIn<inWidth; ++xIn) {
+    for (unsigned int y=0; y<height; ++y) {
+        unsigned int yOffsetOut = y*outWidth;
+        unsigned int yOffsetIn = y*inWidth;
+        for (unsigned int xIn=0; xIn<inWidth; ++xIn) {
             float val = in[yOffsetIn + xIn];
-            for (int i=-rad; i<rad+1; ++i) {
-                int xOut = xIn + inOutOffset + i;
-                out[yOffsetOut + xOut] += erfDiffs[std::abs(i)] * val;
+            for (long i=-static_cast<long>(rad); i<rad+1; ++i) {
+                long xOut = xIn + inOutOffset + i;
+                out[yOffsetOut + xOut] += erfDiffs[static_cast<size_t>(std::abs(i))] * val;
             }
         }
     }
 }
 
-void xConvCpuSparse(float* const in, float* const out, const float rSigmaEff, const int rad, const int inWidth, const int outWidth, const int height, const int inOutOffset, const int inOutDelta)
+void xConvCpuSparse(const float* const in, float* const out, const float rSigmaEff, const unsigned int rad, const unsigned int inWidth, const unsigned int outWidth, const unsigned int height, const unsigned int inOutOffset, const unsigned int inOutDelta)
 {
     if (rad > inOutOffset) {
-        printf("Error: rad > inOutOffset in xConvCpuSparse");
+        std::cout << "Error: rad > inOutOffset in xConvCpuSparse" << std::endl;
         exit (1);
     }
     std::vector<float> erfDiffs(rad+1);
-    float erfNew = erf(rSigmaEff*0.5f);
+    float erfNew = std::erf(rSigmaEff*HALF);
     float erfOld;
     erfDiffs[0] = erfNew;
-    for (int i=1; i<rad+1; ++i) {
+    for (unsigned int i=1; i<rad+1; ++i) {
         erfOld = erfNew;
-        erfNew = erf(rSigmaEff*(float(i)+0.5f));
-        erfDiffs[i] = 0.5f*(erfNew - erfOld);
+        erfNew = std::erf(rSigmaEff*(float(i)+HALF));
+        erfDiffs[i] = HALF*(erfNew - erfOld);
     }
-    for (int y=0; y<height; ++y) {
-        int yOffsetOut = y*outWidth;
-        int yOffsetIn = y*inWidth;
-        for (int xIn=0; xIn<inWidth; ++xIn) {
+    for (unsigned int y=0; y<height; ++y) {
+        unsigned int yOffsetOut = y*outWidth;
+        unsigned int yOffsetIn = y*inWidth;
+        for (unsigned int xIn=0; xIn<inWidth; ++xIn) {
             float val = in[yOffsetIn + xIn];
-            for (int i=-rad; i<rad+1; ++i) {
-                int xOut = xIn * inOutDelta + inOutOffset + i;
-                out[yOffsetOut + xOut] += erfDiffs[std::abs(i)] * val;
+            for (long i=-static_cast<long>(rad); i<rad+1; ++i) {
+                long xOut = xIn * inOutDelta + inOutOffset + i;
+                out[yOffsetOut + xOut] += erfDiffs[static_cast<size_t>(std::abs(i))] * val;
             }
         }
     }
@@ -118,13 +119,13 @@ void xConvCpuSparse(float* const in, float* const out, const float rSigmaEff, co
 //void yConvCpu(float* const in, float* const out, const float rSigmaEff, const int rad, const int inHeight, const int width, const int outHeight, const int inOutOffset)
 //{
 //  std::vector<float> erfDiffs(rad+1);
-//  float erfNew = erf(rSigmaEff*0.5f);
+//  float erfNew = erf(rSigmaEff*HALF);
 //  float erfOld;
 //  erfDiffs[0] = erfNew;
 //  for (int i=1; i<rad+1; ++i) {
 //      erfOld = erfNew;
-//      erfNew = erf(rSigmaEff*(float(i)+0.5f));
-//      erfDiffs[i] = 0.5f*(erfNew - erfOld);
+//      erfNew = erf(rSigmaEff*(float(i)+HALF));
+//      erfDiffs[i] = HALF*(erfNew - erfOld);
 //  }
 //  for (int yOut=0; yOut<outHeight; ++yOut) {
 //      for (int i=-rad; i<rad+1; ++i) {
@@ -141,56 +142,56 @@ void xConvCpuSparse(float* const in, float* const out, const float rSigmaEff, co
 //  }
 //}
 
-void yConvCpu(float* const in, float* const out, const float rSigmaEff, const int rad, const int inHeight, const int width, const int outHeight, const int inOutOffset)
+void yConvCpu(const float* const in, float* const out, const float rSigmaEff, const unsigned int rad, const unsigned int inHeight, const unsigned int width, const unsigned int inOutOffset)
 {
     if (rad > inOutOffset) {
-        printf("Error: rad > inOutOffset in yConvCpu");
+        std::cout << "Error: rad > inOutOffset in yConvCpu" << std::endl;
         exit (1);
     }
     std::vector<float> erfDiffs(rad+1);
-    float erfNew = erf(rSigmaEff*0.5f);
+    float erfNew = std::erf(rSigmaEff*HALF);
     float erfOld;
     erfDiffs[0] = erfNew;
-    for (int i=1; i<rad+1; ++i) {
+    for (unsigned int i=1; i<rad+1; ++i) {
         erfOld = erfNew;
-        erfNew = erf(rSigmaEff*(float(i)+0.5f));
-        erfDiffs[i] = 0.5f*(erfNew - erfOld);
+        erfNew = std::erf(rSigmaEff*(float(i)+HALF));
+        erfDiffs[i] = HALF*(erfNew - erfOld);
     }
-    for (int yIn=0; yIn<inHeight; ++yIn) {
-        for (int i=-rad; i<rad+1; ++i) {
-            int yOut = yIn + inOutOffset + i;
-            float erfDiff = erfDiffs[std::abs(i)];
-            int yOutOffset = yOut*width;
-            int yInOffset = yIn*width;
-            for (int x=0; x<width; ++x) {
+    for (unsigned int yIn=0; yIn<inHeight; ++yIn) {
+        for (long i=-static_cast<long>(rad); i<rad+1; ++i) {
+            long yOut = yIn + inOutOffset + i;
+            float erfDiff = erfDiffs[static_cast<size_t>(std::abs(i))];
+            long yOutOffset = yOut*width;
+            long yInOffset = yIn*width;
+            for (unsigned int x=0; x<width; ++x) {
                 out[yOutOffset + x] += erfDiff * in[yInOffset + x];
             }
         }
     }
 }
 
-void yConvCpuSparse(float* const in, float* const out, const float rSigmaEff, const int rad, const int inHeight, const int width, const int outHeight, const int inOutOffset, const int inOutDelta)
+void yConvCpuSparse(const float* const in, float* const out, const float rSigmaEff, const unsigned int rad, const unsigned int inHeight, const unsigned int width, const unsigned int inOutOffset, const unsigned int inOutDelta)
 {
     if (rad > inOutOffset) {
-        printf("Error: rad > inOutOffset in yConvCpuSparse");
+        std::cout << "Error: rad > inOutOffset in yConvCpuSparse" << std::endl;
         exit (1);
     }
     std::vector<float> erfDiffs(rad+1);
-    float erfNew = erf(rSigmaEff*0.5f);
+    float erfNew = std::erf(rSigmaEff*HALF);
     float erfOld;
     erfDiffs[0] = erfNew;
-    for (int i=1; i<rad+1; ++i) {
+    for (unsigned int i=1; i<rad+1; ++i) {
         erfOld = erfNew;
-        erfNew = erf(rSigmaEff*(float(i)+0.5f));
-        erfDiffs[i] = 0.5f*(erfNew - erfOld);
+        erfNew = std::erf(rSigmaEff*(float(i)+HALF));
+        erfDiffs[i] = HALF*(erfNew - erfOld);
     }
-    for (int yIn=0; yIn<inHeight; ++yIn) {
-        for (int i=-rad; i<rad+1; ++i) {
-            int yOut = yIn * inOutDelta + inOutOffset + i;
-            float erfDiff = erfDiffs[std::abs(i)];
-            int yOutOffset = yOut*width;
-            int yInOffset = yIn*width;
-            for (int x=0; x<width; ++x) {
+    for (unsigned int yIn=0; yIn<inHeight; ++yIn) {
+        for (long i=-static_cast<long>(rad); i<rad+1; ++i) {
+            long yOut = yIn * inOutDelta + inOutOffset + i;
+            float erfDiff = erfDiffs[static_cast<size_t>(std::abs(i))];
+            long yOutOffset = yOut*width;
+            long yInOffset = yIn*width;
+            for (unsigned int x=0; x<width; ++x) {
                 out[yOutOffset + x] += erfDiff * in[yInOffset + x];
             }
         }
