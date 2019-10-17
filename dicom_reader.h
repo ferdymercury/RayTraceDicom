@@ -21,6 +21,6 @@ struct uint3;
  * \param t the time clock
  * \return the CT orientation in space as an affine transform
  */
-Float3AffineTransform itk_reader(const std::string imagePath, std::vector<float>& imageData, unsigned int& N, uint3& dim, int& t);
+Float3AffineTransform itk_reader(const std::string imagePath, std::vector<float>& imageData, unsigned int& N, uint3& dim, clock_t& t);
 
 #endif // DICOM_READER_H

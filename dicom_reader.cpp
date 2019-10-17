@@ -12,7 +12,7 @@
 #include "itkGDCMImageIO.h"
 #include "itkGDCMSeriesFileNames.h"
 
-Float3AffineTransform itk_reader(const std::string imagePath, std::vector<float>& imageData, unsigned int& N, uint3& dim, int& t)
+Float3AffineTransform itk_reader(const std::string imagePath, std::vector<float>& imageData, unsigned int& N, uint3& dim, clock_t &t)
 {
     typedef signed short PixelType;
     typedef itk::Image<PixelType, 3> ImageType;
@@ -33,12 +33,17 @@ Float3AffineTransform itk_reader(const std::string imagePath, std::vector<float>
     nameGenerator->AddSeriesRestriction("0008|0021");
     nameGenerator->SetDirectory(imagePath);
 
-    try {
-        std::cout << "The directory " << imagePath << " contains the following DICOM Series:\n";
-
+    try {        
         typedef std::vector<std::string> SeriesIdContainer;
         const SeriesIdContainer &seriesUID = nameGenerator->GetSeriesUIDs();
 
+        if(seriesUID.size()==0)
+        {
+            std::cout << "The directory " << imagePath << " contains no DICOM Series:\n";
+            throw itk::ExceptionObject();
+        }
+
+        std::cout << "The directory " << imagePath << " contains the following DICOM Series:\n";
         SeriesIdContainer::const_iterator seriesItr = seriesUID.begin();
         SeriesIdContainer::const_iterator seriesEnd = seriesUID.end();
         while( seriesItr != seriesEnd ) {
@@ -78,7 +83,7 @@ Float3AffineTransform itk_reader(const std::string imagePath, std::vector<float>
         //}
 
         t = clock()-t;
-        std::cout << "Done!\n\nRead image: " << (float)t/CLOCKS_PER_SEC << " seconds\n\n";
+        std::cout << "Done!\n\nRead image: " << static_cast<float>(t)/CLOCKS_PER_SEC << " seconds\n\n";
 
         ImageType::Pointer outputImagePtr = reader->GetOutput();
         itk::ImageRegionIterator<ImageType> it(outputImagePtr, outputImagePtr->GetLargestPossibleRegion());
@@ -105,7 +110,7 @@ Float3AffineTransform itk_reader(const std::string imagePath, std::vector<float>
         //  imageData[i] = std::max<float>(float(pixelPtr[i]), -1000.0f);
         //}
         t = clock()-t;
-        std::cout << "Convert image to float (CPU): " << (float)t/CLOCKS_PER_SEC << " seconds.\n\n";
+        std::cout << "Convert image to float (CPU): " << static_cast<float>(t)/CLOCKS_PER_SEC << " seconds.\n\n";
 
         itk::Matrix<double,3,3> itkImDir = outputImagePtr->GetDirection();
         itk::Vector<double,3> itkImSpacing = outputImagePtr->GetSpacing();
