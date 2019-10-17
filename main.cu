@@ -18,11 +18,11 @@ int main()
     std::vector<float> imageData;
     const std::string dataPath(PHYS_DATA_DIRECTORY);
 
-    int t;
+    clock_t t;
     t = clock();
     EnergyStruct ciddData = energyReader(dataPath);
     t = clock()-t;
-    std::cout << "Read energy matrix: " << (float)t/CLOCKS_PER_SEC << " seconds.\n\n";
+    std::cout << "Read energy matrix: " << static_cast<float>(t)/CLOCKS_PER_SEC << " seconds.\n\n";
 
 
     uint N;
@@ -100,7 +100,7 @@ int main()
     //std::cout << doseData[512*512*25 + 512*275 + 275] << '\n';
 
 
-    std::cout << "Read cumulative energy matrix: " << (float)t/CLOCKS_PER_SEC << " seconds.\n\n";
+    std::cout << "Read cumulative energy matrix: " << static_cast<float>(t)/CLOCKS_PER_SEC << " seconds.\n\n";
 
     std::cout << "Executing code on GPU...\n\n";
 
