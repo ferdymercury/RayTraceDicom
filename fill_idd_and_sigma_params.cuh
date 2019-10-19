@@ -36,7 +36,7 @@ public:
      * \param idxK ...
      * \return float2 ...
      */
-    CUDA_CALLABLE_MEMBER float2 voxelWidth(const int idxK) const;
+    CUDA_CALLABLE_MEMBER float2 voxelWidth(const unsigned int idxK) const;
 
     /**
      * \brief ...
@@ -115,7 +115,7 @@ public:
      * \param k ...
      * \return ...
      */
-    CUDA_CALLABLE_MEMBER float stepVol(const int k) const;
+    CUDA_CALLABLE_MEMBER float stepVol(const unsigned int k) const;
 
     /**
      * \brief Sets the values of stepLength and the coeficients for the constant, linear and quadratic part of:
@@ -124,7 +124,7 @@ public:
      * \param idxJ ...
      * \return void
      */
-    CUDA_CALLABLE_MEMBER void initStepAndAirDiv(const int idxI, const int idxJ);
+    CUDA_CALLABLE_MEMBER void initStepAndAirDiv(const unsigned int idxI, const unsigned int idxJ);
 
     /**
      * \brief Calculate coefficients of sigma_air^2 = a*z^2 + b*z + spotSize^2 for beam along the central axis

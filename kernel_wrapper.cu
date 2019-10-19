@@ -149,9 +149,9 @@ __global__ void fillIddAndSigma(float* const bevDensity, float* const bevCumulSp
 
     bool beamLive = true;
     const int firstIn = firstInside[idx];
-    int afterLast = min(firstOutside[idx], params.getAfterLastStep()); // In case doesn't get changed
+    int afterLast = min(firstOutside[idx], static_cast<int>(params.getAfterLastStep())); // In case doesn't get changed
     const float rayWeight = rayWeights[idx];
-    if (rayWeight < RAY_WEIGHT_CUTOFF || afterLast < params.getFirstStep()) {
+    if (rayWeight < RAY_WEIGHT_CUTOFF || afterLast < static_cast<int>(params.getFirstStep())) {
         beamLive = false;
         afterLast = 0;
     }
@@ -207,13 +207,13 @@ __global__ void fillIddAndSigma(float* const bevDensity, float* const bevCumulSp
 #endif // NUCLEAR_CORR
 
     idx += params.getFirstStep()*memStep; // Compensate for first layer not 0
-    for (int stepNo=params.getFirstStep(); stepNo<params.getAfterLastStep(); ++stepNo) {
+    for (unsigned int stepNo=params.getFirstStep(); stepNo<params.getAfterLastStep(); ++stepNo) {
         if (beamLive) {
             cumulSp = bevCumulSp[idx];
             cumulDose = tex2D(cumulIddTex, cumulSp*params.getEnergyScaleFact() + HALF, params.getEnergyIdx() + HALF);
 
             float density = bevDensity[idx]; // Consistently used throughout?
-            float peakDepth = params.getPeakDepth();
+            //float peakDepth = params.getPeakDepth();
 
             // Sigma peaks 1 - 2 mm before the BP
             if (cumulSp < (params.getPeakDepth()))

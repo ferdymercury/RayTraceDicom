@@ -21,7 +21,7 @@ energyIdx(beamEnergyIdx), energyScaleFact(beamEnergyScaleFact), peakDepth(beamPe
     volSq = abs(delta.x*delta.y*delta.z)*delta.z*delta.z/(dist.x*dist.y);
 }
 
-CUDA_CALLABLE_MEMBER void FillIddAndSigmaParams::initStepAndAirDiv(const int idxI, const int idxJ) {
+CUDA_CALLABLE_MEMBER void FillIddAndSigmaParams::initStepAndAirDiv(const unsigned int idxI, const unsigned int idxJ) {
     //float deltaX = (corner.x + idxI*delta.x) / dist.x;
     //float deltaY = (corner.y + idxJ*delta.y) / dist.y;
     //float relStepLenSq = 1.0f + deltaX*deltaX + deltaY*deltaY;
@@ -35,7 +35,7 @@ CUDA_CALLABLE_MEMBER void FillIddAndSigmaParams::initStepAndAirDiv(const int idx
     stepLength = abs(delta.z);
 }
 
-CUDA_CALLABLE_MEMBER float2 FillIddAndSigmaParams::voxelWidth(const int idxK) const {
+CUDA_CALLABLE_MEMBER float2 FillIddAndSigmaParams::voxelWidth(const unsigned int idxK) const {
     // float distScale = 1.0f + (idxK*delta.z)/(dist.x+corner.z); ?
     ///< @todo Initial version before flipping z-axis. Equals one at idxK = 0 instead of at origin, why
     return make_float2(delta.x * (1.0f-(corner.z+idxK*delta.z)/dist.x), delta.y * (1.0f-(corner.z+idxK*delta.z)/dist.y));
@@ -65,7 +65,7 @@ CUDA_CALLABLE_MEMBER unsigned int FillIddAndSigmaParams::getFirstStep() const {r
 
 CUDA_CALLABLE_MEMBER unsigned int FillIddAndSigmaParams::getAfterLastStep() const {return afterLast;}
 
-CUDA_CALLABLE_MEMBER float FillIddAndSigmaParams::stepVol(const int k) const {return volConst + k*volLin + k*k*volSq;}
+CUDA_CALLABLE_MEMBER float FillIddAndSigmaParams::stepVol(const unsigned int k) const {return volConst + k*volLin + k*k*volSq;}
 
 __host__ __device__ float2 FillIddAndSigmaParams::sigmaSqAirCoefs(const float r0)
 {
