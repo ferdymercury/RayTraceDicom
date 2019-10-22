@@ -6,6 +6,9 @@
 ## <caption id="config-cmake">Table of configurable CMake parameters</caption>
 ## <tr><th>Variable             <th>Values                  <th>Description
 ## <tr><td>CMAKE_BUILD_TYPE     <td>Release (Debug)         <td>Choose the type of build
+## <tr><td>COMPILE_SM20         <td>OFF (ON)                <td>Support Tesla C2075 GPUs
+## <tr><td>COMPILE_SM35         <td>ON (OFF)                <td>Support Tesla K40c GPUs
+## <tr><td>COMPILE_SM75         <td>OFF (ON)                <td>Support new Turing GPUs
 ## <tr><td>WATER_CUBE_TEST      <td>OFF (ON)                <td>Use a water cube as test phantom, ignore IMG_DATA_DIRECTORY
 ## <tr><td>DOSE_TO_WATER        <td>ON (OFF)                <td>Calculate dose to water
 ## <tr><td>FINE_GRAINED_TIMING  <td>OFF (ON)                <td>Unset it to get more accurate total time, reports up to 30 ms longer execution time
@@ -199,13 +202,38 @@ add_definitions(-DKS_SIGMA_CUTOFF=${CUTOFF_KS_SIGMA})
 add_definitions(-DRAY_WEIGHT_CUTOFF=${CUTOFF_RAY_WEIGHT})
 
 set(EXECUTABLE_NAME "RayTraceDicom" CACHE STRING "Compiled binary name")
-set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -std=c++14 -gencode arch=compute_35,code=sm_35 -D_MWAITXINTRIN_H_INCLUDED -D_FORCE_INLINES --expt-relaxed-constexpr -rdc=true)#
-set(CMAKE_CXX_STANDARD 14)
+set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -D_MWAITXINTRIN_H_INCLUDED -D_FORCE_INLINES --expt-relaxed-constexpr -rdc=true)
+if (COMPILE_SM20)
+	set(CMAKE_CXX_STANDARD 11)
+	set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -std=c++11)
+else()
+	set(CMAKE_CXX_STANDARD 14)
+	set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -std=c++14)
+endif()
+ 
 
 ### Registers per thread in kernel info
 option(REGISTERS_INFO "Outputs register per thread and memory information per kernel" OFF)
 if (REGISTERS_INFO)
     set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS}; --ptxas-options=-v)
+endif()
+
+### Tesla C2075 GPUs
+set (COMPILE_SM20 OFF CACHE BOOL "Support Tesla C2075 GPUs")# Need to install Cuda 8 instead of Cuda 9
+if (COMPILE_SM20)
+    set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -gencode arch=compute_20,code=sm_20)
+endif()
+
+### Tesla K40c GPUs
+set (COMPILE_SM35 ON CACHE BOOL "Support Tesla K40c GPUs")
+if (COMPILE_SM35)
+    set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -gencode arch=compute_35,code=sm_35)
+endif()
+
+### New Turing GPUs
+set (COMPILE_SM75 OFF CACHE BOOL "Support new Turing GPUs")
+if (COMPILE_SM75)
+    set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -gencode arch=compute_75,code=sm_75)
 endif()
 
 ### Set release mode as default build type
