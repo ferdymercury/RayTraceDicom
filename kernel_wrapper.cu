@@ -273,7 +273,7 @@ __global__ void fillIddAndSigma(float* const bevDensity, float* const bevCumulSp
             cumulSpOld = cumulSp;
             cumulDoseOld = cumulDose;
         }
-        if (!beamLive || stepNo<firstIn-1) {
+        if (!beamLive || static_cast<int>(stepNo)<(firstIn-1)) {
             res = 0.0f;
             rSigmaEff = __int_as_float(0x7f800000); // inf, equals sigma = 0
 #ifdef NUCLEAR_CORR
