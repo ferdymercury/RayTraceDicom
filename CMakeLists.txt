@@ -22,8 +22,6 @@
 ## <tr><td>EXECUTABLE_NAME      <td>RayTraceDicom           <td>Compiled binary name
 ## <tr><td>FAST_MATH            <td>ON (OFF)                <td>If use_fast_math is turned on/off
 ## <tr><td>REGISTERS_INFO       <td>OFF (ON)                <td>Outputs register per thread and memory information per kernel
-#### <tr><td>GDCM_DIR             <td>/usr/lib/x86_64-linux-gnu/gdcm-2.6<td>Path to libgdcm shared library directory
-#### <tr><td>RTION_INTF_DIR       <td>/opt/rtion-interface-mc <td>Path to the RTION-MC interface library
 ## <tr><td>SEPARATE_COMPILATION <td>ON (OFF)                <td>Compile each source file separately. Results in less optimized code but good for debugging. OFF not working currently.
 ## <tr><td>ITK_DIR              <td>/usr/lib/cmake/ITK-4.10 <td>Path to itk shared library directory
 ## </table>
@@ -56,8 +54,6 @@ endif()
 
 ### Find packages
 find_package(CUDA REQUIRED)
-#find_package(VTK REQUIRED)
-#find_package(GDCM REQUIRED)
 find_package(ITK REQUIRED)
 
 ### CUDA libraries
@@ -73,72 +69,11 @@ else()
     message(FATAL_ERROR "Cannot find CUDA, did you set CUDA_TOOLKIT_ROOT_DIR?")
 endif()
 
-#~ ### VTK libraries
-#~ if(VTK_FOUND)
-    #~ include(${VTK_USE_FILE})
-    #~ set(VTK_LIBRARIES
-    #~ vtkViewsCore
-    #~ vtkIOMPIImage
-    #~ )
-    #hack VTK_DEFINITIONS to avoid compiler warning: https://github.com/15knots/cmake4eclipse/issues/74 https://github.com/flycheck/flycheck/issues/852 https://github.com/PointCloudLibrary/pcl/issues/776 \todo check that problem is fixed when actually using VTK
-    #<command-line>:0:16: warning: ISO C++11 requires whitespace after the macro name
-    #~ remove_definitions(-DvtkIOSQL_AUTOINIT=2\(vtkIOMySQL,vtkIOPostgreSQL\))
-    #~ add_definitions(-DvtkIOSQL_AUTOINIT="2\(vtkIOMySQL,vtkIOPostgreSQL\)")
-    #~ if(VTK_DEFINITIONS MATCHES "vtkRenderingCore_AUTOINIT=3")
-        #~ remove_definitions(-DvtkRenderingCore_AUTOINIT=3\(vtkInteractionStyle,vtkRenderingFreeType,vtkRenderingOpenGL\))
-        #~ add_definitions(-DvtkRenderingCore_AUTOINIT="3\(vtkInteractionStyle,vtkRenderingFreeType,vtkRenderingOpenGL\)")
-    #~ elseif(VTK_DEFINITIONS MATCHES "vtkRenderingCore_AUTOINIT=4")
-        #~ remove_definitions(-DvtkRenderingCore_AUTOINIT=4\(vtkInteractionStyle,vtkRenderingFreeType,vtkRenderingFreeTypeOpenGL,vtkRenderingOpenGL\))
-        #~ add_definitions(-DvtkRenderingCore_AUTOINIT="4\(vtkInteractionStyle,vtkRenderingFreeType,vtkRenderingFreeTypeOpenGL,vtkRenderingOpenGL\)")
-    #~ endif()
-    #~ remove_definitions(-DvtkRenderingFreeType_AUTOINIT=2\(vtkRenderingFreeTypeFontConfig,vtkRenderingMatplotlib\))
-    #~ add_definitions(-DvtkRenderingFreeType_AUTOINIT="2\(vtkRenderingFreeTypeFontConfig,vtkRenderingMatplotlib\)")
-#~ else()
-    #~ message(FATAL_ERROR "Cannot find VTK, did you set VTK_DIR?")
-#~ endif()
-
-### GDCM libraries
-#~ if(GDCM_FOUND)
-    #~ include(${GDCM_USE_FILE})
-    #~ set(GDCM_LIBRARIES
-    #~ gdcmCommon
-    #~ gdcmDICT
-    #~ gdcmDSED
-    #~ gdcmIOD
-    #~ gdcmjpeg12
-    #~ gdcmjpeg16
-    #~ gdcmjpeg8
-    #~ gdcmMEXD
-    #~ gdcmMSFF
-    #~ vtkgdcm
-    #~ )
-#~ else()
-    #~ message(FATAL_ERROR "Cannot find GDCM, did you set GDCM_DIR?")
-#~ endif()
-
 if(ITK_FOUND)
     include(${ITK_USE_FILE})
 else()
     message(FATAL_ERROR "Cannot find ITK, did you set ITK_DIR?")
 endif()
-
-### RTION INTERFACE
-#~ set(RTION_INTF_DIR "/opt/rtion-interface-mc" CACHE STRING "Path to rtion-interface-mc")
-#~ IF(EXISTS "${RTION_INTF_DIR}" AND IS_DIRECTORY "${RTION_INTF_DIR}")
-    #~ include_directories (
-    #~ ${RTION_INTF_DIR}/src/base
-    #~ ${RTION_INTF_DIR}/src/delivery
-    #~ ${RTION_INTF_DIR}/src/facility
-    #~ ${RTION_INTF_DIR}/src/fluence
-    #~ ${RTION_INTF_DIR}/src/geometry
-    #~ ${RTION_INTF_DIR}/src/interface
-    #~ ${RTION_INTF_DIR}/src/phsp
-    #~ ${RTION_INTF_DIR}/src/structure
-    #~ ${RTION_INTF_DIR}/src/temporal
-    #~ )
-#~ else()
-    #~ message(FATAL_ERROR "RTION_INTF_DIR (" ${RTION_INTF_DIR} "), namely the path to the RTION-MC interface library, does not exist.")
-#~ endif()
 
 ### LUT directory
 set(PHYS_DATA_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/LUTs/ CACHE STRING "Directory where the LUTs are stored")
@@ -292,4 +227,3 @@ cuda_add_executable(${EXECUTABLE_NAME} "${sources}" "${headers}")
 ### Add libraries
 #cuda_add_cublas_to_target(${EXECUTABLE_NAME})
 target_link_libraries(${EXECUTABLE_NAME} ${CUDA_LIBRARIES} ${ITK_LIBRARIES})
-# ${GDCM_LIBRARIES} ${VTK_LIBRARIES}
