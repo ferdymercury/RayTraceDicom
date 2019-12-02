@@ -85,7 +85,7 @@ Float3AffineTransform itk_reader(const std::string& imagePath, std::vector<float
         //}
 
         t = clock()-t;
-        std::cout << "Done!\n\nRead image: " << static_cast<float>(t)/CLOCKS_PER_SEC << " seconds\n\n";
+        std::cout << "Done!\n\nRead image: " << static_cast<float>(t)/CLOCKS_PER_SEC << " seconds" << std::endl << std::endl;
 
         ImageType::Pointer outputImagePtr = reader->GetOutput();
         itk::ImageRegionIterator<ImageType> it(outputImagePtr, outputImagePtr->GetLargestPossibleRegion());
@@ -112,7 +112,7 @@ Float3AffineTransform itk_reader(const std::string& imagePath, std::vector<float
         //  imageData[i] = std::max<float>(float(pixelPtr[i]), -1000.0f);
         //}
         t = clock()-t;
-        std::cout << "Convert image to float (CPU): " << static_cast<float>(t)/CLOCKS_PER_SEC << " seconds.\n\n";
+        std::cout << "Convert image to float (CPU): " << static_cast<float>(t)/CLOCKS_PER_SEC << " seconds." << std::endl << std::endl;
 
         itk::Matrix<double,3,3> itkImDir = outputImagePtr->GetDirection();
         itk::Vector<double,3> itkImSpacing = outputImagePtr->GetSpacing();
