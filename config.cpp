@@ -32,6 +32,12 @@ Config::Config(int argc, char **argv)
     #endif
     ;
 
+    app.add_option("--beams", beams, "All beam names to include in the calculation")
+    #ifndef WATER_CUBE_TEST
+    ->required()
+    #endif
+    ;
+
     app.add_option("--output_directory",
                  output_directory,
                  "Directory where output will be stored.")

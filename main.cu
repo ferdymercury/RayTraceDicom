@@ -69,6 +69,7 @@ int main(int argc, char **argv)
     HostPinnedImage3D<float>* doseVol = new HostPinnedImage3D<float>(&doseData[0], dim);// to be deleted by cudaWrapperProtons, before cudaDeviceReset
     HostPinnedImage3D<float>* imVol = new HostPinnedImage3D<float>(&imageData[0], dim);// to be deleted by cudaWrapperProtons, before cudaDeviceReset
 
+    #ifdef WATER_CUBE_TEST
     const uint nLayers = 20;
     const uint3 beamDim = make_uint3(33, 33, nLayers);
     const int beamN = beamDim.x*beamDim.y*beamDim.z;
@@ -96,6 +97,56 @@ int main(int argc, char **argv)
     }
     //const uint3 energyDim = make_uint3(nLayers, 1, 1);
     //HostPinnedImage3D<float> beamEnergies(&energiesPerU[0], energyDim);
+    #else // WATER_CUBE_TEST
+
+
+    uint nSpots = 0;
+    uint nLayers = 0;
+
+    #ifndef __CUDA_ARCH__
+    const std::unique_ptr<rti::treatment_session<float>> tx_session(new rti::treatment_session<float>(config.rtplan));
+    const rti::modality_type m = tx_session->get_modality_type();
+    const size_t nFields = config.beams.size();
+    if(nFields > 1)
+    {
+        throw std::runtime_error("Multi-beam calculation not yet supported");
+    }
+
+    for (size_t i = 0; i < nFields; ++i)
+    {
+        std::cout << "Loading field " << i << " corresponding to beamname " << config.beams[i] << std::endl;
+        auto ds = tx_session->get_beam_dataset(config.beams[i]);
+        rti::beam_module_ion ion_beam(ds,m);
+        nLayers = ion_beam.get_nb_spots_per_layer()->size();
+        const std::vector<rti::beam_module_ion::spot>* sequence = ion_beam.get_sequence();
+        nSpots = sequence->size();
+        uint sacc = 0;
+        uint layer = 0;
+        for(auto layerSpots : *ion_beam.get_nb_spots_per_layer())
+        {
+            std::cout << "Layer " << layer << std::endl;
+            for(uint s = sacc; s < sacc + layerSpots; s++)
+            {
+                auto sp = sequence->at(s);
+                std::cout<<"Spot " << s << ": (E,X,Y,Sx,Sy,W): "<< sp.e << ", "
+                     << sp.x <<", "<< sp.y <<", "
+                     << sp.fwhm_x <<", " << sp.fwhm_y << ", "
+                     << sp.meterset <<std::endl;
+            }
+            std::cout << std::endl;
+
+            layer++;
+            sacc += layerSpots;
+        }
+    }
+    #endif // __CUDA_ARCH__
+
+    std::vector<float> beamData(nSpots);
+    HostPinnedImage3D<float>* spotWeights = new HostPinnedImage3D<float>(&beamData[0], make_uint3(1,1,nSpots));// to be deleted by cudaWrapperProtons, before cudaDeviceReset
+    std::vector<float> energiesPerU(nLayers);
+    std::vector<float2> sigmas(nLayers);
+
+    #endif // WATER_CUBE_TEST
 
     unsigned int tracerSteps = 512; // Number of steps traced
 

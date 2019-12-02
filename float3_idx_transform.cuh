@@ -17,7 +17,7 @@ private:
 
 public:
     /**
-     * \brief Default class constructor. It delta to (1,1,1) and offset to zero.
+     * \brief Default class constructor. It sets delta to (1,1,1) and offset to zero.
      */
     Float3IdxTransform();
 

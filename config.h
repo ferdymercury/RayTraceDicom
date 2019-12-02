@@ -6,6 +6,7 @@
 #define CONFIG_H///< Header guard
 
 #include <string>
+#include <vector>
 
 /**
  * \brief Config runtime parameters
@@ -24,6 +25,7 @@ struct Config
     std::string ct_dir;             ///< Directory where the DICOM image series are stored
     std::string rtplan;             ///< RT plan filename
     std::string output_directory;   ///< Directory where the calculated results will be stored
+    std::vector<std::string> beams; ///< Vector of beam names to include in the calculation
 
     bool exit{false};               ///< Constructor exited because of error
 };
