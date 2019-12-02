@@ -11,9 +11,16 @@
 #include "vector_find.h"
 #include "vector_interpolate.h"
 #include "dicom_reader.h"
+#include "config.h"
 
-int main()
+#include <rti/base/rti_treatment_session.hpp>
+
+int main(int argc, char **argv)
 {
+    // Read CLI arguments
+    const Config config(argc,argv);
+    if(config.exit) return 0;
+
     typedef unsigned int uint;
     std::vector<float> imageData;
     const std::string dataPath(PHYS_DATA_DIRECTORY);
@@ -34,7 +41,7 @@ int main()
     Float3AffineTransform imIdxToWorld(Matrix3x3(1.0f, 1.0f, 1.0f), make_float3(-128.0f, -128.0f, -256.0f+150.0f));
 
 #else // WATER_CUBE_TEST
-    Float3AffineTransform imIdxToWorld = itk_reader(IMG_DATA_DIRECTORY,imageData,N,dim,t);
+    Float3AffineTransform imIdxToWorld = itk_reader(config.ct_dir,imageData,N,dim,t);
 
 #endif // WATER_CUBE_TEST
 
@@ -109,10 +116,10 @@ int main()
     std::cout << "Done!\n\n";
 
     //Export dose result to a binary file, that you can open with Amide
-    std::ofstream fout((std::string(OUT_DATA_DIRECTORY)+"dose.dat").c_str(), std::ios::out | std::ios::binary);
+    std::ofstream fout((config.output_directory+"/dose.dat").c_str(), std::ios::out | std::ios::binary);
     fout.write(reinterpret_cast<const char*>(&doseData[0]), doseData.size()*sizeof(float));
     fout.close();
-    std::cout << "Written /tmp/dose.dat with size " << dim.x << "x" << dim.y << "x" << dim.z <<  "\n\n";
+    std::cout << "Written " << config.output_directory << "/dose.dat with size " << dim.x << "x" << dim.y << "x" << dim.z <<  "\n\n";
 
     //std::cout << doseData[512*512*25 + 512*275 + 275] << '\n';
 

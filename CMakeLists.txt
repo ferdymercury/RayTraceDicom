@@ -18,8 +18,6 @@
 ## <tr><td>CUTOFF_CONV_SIGMA    <td>3.0f                    <td>Cutoff value in sigmas for the pre-convolution
 ## <tr><td>CUTOFF_KS_SIGMA      <td>3.0f                    <td>Cutoff value in sigmas for the kernel superposition
 ## <tr><td>CUTOFF_RAY_WEIGHT    <td>1.0f                    <td>Only trace rays with weight (particle number) above the cutoff
-## <tr><td>IMG_DATA_DIRECTORY   <td>/tmp/                   <td>Directory where the DICOM image series are stored
-## <tr><td>OUT_DATA_DIRECTORY   <td>/tmp/                   <td>Directory where the calculated results will be stored
 ## <tr><td>PHYS_DATA_DIRECTORY  <td>LUTs/                   <td>Directory where the LUTs are stored
 ## <tr><td>DEVICE_DEBUGGING     <td>OFF (ON)                <td>Debug code run on device
 ## <tr><td>EXECUTABLE_NAME      <td>RayTraceDicom           <td>Compiled binary name
@@ -82,14 +80,6 @@ endif()
 set(PHYS_DATA_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/LUTs/ CACHE STRING "Directory where the LUTs are stored")
 add_definitions(-DPHYS_DATA_DIRECTORY="${PHYS_DATA_DIRECTORY}")
 
-### DICOM directory
-set(IMG_DATA_DIRECTORY /tmp/ CACHE STRING "Directory where the DICOM image series are stored")
-add_definitions(-DIMG_DATA_DIRECTORY="${IMG_DATA_DIRECTORY}")
-
-### DICOM directory
-set(OUT_DATA_DIRECTORY /tmp/ CACHE STRING "Directory where the output results are stored")
-add_definitions(-DOUT_DATA_DIRECTORY="${OUT_DATA_DIRECTORY}")
-
 ### Code options
 option(WATER_CUBE_TEST "If water cube test phantom is turned on/off" OFF)
 if(WATER_CUBE_TEST)
@@ -139,13 +129,13 @@ add_definitions(-DRAY_WEIGHT_CUTOFF=${CUTOFF_RAY_WEIGHT})
 set(EXECUTABLE_NAME "RayTraceDicom" CACHE STRING "Compiled binary name")
 set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -D_MWAITXINTRIN_H_INCLUDED -D_FORCE_INLINES --expt-relaxed-constexpr -rdc=true)
 if (COMPILE_SM20)
-	set(CMAKE_CXX_STANDARD 11)
-	set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -std=c++11)
+    set(CMAKE_CXX_STANDARD 11)
+    set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -std=c++11)
 else()
-	set(CMAKE_CXX_STANDARD 14)
-	set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -std=c++14)
+    set(CMAKE_CXX_STANDARD 14)
+    set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -std=c++14)
 endif()
- 
+
 
 ### Registers per thread in kernel info
 option(REGISTERS_INFO "Outputs register per thread and memory information per kernel" OFF)
@@ -195,12 +185,15 @@ if (DEVICE_DEBUGGING)
     set(CUDA_NVCC_FLAGS -G -g -Xcompiler -Wall ${CUDA_NVCC_FLAGS})#-rdynamic
 endif()
 
-include_directories(/home/huesof/Programs/RayTraceDicom/) # For QtCreator
+add_subdirectory(extern/CLI11)
+add_subdirectory(extern/dicom-interface)
+
 #~ if (SEPARATE_COMPILATION)
 set(CUDA_SEPARABLE_COMPILATION ON)
 
 set(headers
     beam_settings.h
+    config.h
     constants.h
     cpu_convolution_1d.h
     cuda_errchk.cuh
@@ -227,6 +220,7 @@ set(headers
     )
 set(sources
     beam_settings.cpp
+    config.cpp
     cpu_convolution_1d.cpp
     cuda_errchk.cu
     density_and_sp_tracer_params.cu
@@ -254,4 +248,4 @@ cuda_add_executable(${EXECUTABLE_NAME} "${sources}" "${headers}")
 
 ### Add libraries
 #cuda_add_cublas_to_target(${EXECUTABLE_NAME})
-target_link_libraries(${EXECUTABLE_NAME} ${CUDA_LIBRARIES} ${ITK_LIBRARIES})
+target_link_libraries(${EXECUTABLE_NAME} ${CUDA_LIBRARIES} ${ITK_LIBRARIES} CLI11 dicom_interface)
