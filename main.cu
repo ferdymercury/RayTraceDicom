@@ -130,7 +130,7 @@ int main(int argc, char **argv)
         }
         auto seq_tags = &rti::seqtags_per_modality.at(m_type);
         auto layer0   = (*ds)(seq_tags->at("ctrl"))[0];
-        std::array<float,4> angles;
+        std::array<float,3> angles;
         std::vector<float> tmp;
         layer0->get_values("BeamLimitingDeviceAngle", tmp);
         angles[0] = tmp[0];
@@ -148,6 +148,7 @@ int main(int argc, char **argv)
         iso_center.x = tmp[0];
         iso_center.y = tmp[1];
         iso_center.z = tmp[2];
+        std::cout << "Angles: " << angles[0] << " " << angles[1] << " " << angles[2] << " deg" << std::endl;
         std::cout << "IsoCenter: " << iso_center.x << " " << iso_center.y << " " << iso_center.z << " mm" << std::endl;
         std::cout << "ImgCenter: " << ct_center.x << " " << ct_center.y << " " << ct_center.z << " mm" << std::endl;
         std::cout << "ImgSize: " << ct_size.x << " " << ct_size.y << " " << ct_size.z << " mm" << std::endl;
