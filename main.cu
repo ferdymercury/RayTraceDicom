@@ -104,8 +104,13 @@ int main(int argc, char **argv)
     uint nLayers = 0;
 
     #ifndef __CUDA_ARCH__
+    rti::ct<float> pt(config.ct_dir);
+    rti::vec3<float> ct_center = pt.get_center();
+    rti::vec3<float> ct_size   = pt.get_size();
+    rti::vec3<size_t> ct_nxyz  = pt.get_nxyz();
+
     const std::unique_ptr<rti::treatment_session<float>> tx_session(new rti::treatment_session<float>(config.rtplan));
-    const rti::modality_type m = tx_session->get_modality_type();
+    const rti::modality_type m_type = tx_session->get_modality_type();
     const size_t nFields = config.beams.size();
     if(nFields > 1)
     {
@@ -116,7 +121,40 @@ int main(int argc, char **argv)
     {
         std::cout << "Loading field " << i << " corresponding to beamname " << config.beams[i] << std::endl;
         auto ds = tx_session->get_beam_dataset(config.beams[i]);
-        rti::beam_module_ion ion_beam(ds,m);
+        rti::coordinate_transform<float> p_coord = tx_session -> get_coordinate(config.beams[i]);
+        rti::beamline<float>             beam_line = tx_session -> get_beamline(config.beams[i]);
+        p_coord.dump();
+        for(auto& geo : beam_line.get_geometries())
+        {
+            geo->dump();
+        }
+        auto seq_tags = &rti::seqtags_per_modality.at(m_type);
+        auto layer0   = (*ds)(seq_tags->at("ctrl"))[0];
+        std::array<float,4> angles;
+        std::vector<float> tmp;
+        layer0->get_values("BeamLimitingDeviceAngle", tmp);
+        angles[0] = tmp[0];
+        layer0->get_values("GantryAngle", tmp);
+        angles[1] = tmp[0];
+        layer0->get_values("PatientSupportAngle", tmp);
+        angles[2] = tmp[0];
+
+        rti::vec3<float> iso_center(0.0,0.0,0.0);
+        if(m_type != rti::RTPLAN && m_type != rti::IONPLAN) {
+            throw std::runtime_error("Unknown modality");
+        }
+
+        layer0->get_values("IsocenterPosition", tmp);
+        iso_center.x = tmp[0];
+        iso_center.y = tmp[1];
+        iso_center.z = tmp[2];
+        std::cout << "IsoCenter: " << iso_center.x << " " << iso_center.y << " " << iso_center.z << " mm" << std::endl;
+        std::cout << "ImgCenter: " << ct_center.x << " " << ct_center.y << " " << ct_center.z << " mm" << std::endl;
+        std::cout << "ImgSize: " << ct_size.x << " " << ct_size.y << " " << ct_size.z << " mm" << std::endl;
+        std::cout << "ImgPixels: " << ct_nxyz.x << " " << ct_nxyz.y << " " << ct_nxyz.z << std::endl;
+        std::cout << std::endl;
+
+        rti::beam_module_ion ion_beam(ds,m_type);
         nLayers = ion_beam.get_nb_spots_per_layer()->size();
         const std::vector<rti::beam_module_ion::spot>* sequence = ion_beam.get_sequence();
         nSpots = sequence->size();
