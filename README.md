@@ -16,3 +16,19 @@ REQUIREMENTS
 ------------
 - CUDA
 - ITK
+- GDCM
+
+BUILDING
+--------
+- mkdir build
+- cmake <path/to/src>/RayTraceDicom
+- make
+
+EXAMPLE FILES
+-------------
+To generate a dummy water phantom CT and RT plan, use:
+- python3 extern/dicom-interface/rti/test/dicom/generate_water_cube.py --outdir /tmp/watercube/
+
+RUNNING
+-------
+- ./RayTraceDicom --output_directory /tmp/watercube/ --ct_dir /tmp/watercube/ct/ --rtplan /tmp/watercube/rtplan.dcm --beams G000
