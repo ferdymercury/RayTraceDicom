@@ -48,9 +48,8 @@
 ## CMAKE_DOCUMENTATION_END
 ## See https://www.stack.nl/~dimitri/doxygen/manual/tables.html
 
-project(RayTraceDicom)
-
 cmake_minimum_required(VERSION 3.5)
+project(RayTraceDicom)
 if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.9.2)
     message(FATAL_ERROR "GCC version must be at least 4.9.2!")
 endif()
