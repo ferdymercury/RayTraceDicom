@@ -14,15 +14,15 @@ The code is licensed under GPLv3. When (re)using this code, attribution to Joaki
 
 REQUIREMENTS
 ------------
-- CUDA
-- ITK
+- CUDA, CUDA-TOOLKIT, CUDA-SAMPLES
 - GDCM
+- ITK (if custom build, then with `-DITK_USE_SYSTEM_GDCM=ON`)
 
 BUILDING
 --------
-- mkdir build
-- cmake <path/to/src>/RayTraceDicom
-- make
+- `mkdir build`
+- `cmake <path/to/src>/RayTraceDicom`, optionally with `-DITK_DIR=/path/to/build`
+- `make`
 
 EXAMPLE FILES
 -------------
