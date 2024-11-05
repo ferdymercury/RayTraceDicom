@@ -8,7 +8,9 @@
 ## <tr><td>CMAKE_BUILD_TYPE     <td>Release (Debug)         <td>Choose the type of build
 ## <tr><td>COMPILE_SM20         <td>OFF (ON)                <td>Support Tesla C2075 GPUs
 ## <tr><td>COMPILE_SM35         <td>ON (OFF)                <td>Support Tesla K40c GPUs
-## <tr><td>COMPILE_SM75         <td>OFF (ON)                <td>Support new Turing GPUs
+## <tr><td>COMPILE_SM75         <td>OFF (ON)                <td>Support Turing GPUs
+## <tr><td>COMPILE_SM90         <td>OFF (ON)                <td>Support Volta GPUs
+## <tr><td>CUDA_SAMPLES_DIR     <td>samples/common/inc      <td>Path to headers of CUDA-samples
 ## <tr><td>WATER_CUBE_TEST      <td>OFF (ON)                <td>Use a water cube as test phantom, ignore IMG_DATA_DIRECTORY
 ## <tr><td>DOSE_TO_WATER        <td>ON (OFF)                <td>Calculate dose to water
 ## <tr><td>FINE_GRAINED_TIMING  <td>OFF (ON)                <td>Unset it to get more accurate total time, reports up to 30 ms longer execution time
@@ -60,8 +62,9 @@ find_package(ITK REQUIRED)
 
 ### CUDA libraries
 if(CUDA_FOUND)
+    set(CUDA_SAMPLES_DIR ${CUDA_TOOLKIT_ROOT_DIR}/samples/common/inc CACHE STRING "Directory where CUDA samples headers are stored")
     include_directories (
-    ${CUDA_TOOLKIT_ROOT_DIR}/samples/common/inc
+    ${CUDA_SAMPLES_DIR}
     )
     #~ set(CUDA_LIBRARIES
         #~ ${CUDA_LIBRARIES}
@@ -156,10 +159,16 @@ if (COMPILE_SM35)
     set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -gencode arch=compute_35,code=sm_35)
 endif()
 
-### New Turing GPUs
-set (COMPILE_SM75 OFF CACHE BOOL "Support new Turing GPUs")
+### Turing GPUs
+set (COMPILE_SM75 OFF CACHE BOOL "Support Turing GPUs")
 if (COMPILE_SM75)
     set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -gencode arch=compute_75,code=sm_75)
+endif()
+
+### Volta GPUs
+set (COMPILE_SM90 OFF CACHE BOOL "Support Volta GPUs")
+if (COMPILE_SM90)
+    set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -gencode arch=compute_90,code=sm_90)
 endif()
 
 ### Set release mode as default build type
