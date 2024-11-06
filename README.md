@@ -32,4 +32,4 @@ To generate a dummy water phantom CT and RT plan, use:
 
 RUNNING
 -------
-- `./RayTraceDicom --output_directory /tmp/watercube/ --ct_dir /tmp/watercube/ct/ --rtplan /tmp/watercube/rtplan.dcm --beams G000`
+- `./RayTraceDicom --output_directory /tmp/watercube/ --ct_dir /tmp/watercube/ct/ --rtplan /tmp/watercube/rtplan.dcm --beams G000 --institution rbe --machine 1.1`
