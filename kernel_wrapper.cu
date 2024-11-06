@@ -21,17 +21,17 @@
 #include "gpu_convolution_2d.cuh"
 
 #if CUDART_VERSION < 12000
-texture<float, cudaTextureType3D, cudaReadModeElementType> imVolTex;            ///< ...
-texture<float, cudaTextureType2D, cudaReadModeElementType> cumulIddTex;         ///< ...
+texture<float, cudaTextureType3D, cudaReadModeElementType> imVolTex;            ///< 3D matrix containing HU numbers + 1000 for each voxel xyz
+texture<float, cudaTextureType2D, cudaReadModeElementType> cumulIddTex;         ///< 2D matrix with the cumulative depth-dose profile as a function of depth and initial proton energy
 //texture<float, cudaTextureType1D, cudaReadModeElementType> peakDepthTex;        ///< ...
-texture<float, cudaTextureType1D, cudaReadModeElementType> densityTex;          ///< ...
-texture<float, cudaTextureType1D, cudaReadModeElementType> stoppingPowerTex;    ///< ...
-texture<float, cudaTextureType1D, cudaReadModeElementType> rRadiationLengthTex; ///< ...
-texture<float, cudaTextureType3D, cudaReadModeElementType> bevPrimDoseTex;      ///< ...
+texture<float, cudaTextureType1D, cudaReadModeElementType> densityTex;          ///< 1D array with density as function of HU number
+texture<float, cudaTextureType1D, cudaReadModeElementType> stoppingPowerTex;    ///< 1D array with stopping power as function of HU number
+texture<float, cudaTextureType1D, cudaReadModeElementType> rRadiationLengthTex; ///< 1D array with radiation length as function of density
+texture<float, cudaTextureType3D, cudaReadModeElementType> bevPrimDoseTex;      ///< 3D matrix containing primary dose for each voxel xyz
 #ifdef NUCLEAR_CORR
-texture<float, cudaTextureType2D, cudaReadModeElementType> nucWeightTex;        ///< ...
-texture<float, cudaTextureType2D, cudaReadModeElementType> nucSqSigmaTex;       ///< ...
-texture<float, cudaTextureType3D, cudaReadModeElementType> bevNucDoseTex;       ///< ...
+texture<float, cudaTextureType2D, cudaReadModeElementType> nucWeightTex;        ///< 2D matrix with the nuclear correction factor as function of cumulative stopping power and energy
+texture<float, cudaTextureType2D, cudaReadModeElementType> nucSqSigmaTex;       ///< 2D matrix with the nuclear variance? as function of cumulative stopping power and energy
+texture<float, cudaTextureType3D, cudaReadModeElementType> bevNucDoseTex;       ///< 3D matrix containing nuclear dose for each voxel xyz
 #endif // NUCLEAR_CORR
 #endif
 
@@ -307,7 +307,7 @@ __global__ void fillIddAndSigma(float* const bevDensity, float* const bevCumulSp
 #endif // DOSE_TO_WATER
 
 #ifdef NUCLEAR_CORR
-            if (mass > 1e-2f) // Avoid 0/0 and ripling effect in low density materials
+            if (mass > 1e-2f) // Avoid 0/0 and rippling effect in low density materials
             {
                 float nucWeight =
                 #if CUDART_VERSION < 12000
