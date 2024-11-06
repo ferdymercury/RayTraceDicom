@@ -429,7 +429,7 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
     resDesc.res.linear.devPtr = devImVolArr;
     resDesc.res.linear.desc.f = cudaChannelFormatKindFloat;
     resDesc.res.linear.desc.x = 32; // bits per channel
-    resDesc.res.linear.sizeInBytes = imExt.width*sizeof(float);
+    resDesc.res.linear.sizeInBytes = imExt.width*imExt.height*imExt.depth*sizeof(float);
     cudaTextureDesc texDesc;
     memset(&texDesc, 0, sizeof(texDesc));
     texDesc.readMode = cudaReadModeElementType;
@@ -1136,7 +1136,7 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
         resDesc.res.linear.devPtr = devBevPrimDoseArr;
         resDesc.res.linear.desc.f = cudaChannelFormatKindFloat;
         resDesc.res.linear.desc.x = 32; // bits per channel
-        resDesc.res.linear.sizeInBytes = bevPrimDoseExt.width*sizeof(float);
+        resDesc.res.linear.sizeInBytes = bevPrimDoseExt.width*bevPrimDoseExt.height*bevPrimDoseExt.depth*sizeof(float);
         cudaTextureDesc texDesc;
         memset(&texDesc, 0, sizeof(texDesc));
         texDesc.readMode = cudaReadModeElementType;
@@ -1174,7 +1174,7 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
         resDesc.res.linear.devPtr = devBevNucDoseArr;
         resDesc.res.linear.desc.f = cudaChannelFormatKindFloat;
         resDesc.res.linear.desc.x = 32; // bits per channel
-        resDesc.res.linear.sizeInBytes = bevNucDoseExt.width*sizeof(float);
+        resDesc.res.linear.sizeInBytes = bevNucDoseExt.width*bevNucDoseExt.height*bevNucDoseExt.depth*sizeof(float);
         memset(&texDesc, 0, sizeof(texDesc));
         texDesc.readMode = cudaReadModeElementType;
         //~ texDesc.normalized = false;
