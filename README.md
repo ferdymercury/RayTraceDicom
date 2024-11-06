@@ -27,8 +27,8 @@ BUILDING
 EXAMPLE FILES
 -------------
 To generate a dummy water phantom CT and RT plan, use:
-- python3 extern/dicom-interface/rti/test/dicom/generate_water_cube.py --outdir /tmp/watercube/
+- `python3 extern/dicom-interface/rti/test/dicom/generate_water_cube.py --outdir /tmp/watercube/`
 
 RUNNING
 -------
-- ./RayTraceDicom --output_directory /tmp/watercube/ --ct_dir /tmp/watercube/ct/ --rtplan /tmp/watercube/rtplan.dcm --beams G000
+- `./RayTraceDicom --output_directory /tmp/watercube/ --ct_dir /tmp/watercube/ct/ --rtplan /tmp/watercube/rtplan.dcm --beams G000`
