@@ -27,6 +27,7 @@ BUILDING
 EXAMPLE FILES
 -------------
 To generate a dummy water phantom CT and RT plan, use:
+- `sudo pip3 install scipy pydicom`
 - `python3 extern/dicom-interface/rti/test/dicom/generate_water_cube.py --outdir /tmp/watercube/`
 
 RUNNING
