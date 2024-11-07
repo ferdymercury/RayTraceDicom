@@ -434,7 +434,7 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
     cudaTextureDesc texDesc;
     memset(&texDesc, 0, sizeof(texDesc));
     texDesc.readMode = cudaReadModeElementType;
-    //~ texDesc.normalized = false;
+    texDesc.normalizedCoords = false;
     texDesc.filterMode = cudaFilterModeLinear;
     texDesc.addressMode[0] = cudaAddressModeBorder;
     texDesc.addressMode[1] = cudaAddressModeBorder;
@@ -461,7 +461,7 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
     resDesc.res.linear.sizeInBytes = iddData.nEnergySamples*iddData.nEnergies*sizeof(float);
     memset(&texDesc, 0, sizeof(texDesc));
     texDesc.readMode = cudaReadModeElementType;
-    //~ texDesc.normalized = false;
+    texDesc.normalizedCoords = false;
     texDesc.filterMode = cudaFilterModeLinear;
     texDesc.addressMode[0] = cudaAddressModeClamp;
     texDesc.addressMode[1] = cudaAddressModeClamp;
@@ -486,7 +486,7 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
     resDesc.res.linear.sizeInBytes = iddData.nDensitySamples*sizeof(float);
     memset(&texDesc, 0, sizeof(texDesc));
     texDesc.readMode = cudaReadModeElementType;
-    //~ texDesc.normalized = false;
+    texDesc.normalizedCoords = false;
     texDesc.filterMode = cudaFilterModeLinear;
     texDesc.addressMode[0] = cudaAddressModeClamp;
     cudaTextureObject_t densityTex=0;
@@ -510,7 +510,7 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
     resDesc.res.linear.sizeInBytes = iddData.nSpSamples*sizeof(float);
     memset(&texDesc, 0, sizeof(texDesc));
     texDesc.readMode = cudaReadModeElementType;
-    //~ texDesc.normalized = false;
+    texDesc.normalizedCoords = false;
     texDesc.filterMode = cudaFilterModeLinear;
     texDesc.addressMode[0] = cudaAddressModeClamp;
     cudaTextureObject_t stoppingPowerTex=0;
@@ -534,7 +534,7 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
     resDesc.res.linear.sizeInBytes = iddData.nRRlSamples*sizeof(float);
     memset(&texDesc, 0, sizeof(texDesc));
     texDesc.readMode = cudaReadModeElementType;
-    //~ texDesc.normalized = false;
+    texDesc.normalizedCoords = false;
     texDesc.filterMode = cudaFilterModeLinear;
     texDesc.addressMode[0] = cudaAddressModeClamp;
     cudaTextureObject_t rRadiationLengthTex=0;
@@ -565,7 +565,7 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
     resDesc.res.linear.sizeInBytes = iddData.nEnergySamples*iddData.nEnergies*sizeof(float);
     memset(&texDesc, 0, sizeof(texDesc));
     texDesc.readMode = cudaReadModeElementType;
-    //~ texDesc.normalized = false;
+    texDesc.normalizedCoords = false;
     texDesc.filterMode = cudaFilterModeLinear;
     texDesc.addressMode[0] = cudaAddressModeClamp;
     texDesc.addressMode[1] = cudaAddressModeClamp;
@@ -591,7 +591,7 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
     resDesc.res.linear.sizeInBytes = iddData.nEnergySamples*iddData.nEnergies*sizeof(float);
     memset(&texDesc, 0, sizeof(texDesc));
     texDesc.readMode = cudaReadModeElementType;
-    //~ texDesc.normalized = false;
+    texDesc.normalizedCoords = false;
     texDesc.filterMode = cudaFilterModeLinear;
     texDesc.addressMode[0] = cudaAddressModeClamp;
     texDesc.addressMode[1] = cudaAddressModeClamp;
@@ -1141,7 +1141,7 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
         cudaTextureDesc texDesc;
         memset(&texDesc, 0, sizeof(texDesc));
         texDesc.readMode = cudaReadModeElementType;
-        //~ texDesc.normalized = false;
+        texDesc.normalizedCoords = false;
         texDesc.filterMode = cudaFilterModeLinear;
         texDesc.addressMode[0] = cudaAddressModeBorder;
         texDesc.addressMode[1] = cudaAddressModeBorder;
@@ -1178,7 +1178,7 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
         resDesc.res.linear.sizeInBytes = bevNucDoseExt.width*bevNucDoseExt.height*bevNucDoseExt.depth*sizeof(float);
         memset(&texDesc, 0, sizeof(texDesc));
         texDesc.readMode = cudaReadModeElementType;
-        //~ texDesc.normalized = false;
+        texDesc.normalizedCoords = false;
         texDesc.filterMode = cudaFilterModeLinear;
         texDesc.addressMode[0] = cudaAddressModeBorder;
         texDesc.addressMode[1] = cudaAddressModeBorder;
