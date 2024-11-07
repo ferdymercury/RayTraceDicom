@@ -72,10 +72,11 @@ __global__ void primTransfDiv(float* const result, TransferParamStructDiv3 param
         float *res = result + startIdx.z*doseDims.x*doseDims.y + y*doseDims.x + x;
         for (int z = startIdx.z; z<=maxZ; ++z) {
             float3 pos = params.getFanIdx(z) + make_float3(HALF, HALF, HALF); // Compensate for voxel value sitting at centre of voxel
+            float tmp =
             #if CUDART_VERSION < 12000
-            float tmp = tex3D(bevPrimDoseTex, pos.x, pos.y, pos.z);
+            tex3D(bevPrimDoseTex, pos.x, pos.y, pos.z);
             #else
-            float tmp = tex3D<float>(bevPrimDoseTex, pos.x, pos.y, pos.z, nullptr);
+            tex3D<float>(bevPrimDoseTex, pos.x, pos.y, pos.z, nullptr);
             #endif
             if (tmp > 0.0f) { // Only write to global memory if non-zero
                 *res += tmp;
