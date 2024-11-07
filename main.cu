@@ -13,7 +13,9 @@
 #include "dicom_reader.h"
 #include "config.h"
 
+#ifndef WATER_CUBE_TEST
 #include <rti/base/rti_treatment_session.hpp>
+#endif
 
 int main(int argc, char **argv)
 {
