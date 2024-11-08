@@ -4,9 +4,10 @@
  */
 #include "float3_from_fan_transform.cuh"
 #include "float3_to_fan_transform.cuh"
+#include "vector_functions.hpp"
 
 Float3FromFanTransform::Float3FromFanTransform(const Float3IdxTransform fanIdxToFan, const float2 sourceDist, const Float3AffineTransform gantryToImIdx) :
-fITF(fanIdxToFan), dist(sourceDist), gTII(gantryToImIdx) {};
+fITF(fanIdxToFan), gTII(gantryToImIdx), dist(sourceDist) {};
 
 Float3IdxTransform Float3FromFanTransform::getFanIdxToFan() const {return fITF;}
 

@@ -205,7 +205,7 @@ set(headers
     beam_settings.h
     config.h
     constants.h
-    cpu_convolution_1d.h
+    #cpu_convolution_1d.h
     cuda_errchk.cuh
     cuda_member.cuh
     density_and_sp_tracer_params.cuh
@@ -231,7 +231,7 @@ set(headers
 set(sources
     beam_settings.cpp
     config.cpp
-    cpu_convolution_1d.cpp
+    #cpu_convolution_1d.cpp
     cuda_errchk.cu
     density_and_sp_tracer_params.cu
     dicom_reader.cpp

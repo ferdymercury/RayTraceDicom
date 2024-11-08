@@ -6,6 +6,7 @@
 #define FILL_IDD_AND_SIGMA_PARAMS_CUH
 
 #include "cuda_member.cuh"
+#include "vector_types.h"
 
 class Float3FromFanTransform;
 
@@ -124,7 +125,7 @@ public:
      * \param idxJ ...
      * \return void
      */
-    CUDA_CALLABLE_MEMBER void initStepAndAirDiv(const unsigned int idxI, const unsigned int idxJ);
+    CUDA_CALLABLE_MEMBER void initStepAndAirDiv();/*const unsigned int idxI, const unsigned int idxJ*/
 
     /**
      * \brief Calculate coefficients of sigma_air^2 = a*z^2 + b*z + spotSize^2 for beam along the central axis

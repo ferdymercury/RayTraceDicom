@@ -6,6 +6,7 @@
 #define HELPER_FLOAT3_CUH
 
 #include "cuda_member.cuh"
+#include "vector_types.h"
 
 /**
  * \brief Prints out a float3
