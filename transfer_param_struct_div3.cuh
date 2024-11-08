@@ -6,6 +6,7 @@
 #define TRANSFER_PARAM_STRUCT_DIV3_CUH
 
 #include "cuda_member.cuh"
+#include "vector_types.h"
 
 class Float3ToFanTransform;
 

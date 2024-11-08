@@ -6,6 +6,7 @@
 #define DENSITY_AND_SP_TRACER_PARAMS_CUH
 
 #include "cuda_member.cuh"
+#include "vector_types.h"
 
 class Float3FromFanTransform;
 

@@ -5,7 +5,7 @@
 
 #include "dicom_reader.h"
 #include "float3_affine_transform.cuh"
-#include "cuda_runtime.h"
+#include "vector_functions.hpp"
 
 #include "itkImage.h"
 #include "itkImageSeriesReader.h"
@@ -17,7 +17,7 @@ Float3AffineTransform itk_reader(const std::string& imagePath, std::vector<float
     using PixelType = short;
     using ImageType = itk::Image<PixelType, 3>;
     using ReaderType = itk::ImageSeriesReader<ImageType>;
-    using DictionaryType = itk::MetaDataDictionary;
+    //using DictionaryType = itk::MetaDataDictionary;
     using ImageIOType = itk::GDCMImageIO;
     using NamesGeneratorType = itk::GDCMSeriesFileNames;
 

@@ -13,6 +13,15 @@
 #include "density_and_sp_tracer_params.cuh"
 #include "fill_idd_and_sigma_params.cuh"
 
+#include <ostream>
+
+#include "device_launch_parameters.h"
+/*#ifndef __CUDACC__
+#define __CUDACC__
+#include "device_functions.h" // needed due to a bug in clangd not recognizing __synchthreads
+#include "math_functions.h" // needed due to a bug in clangd not recognizing sqrt errf (not in helper_math.h either the host version)
+#endif*/
+
 const unsigned int maxSuperpR = 32; ///< Largest superposition radius in pixels
 const int superpTileX = 32;         ///< Must be equal to warp size!
 const int superpTileY = 8;          ///< Desktop and laptop

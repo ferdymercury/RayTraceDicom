@@ -6,6 +6,7 @@
 #define FILL_IDD_AND_SIGMA_PARAMS_CUH
 
 #include "cuda_member.cuh"
+#include "vector_types.h"
 
 class Float3FromFanTransform;
 

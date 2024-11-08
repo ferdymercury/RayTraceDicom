@@ -5,6 +5,8 @@
 #ifndef GPU_CONVOLUTION_2D_CUH
 #define GPU_CONVOLUTION_2D_CUH
 
+#include "vector_types.h"
+
 /**
  * \brief ...
  * \param in ...

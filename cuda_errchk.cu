@@ -3,8 +3,9 @@
  * \brief CUDA error assert function implementations
  */
 #include "cuda_errchk.cuh"
+#include "cuda_runtime_api.h"
 
-#include <iostream>
+#include <sstream>
 #include <sstream>
 #include <stdexcept>
 

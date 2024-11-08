@@ -5,6 +5,7 @@
  */
 #ifndef CUDA_ERRCHK_CUH
 #define CUDA_ERRCHK_CUH///< Header guard
+#include "driver_types.h"
 
 /**
  * \brief This function is used for checking GPU errors

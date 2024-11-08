@@ -3,22 +3,29 @@
  * \brief Kernel wrapper function implementations
  */
 #include <iostream>
+#ifdef NUCLEAR_CORR
 #include <limits>
+#endif
 #include <ctime>
 
-#include "cuda_runtime.h"
-#include "device_launch_parameters.h"
-#include <cmath>
 #include "helper_math.h"
-
+#include "device_launch_parameters.h"
 #include "cuda_errchk.cuh"
-#include "float3_affine_transform.cuh"
+
+//#include "float3_affine_transform.cuh"
 #include "float3_from_fan_transform.cuh"
 #include "float3_to_fan_transform.cuh"
 #include "kernel_wrapper.cuh"
 #include "vector_find.h"
 #include "vector_interpolate.h"
 #include "gpu_convolution_2d.cuh"
+
+// #ifndef __CUDACC__
+// #define __CUDACC__ // circumvent bug in clangd
+// #include "cuda_texture_types.h"
+// #include "texture_fetch_functions.h"
+// #include "device_functions.h"
+// #endif
 
 #if CUDART_VERSION < 12000
 texture<float, cudaTextureType3D, cudaReadModeElementType> imVolTex;            ///< 3D matrix containing HU numbers + 1000 for each voxel xyz
@@ -42,9 +49,9 @@ int roundTo(const int val, const int multiple)
 
 __global__ void extendAndPadd(float* const in, float* const out, const uint3 inDims)
 {
-    int x = blockDim.x * blockIdx.x + threadIdx.x;
-    int y = blockDim.y * blockIdx.y + threadIdx.y;
-    int z = blockIdx.z;
+    unsigned int x = blockDim.x * blockIdx.x + threadIdx.x;
+    unsigned int y = blockDim.y * blockIdx.y + threadIdx.y;
+    unsigned int z = blockIdx.z;
     float val;
     if (x<inDims.x && y<inDims.y && z<inDims.z) {
         int inIdx = z*inDims.x*inDims.y + y*inDims.x + x;
@@ -53,7 +60,7 @@ __global__ void extendAndPadd(float* const in, float* const out, const uint3 inD
     else {
         val = 0.0f;
     }
-    int outIdx = z*gridDim.y*blockDim.y*gridDim.x*blockDim.x + y*gridDim.x*blockDim.x + x;
+    unsigned int outIdx = z*gridDim.y*blockDim.y*gridDim.x*blockDim.x + y*gridDim.x*blockDim.x + x;
     out[outIdx] = val;
 }
 __global__ void primTransfDiv(float* const result, TransferParamStructDiv3 params, const int3 startIdx, const int maxZ, const uint3 doseDims
@@ -63,10 +70,10 @@ __global__ void primTransfDiv(float* const result, TransferParamStructDiv3 param
 )
 
 {
-    int x = startIdx.x + blockDim.x*blockIdx.x + threadIdx.x;
-    int y = startIdx.y + blockDim.y*blockIdx.y + threadIdx.y;
+    unsigned int x = startIdx.x + blockDim.x*blockIdx.x + threadIdx.x;
+    unsigned int y = startIdx.y + blockDim.y*blockIdx.y + threadIdx.y;
 
-    if (x >=0 && y >= 0 && x < doseDims.x && y < doseDims.y)
+    if (x < doseDims.x && y < doseDims.y)
     {
         params.init(x, y); // Initiate object with current index position
         float *res = result + startIdx.z*doseDims.x*doseDims.y + y*doseDims.x + x;
@@ -93,8 +100,8 @@ __global__ void nucTransfDiv(float* const result, const TransferParamStructDiv3 
 #endif
 )
 {
-    int x = startIdx.x + blockDim.x*blockIdx.x + threadIdx.x;
-    int y = startIdx.y + blockDim.y*blockIdx.y + threadIdx.y;
+    unsigned int x = startIdx.x + blockDim.x*blockIdx.x + threadIdx.x;
+    unsigned int y = startIdx.y + blockDim.y*blockIdx.y + threadIdx.y;
 
     if (x >=0 && y >= 0 && x < doseDims.x && y < doseDims.y)
     {
@@ -138,7 +145,7 @@ __global__ void fillBevDensityAndSp(float* const bevDensity, float* const bevCum
     int beforeFirstInside = -1;
     int lastInside = -1;
 
-    for (int i=0; i<params.getSteps(); ++i) {
+    for (unsigned int i=0; i<params.getSteps(); ++i) {
         //huPlus1000 = tex3D(imVolTex, pos.x, pos.y, pos.z) + 1000.0f;
         float huPlus1000 = 
         #if CUDART_VERSION < 12000
@@ -195,9 +202,9 @@ __global__ void fillIddAndSigma(float* const bevDensity, float* const bevCumulSp
 
     bool beamLive = true;
     const int firstIn = firstInside[idx];
-    int afterLast = min(firstOutside[idx], static_cast<int>(params.getAfterLastStep())); // In case doesn't get changed
+    unsigned int afterLast = min(firstOutside[idx], static_cast<int>(params.getAfterLastStep())); // In case doesn't get changed
     const float rayWeight = rayWeights[idx];
-    if (rayWeight < RAY_WEIGHT_CUTOFF || afterLast < static_cast<int>(params.getFirstStep())) {
+    if (rayWeight < RAY_WEIGHT_CUTOFF || afterLast < params.getFirstStep()) {
         beamLive = false;
         afterLast = 0;
     }
@@ -410,7 +417,7 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
     cudaArray *devImVolArr;
     const cudaExtent imExt = make_cudaExtent(imVol->getDims().x, imVol->getDims().y, imVol->getDims().z); // All sizes in elements since dealing with array
     cudaErrchk(cudaMalloc3DArray(&devImVolArr, &floatChannelDesc, imExt));
-    cudaMemcpy3DParms imCopyParams = {0};
+    cudaMemcpy3DParms imCopyParams = {};
     imCopyParams.srcPtr = make_cudaPitchedPtr((void*)imVol->getImData(), imExt.width*sizeof(float), imExt.width, imExt.height);
     imCopyParams.dstArray = devImVolArr;
     imCopyParams.extent = imExt;
@@ -1118,7 +1125,7 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
         cudaArray *devBevPrimDoseArr;
         const cudaExtent bevPrimDoseExt = make_cudaExtent(bevPrimDoseDim.x, bevPrimDoseDim.y, beamFirstCalculatedPassive-beamFirstInside);
         cudaErrchk(cudaMalloc3DArray(&devBevPrimDoseArr, &floatChannelDesc, bevPrimDoseExt));
-        cudaMemcpy3DParms primDoseCopyParams = {0};
+        cudaMemcpy3DParms primDoseCopyParams = {};
         primDoseCopyParams.srcPtr = make_cudaPitchedPtr((void*)(devBevPrimDose + beamFirstInside*bevPrimDoseDim.x*bevPrimDoseDim.y), bevPrimDoseExt.width*sizeof(float), bevPrimDoseExt.width, bevPrimDoseExt.height);
         primDoseCopyParams.dstArray = devBevPrimDoseArr;
         primDoseCopyParams.extent = bevPrimDoseExt;

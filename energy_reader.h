@@ -6,6 +6,7 @@
 #define ENERGY_READER_H
 
 struct EnergyStruct;
+#include <string>
 
 /**
  * \brief Reads a data file proton_cumul_ddd_data.txt containing the energies to be simulated, as well as ...
