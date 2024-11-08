@@ -217,7 +217,7 @@ __global__ void fillIddAndSigma(float* const bevDensity, float* const bevCumulSp
     float cumulDose;
     float cumulDoseOld = 0.0f;
     //float stepLength = params.stepLen(x,y);
-    params.initStepAndAirDiv(x,y);
+    params.initStepAndAirDiv(/*x,y*/);
 
     const float pInv = 0.5649718f; // 1/p, p=1.77
     const float eCoef = 8.639415f; // (10*alpha)^(-1/p), alpha=2.2e-3
