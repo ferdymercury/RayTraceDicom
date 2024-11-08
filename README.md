@@ -12,6 +12,9 @@ The code is licensed under GPLv3. When (re)using this code, attribution to Joaki
 - https://doi.org/10.1088/0031-9155/60/12/4777
 - https://doi.org/10.1016/j.jpdc.2015.07.003
 
+More details:
+- https://doi.org/10.17863/CAM.16186
+
 REQUIREMENTS
 ------------
 - CUDA, CUDA-TOOLKIT, CUDA-SAMPLES
