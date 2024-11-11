@@ -12,6 +12,7 @@
 #include "transfer_param_struct_div3.cuh"
 #include "density_and_sp_tracer_params.cuh"
 #include "fill_idd_and_sigma_params.cuh"
+#include "vector_functions.h"
 
 #include <ostream>
 
@@ -28,10 +29,10 @@ const int superpTileY = 8;          ///< Desktop and laptop
 const int minTilesInBatch = 16;     ///< Minimum number of tiles in each KS batch
 
 /**
- * \brief ...
- * \param val ...
- * \param multiple ...
- * \return ...
+ * \brief Integer Rounding function (wrt to a multiple).
+ * \param val the value
+ * \param multiple the rounding step
+ * \return the rounded integer
  */
 int roundTo(const int val, const int multiple);
 
@@ -40,7 +41,6 @@ int roundTo(const int val, const int multiple);
  * \param in ...
  * \param out ...
  * \param inDims ...
- * \return void
  */
 __global__  void extendAndPadd(float* const in, float* const out, const uint3 inDims);
 
@@ -51,7 +51,6 @@ __global__  void extendAndPadd(float* const in, float* const out, const uint3 in
  * \param startIdx ...
  * \param maxZ ...
  * \param doseDims ...
- * \return void
  */
 __global__  void primTransfDiv(float* const result, TransferParamStructDiv3 params, const int3 startIdx, const int maxZ, const uint3 doseDims);
 
@@ -62,7 +61,6 @@ __global__  void primTransfDiv(float* const result, TransferParamStructDiv3 para
  * \param startIdx ...
  * \param maxZ ...
  * \param doseDims ...
- * \return void
  */
 __global__  void nucTransfDiv(float* const result, const TransferParamStructDiv3 params, const int3 startIdx, const int maxZ, const uint3 doseDims);
 
@@ -73,7 +71,6 @@ __global__  void nucTransfDiv(float* const result, const TransferParamStructDiv3
  * \param beamFirstInside ...
  * \param firstStepOutside ...
  * \param params ...
- * \return void
  */
 __global__  void fillBevDensityAndSp(float* const bevDensity, float* const bevCumulSp, int* const beamFirstInside, int* const firstStepOutside, const DensityAndSpTracerParams params);
 
@@ -113,7 +110,6 @@ __global__  void fillIddAndSigma(float* const bevDensity, float* const bevCumulS
  * \param firstOutside ...
  * \param firstPassive ...
  * \param params ...
- * \return void
  * \warning This function is a bit of a mine field, only rearrange expressions if clear that they do not (explicitly or implicitly) affect subsequent expressions etc.
  */
 __global__  void fillIddAndSigma(float* const bevDensity, float* const bevCumulSp, float* const bevIdd, float* const bevRSigmaEff, float* const rayWeights, int* const firstInside, int* const firstOutside, int* const firstPassive, const FillIddAndSigmaParams params);
@@ -126,7 +122,6 @@ __global__  void fillIddAndSigma(float* const bevDensity, float* const bevCumulS
  * \param beams ...
  * \param iddData ...
  * \param outStream ...
- * \return void
  */
 void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D<float>* const doseVol, const std::vector<BeamSettings> beams, const EnergyStruct iddData, std::ostream &outStream);
 
@@ -139,7 +134,6 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
  * \param n the total number of elements in each slice (i.e. dim.x*dim.y)
  * \note blockDim.y, gridDim.x and gridDim.y must all be equal to 1.
  * \note gridDim.z must be equal to the number of slices.
- * \return void
  */
 template <typename T, unsigned int blockSize>
 __global__  void sliceMaxVar(T* const devIn, T* const devResult, const unsigned int n)
@@ -182,7 +176,6 @@ __global__  void sliceMaxVar(T* const devIn, T* const devResult, const unsigned 
  * \param n the total number of elements in each slice (i.e. dim.x*dim.y)
  * \note blockDim.y and gridDim.y must both be equal to 1.
  * \note gridDim.z must be equal to the number of slices.
- * \return void
  */
 template <typename T, unsigned int blockSize>
 __global__  void sliceMinVar(T* const devIn, T* const devResult, const unsigned int n)
@@ -396,7 +389,6 @@ __global__  void fillDevMem(T* const devMem, const unsigned int N, const T val)
  * \param inOutIdcs ...
  * \param inOutIdxPitch ...
  * \param tileCtrs ...
- * \return void
  * \note Requires blockDim.x to be equal to (or smaller than?) the wrap size
  * Otherwise requires atomicAdd when incrementing tile[row+i][threadIdx.x+j]
  * \note blockDim.x must also be equal to superpTileX

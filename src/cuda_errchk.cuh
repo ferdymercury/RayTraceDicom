@@ -20,7 +20,6 @@
  * \param file the filename where the macro was called
  * \param line the line in that file where the macro was called
  * \param abort if program should be aborted in case of errorcode found
- * \return void
  * \throw std::runtime_error if code!=cudaSuccess
  */
 void cudaAssert(const cudaError_t code, const char* file, const int line, const bool abort=true);

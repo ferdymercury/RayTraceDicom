@@ -62,14 +62,13 @@ public:
     Float3IdxTransform shiftOffset(const float3 shift) const;
 
     /**
-     * \brief ...
-     * \return void
+     * \brief Activate start-at-one counting convention
+     * \param toIdx true to activate start-at-one convention, false to do the opposite
      */
     void oneBasedToZeroBased(const bool toIdx);
 
     /**
      * \brief Prints the stored delta and the stored offset
-     * \return void
      */
     void print() const;
 };

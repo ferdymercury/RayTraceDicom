@@ -11,7 +11,6 @@
 /**
  * \brief Prints out a float3
  * \param a the float3
- * \return void
  */
 CUDA_CALLABLE_MEMBER void print_float3(const float3 a);
 

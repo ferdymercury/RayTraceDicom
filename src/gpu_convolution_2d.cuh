@@ -18,7 +18,6 @@
  * \param pixelSp pixel spacing
  * \param inOutOffset shift of the output vs input
  * \param inOutDelta shift of the output vs input in perpendicular direction
- * \return void
  */
 __global__ void xConvGathResampGpu(float* const in, float* const out, float2* const sigma, const int inWidth, const int outWidth, const int height, const float pixelSp, const float inOutOffset, const float inOutDelta);
 
@@ -33,7 +32,6 @@ __global__ void xConvGathResampGpu(float* const in, float* const out, float2* co
  * \param pixelSp pixel spacing
  * \param inOutOffset shift of the output vs input
  * \param inOutDelta shift of the output vs input in perpendicular direction
- * \return void
  */
 __global__ void yConvGathResampGpu(float* const in, float* const out, float2* const sigma, const int width, const int inHeight, const int outHeight, const float pixelSp, const float inOutOffset, const float inOutDelta);
 
@@ -50,7 +48,6 @@ __global__ void yConvGathResampGpu(float* const in, float* const out, float2* co
  * \param rayDelta ray delta
  * \param rayOffset ray offset
  * \param pxSpMult pixel spacing multiplier for rays
- * \return void
  */
 void gpuConvolution2D(float* const in, float* const interm, float* const out, float2* const sigmas, const uint3 inDims, const uint3 outDims, const float3 spotDelta, const float3 spotOffset, const float3 rayDelta, const float3 rayOffset, const float2 pxSpMult);
 

@@ -33,97 +33,94 @@ public:
     const float rRlScaleFact, const float spotDistInRays, const unsigned int nucMemoryStep, const unsigned int firstStep, const unsigned int afterLastStep, const Float3FromFanTransform fanIdxToImIdx);
 
     /**
-     * \brief ...
-     * \param idxK ...
-     * \return float2 ...
+     * \brief Get voxel width
+     * \param idxK depth index
+     * \return float2 pixel spacing X,Y at that idX
      */
     CUDA_CALLABLE_MEMBER float2 voxelWidth(const unsigned int idxK) const;
 
     /**
-     * \brief ...
-     * \return ...
+     * \brief Get energy index
+     * \return float
      */
     CUDA_CALLABLE_MEMBER float getEnergyIdx() const;
 
     /**
-     * \brief ...
-     * \return ...
+     * \brief Get energy scaling factor
+     * \return float
      */
     CUDA_CALLABLE_MEMBER float getEnergyScaleFact() const;
 
     /**
-     * \brief ...
-     * \return ...
+     * \brief Get penetration depth
+     * \return float
      */
     CUDA_CALLABLE_MEMBER float getPeakDepth() const;
 
     /**
-     * \brief ...
-     * \return ...
+     * \brief Get spatial spread at entrance (variance)
+     * \return float
      */
     CUDA_CALLABLE_MEMBER float getEntrySigmaSq() const;
 
     /**
-     * \brief ...
-     * \return ...
+     * \brief Get spot distance in rays
+     * \return float
      */
     CUDA_CALLABLE_MEMBER float getSpotDist() const;
 
     /**
-     * \brief ...
-     * \return ...
+     * \brief Get nucMemStep
+     * \return float
      */
     CUDA_CALLABLE_MEMBER unsigned int getNucMemStep() const;
 
     /**
-     * \brief ...
-     * \return ...
+     * \brief Get step length
+     * \return float
      */
     CUDA_CALLABLE_MEMBER float getStepLength() const;
 
     /**
-     * \brief ...
-     * \return ...
+     * \brief Get linear factor of spatial sigma variance
+     * \return float
      */
     CUDA_CALLABLE_MEMBER float getSigmaSqAirLin() const;
 
     /**
-     * \brief ...
-     * \return ...
+     * \brief Get quadratic factor of spatial sigma variance
+     * \return float
      */
     CUDA_CALLABLE_MEMBER float getSigmaSqAirQuad() const;
 
     /**
-     * \brief ...
-     * \return ...
+     * \brief Get radiation length scaling factor
+     * \return float
      */
     CUDA_CALLABLE_MEMBER float getRRlScale() const;
 
     /**
-     * \brief ...
-     * \return ...
+     * \brief Get first
+     * \return float
      */
     CUDA_CALLABLE_MEMBER unsigned int getFirstStep() const;
 
     /**
-     * \brief ...
-     * \return ...
+     * \brief Get afterLast
+     * \return float
      */
     CUDA_CALLABLE_MEMBER unsigned int getAfterLastStep() const;
 
     /**
-     * \brief ...
-     * \param k ...
-     * \return ...
+     * \brief Get volume of this step using parabola
+     * \param k index
+     * \return volume as float
      */
     CUDA_CALLABLE_MEMBER float stepVol(const unsigned int k) const;
 
     /**
      * \brief Sets the values of stepLength and the coeficients for the constant, linear and quadratic part of:
      * sigmaSqAir^2 = sigmaSqAirQuad * k^2 + sigmaSqAirLin * k + sigmaSqAirConst
-     * \param idxI ...
-     * \param idxJ ...
-     * \return void
      */
     CUDA_CALLABLE_MEMBER void initStepAndAirDiv();/*const unsigned int idxI, const unsigned int idxJ*/
 

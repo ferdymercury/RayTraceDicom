@@ -1,3 +1,8 @@
+/**
+ * \file
+ * \brief File to store constants
+ */
+
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
