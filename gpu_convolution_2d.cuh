@@ -40,15 +40,15 @@ __global__ void yConvGathResampGpu(float* const in, float* const out, float2* co
 /**
  * \brief 2D Gaussian convolution on GPU
  * \param in pointer to 3D input data array (not owned), linearized
- * \param interm ...
+ * \param interm 3D pointer where to store intermediate result of x convolution before applying y (not owned), linearized
  * \param out pointer to 3D output data array (linearized) where convolution result will be stored (not owned, preallocated by user)
  * \param sigmas Gaussian convolution sigmas in x and y
  * \param inDims dimensions of 3D matrix "in"
  * \param outDims dimensions of 3D matrix "out"
- * \param spotDelta ...
- * \param spotOffset ...
- * \param rayDelta ...
- * \param rayOffset ...
+ * \param spotDelta spot delta
+ * \param spotOffset spot offset
+ * \param rayDelta ray delta
+ * \param rayOffset ray offset
  * \param pxSpMult pixel spacing multiplier for rays
  * \return void
  */

@@ -6,6 +6,7 @@
 #define FLOAT3_IDX_TRANSFORM_CUH
 
 #include "cuda_member.cuh"
+#include "vector_types.h"
 
 /**
  * \brief Transform ...

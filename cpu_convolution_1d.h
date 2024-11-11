@@ -15,8 +15,8 @@
  * \param outWidth width of the 2D matrix "out"
  * \param outHeight height of the 2D matrix "out"
  * \param inOutOffset shift of the output vs input
- * \return void
  */
+
 void xConvCpu(const float* const in, float* const out, const float rSigmaEff, const unsigned int rad, const unsigned int inWidth, const unsigned int outWidth, const unsigned int outHeight, const int inOutOffset);
 
 /**
@@ -29,7 +29,6 @@ void xConvCpu(const float* const in, float* const out, const float rSigmaEff, co
  * \param outWidth width of the 2D matrix "out"
  * \param outHeight height of the 2D matrix "out"
  * \param inOutOffset shift of the output vs input
- * \return void
  */
 void xConvCpuScat(const float* const in, float* const out, const float rSigmaEff, const unsigned int rad, const unsigned int inWidth, const unsigned int outWidth, const unsigned int outHeight, const unsigned int inOutOffset);
 
@@ -44,7 +43,6 @@ void xConvCpuScat(const float* const in, float* const out, const float rSigmaEff
  * \param outHeight height of the 2D matrix "out"
  * \param inOutOffset shift of the output vs input
  * \param inOutDelta shift of the output vs input in perpendicular direction
- * \return void
  */
 void xConvCpuSparse(const float* const in, float* const out, const float rSigmaEff, const unsigned int rad, const unsigned int inWidth, const unsigned int outWidth, const unsigned int outHeight, const int inOutOffset, const int inOutDelta);
 
@@ -57,7 +55,6 @@ void xConvCpuSparse(const float* const in, float* const out, const float rSigmaE
  * \param inHeight height of the 2D matrix "in"
  * \param outWidth width of the 2D matrix "out"
  * \param inOutOffset shift of the output vs input
- * \return void
  */
 void yConvCpu(const float* const in, float* const out, const float rSigmaEff, const unsigned int rad, const unsigned int inHeight, const unsigned int outWidth, const int inOutOffset);
 
@@ -71,7 +68,6 @@ void yConvCpu(const float* const in, float* const out, const float rSigmaEff, co
  * \param outWidth width of the 2D matrix "out"
  * \param inOutOffset shift of the output vs input
  * \param inOutDelta shift of the output vs input in perpendicular direction
- * \return void
  */
 void yConvCpuSparse(const float* const in, float* const out, const float rSigmaEff, const unsigned int rad, const unsigned int inHeight, const unsigned int outWidth, const int inOutOffset, const int inOutDelta);
 

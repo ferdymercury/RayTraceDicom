@@ -71,7 +71,7 @@ CUDA_CALLABLE_MEMBER unsigned int FillIddAndSigmaParams::getAfterLastStep() cons
 
 CUDA_CALLABLE_MEMBER float FillIddAndSigmaParams::stepVol(const unsigned int k) const {return volConst + k*volLin + k*k*volSq;}
 
-__host__ __device__ float2 FillIddAndSigmaParams::sigmaSqAirCoefs(const float r0)
+CUDA_CALLABLE_MEMBER float2 FillIddAndSigmaParams::sigmaSqAirCoefs(const float r0)
 {
 #ifndef NO_NOZZLE
     // Coefficients from calcSigmaInAir.m (note change of sign of b to compensate for beam along negative z)
