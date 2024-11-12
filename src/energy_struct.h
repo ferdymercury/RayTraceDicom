@@ -8,7 +8,7 @@
 #include <vector>
 
 /**
- * \brief ...
+ * \brief Struct grouping beam and tissue model as function of proton energy
  */
 struct EnergyStruct{
     int nEnergySamples = 0;             ///< number of energy bins

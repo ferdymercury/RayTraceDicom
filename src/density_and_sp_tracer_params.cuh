@@ -51,7 +51,7 @@ public:
     CUDA_CALLABLE_MEMBER float3 getStart(const int idxI, const int idxJ) const;
 
     /**
-     * \brief ...
+     * \brief Get increment
      * \param idxI index in x
      * \param idxJ index in y
      * \return float3

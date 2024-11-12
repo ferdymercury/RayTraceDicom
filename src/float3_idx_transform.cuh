@@ -9,7 +9,7 @@
 #include "vector_types.h"
 
 /**
- * \brief Transform ...
+ * \brief Transform indices to float3 coordinate system
  */
 class Float3IdxTransform {
 private:
@@ -49,7 +49,7 @@ public:
     CUDA_CALLABLE_MEMBER float3 transformPoint(const float3 in) const;
 
     /**
-     * \brief ...
+     * \brief Inverse transform
      * \return an instance of the inverse transform
      */
     Float3IdxTransform inverse() const;

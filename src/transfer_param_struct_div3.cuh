@@ -11,7 +11,7 @@
 class Float3ToFanTransform;
 
 /**
- * \brief Class ...
+ * \brief Class grouping parameters of the transfer function
  */
 class TransferParamStructDiv3 {
 public:

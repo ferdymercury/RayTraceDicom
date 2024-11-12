@@ -86,14 +86,14 @@ public:
     Float3AffineTransform getGantryToDoseIdx() const;
 
     //
-    // brief ...
-    // return ...
+    // brief
+    // return
     //
     //Float3FromFanTransform getFITII() const;
 
     //
-    // brief ...
-    // return ...
+    // brief
+    // return
     //
     //Float3FromFanTransform getFITDI() const;
 
@@ -107,8 +107,8 @@ private:
     Float3IdxTransform sITG;                ///< Transform from spot index to gantry coordinates.Transforming [i, j, k] gives the position, in gantry coordinates, of spot with x_idx=i, y_idx=j and at ray trace step k (i.e. the delta and offset in last dimension give the raytracing step length and the position along gantry z at which to start the raytracing).
     Float3AffineTransform gTII;             ///< Affine transformation matrix from gantry coordinates to indices in the patient image.
     Float3AffineTransform gTDI;             ///< Affine transformation matrix from gantry coordinates to indices in the dose matrix.
-    //Float3FromFanTransform fITII; ///< ...
-    //Float3FromFanTransform fITDI; ///< ...
+    //Float3FromFanTransform fITII; ///<
+    //Float3FromFanTransform fITDI; ///<
 };
 
 #endif // BEAM_SETTINGS_H

@@ -30,7 +30,7 @@
 #if CUDART_VERSION < 12000
 texture<float, cudaTextureType3D, cudaReadModeElementType> imVolTex;            ///< 3D matrix containing HU numbers + 1000 for each voxel xyz
 texture<float, cudaTextureType2D, cudaReadModeElementType> cumulIddTex;         ///< 2D matrix with the cumulative depth-dose profile as a function of depth and initial proton energy
-//texture<float, cudaTextureType1D, cudaReadModeElementType> peakDepthTex;        ///< ...
+//texture<float, cudaTextureType1D, cudaReadModeElementType> peakDepthTex;        ///< 1D peak depth as function of energy?
 texture<float, cudaTextureType1D, cudaReadModeElementType> densityTex;          ///< 1D array with density as function of HU number
 texture<float, cudaTextureType1D, cudaReadModeElementType> stoppingPowerTex;    ///< 1D array with stopping power as function of HU number
 texture<float, cudaTextureType1D, cudaReadModeElementType> rRadiationLengthTex; ///< 1D array with radiation length as function of density
@@ -47,6 +47,7 @@ int roundTo(const int val, const int multiple)
     return ((val+multiple-1)/multiple) * multiple;
 }
 
+#ifdef NUCLEAR_CORR
 __global__ void extendAndPadd(float* const in, float* const out, const uint3 inDims)
 {
     unsigned int x = blockDim.x * blockIdx.x + threadIdx.x;
@@ -63,6 +64,7 @@ __global__ void extendAndPadd(float* const in, float* const out, const uint3 inD
     unsigned int outIdx = z*gridDim.y*blockDim.y*gridDim.x*blockDim.x + y*gridDim.x*blockDim.x + x;
     out[outIdx] = val;
 }
+#endif
 __global__ void primTransfDiv(float* const result, TransferParamStructDiv3 params, const int3 startIdx, const int maxZ, const uint3 doseDims
 #if CUDART_VERSION >= 12000
 , cudaTextureObject_t bevPrimDoseTex
