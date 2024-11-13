@@ -65,6 +65,7 @@ __global__ void extendAndPadd(float* const in, float* const out, const uint3 inD
     out[outIdx] = val;
 }
 #endif
+
 __global__ void primTransfDiv(float* const result, TransferParamStructDiv3 params, const int3 startIdx, const int maxZ, const uint3 doseDims
 #if CUDART_VERSION >= 12000
 , cudaTextureObject_t bevPrimDoseTex

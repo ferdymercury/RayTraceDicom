@@ -12,7 +12,7 @@
 #include "transfer_param_struct_div3.cuh"
 #include "density_and_sp_tracer_params.cuh"
 #include "fill_idd_and_sigma_params.cuh"
-#include "vector_functions.h"
+#include "vector_functions.hpp"
 
 #include <ostream>
 
@@ -54,8 +54,13 @@ __global__  void extendAndPadd(float* const in, float* const out, const uint3 in
  * \param startIdx the starting 3D point (indices)
  * \param maxZ the maximum index in Z
  * \param doseDims the 3D dimensions of the dose matrix
+ * \param bevPrimDoseTex 3D dose texture matrix
  */
-__global__  void primTransfDiv(float* const result, TransferParamStructDiv3 params, const int3 startIdx, const int maxZ, const uint3 doseDims);
+__global__  void primTransfDiv(float* const result, TransferParamStructDiv3 params, const int3 startIdx, const int maxZ, const uint3 doseDims
+#if CUDART_VERSION >= 12000
+, cudaTextureObject_t bevPrimDoseTex
+#endif
+);
 
 #ifdef NUCLEAR_CORR
 /**
@@ -104,10 +109,17 @@ __global__  void fillBevDensityAndSp(float* const bevDensity, float* const bevCu
  * \param firstOutside Linearized 2D array (rX*rY), not owned, of step number (compared to the global entry depth) where each ray exits the patient
  * \param firstPassive Linearized 2D array (rX*rY), not owned, of step number (compared to the global entry depth) where each ray is no longer live
  * \param params kernel filling parameters
- * \return void
+ * \param cumulIddTex 2D matrix with the cumulative depth-dose profile as a function of depth and initial proton energy
+ * \param rRadiationLengthTex 1D array with radiation length as function of density
+ * \param nucWeightTex 2D matrix with the nuclear correction factor as function of cumulative stopping power and energy
+ * \param nucSqSigmaTex 2D matrix with the nuclear variance? as function of cumulative stopping power and energy
  * \warning This function is a bit of a mine field, only rearrange expressions if clear that they do not (explicitly or implicitly) affect subsequent expressions etc.
  */
-__global__  void fillIddAndSigma(float* const bevDensity, float* const bevCumulSp, float* const bevIdd, float* const bevRSigmaEff, float* const rayWeights, float* const bevNucIdd, float* const bevNucRSigmaEff, float* const nucRayWeights, int* const nucIdcs, int* const firstInside, int* const firstOutside, int* const firstPassive, FillIddAndSigmaParams params);
+__global__  void fillIddAndSigma(float* const bevDensity, float* const bevCumulSp, float* const bevIdd, float* const bevRSigmaEff, float* const rayWeights, float* const bevNucIdd, float* const bevNucRSigmaEff, float* const nucRayWeights, int* const nucIdcs, int* const firstInside, int* const firstOutside, int* const firstPassive, FillIddAndSigmaParams params
+#if CUDART_VERSION >= 12000
+, cudaTextureObject_t cumulIddTex, cudaTextureObject_t rRadiationLengthTex, cudaTextureObject_t nucWeightTex, cudaTextureObject_t nucSqSigmaTex
+#endif
+);
 #else // NUCLEAR_CORR
 /**
  * \brief Calculate sigma as described in M. Soukup, M. Fippel, and M. Alber
@@ -122,9 +134,15 @@ __global__  void fillIddAndSigma(float* const bevDensity, float* const bevCumulS
  * \param firstOutside Linearized 2D array (rX*rY), not owned, of step number (compared to the global entry depth) where each ray exits the patient
  * \param firstPassive Linearized 2D array (rX*rY), not owned, of step number (compared to the global entry depth) where each ray is no longer live
  * \param params kernel filling parameters
+ * \param cumulIddTex 2D matrix with the cumulative depth-dose profile as a function of depth and initial proton energy
+ * \param rRadiationLengthTex 1D array with radiation length as function of density
  * \warning This function is a bit of a mine field, only rearrange expressions if clear that they do not (explicitly or implicitly) affect subsequent expressions etc.
  */
-__global__  void fillIddAndSigma(float* const bevDensity, float* const bevCumulSp, float* const bevIdd, float* const bevRSigmaEff, float* const rayWeights, int* const firstInside, int* const firstOutside, int* const firstPassive, const FillIddAndSigmaParams params);
+__global__  void fillIddAndSigma(float* const bevDensity, float* const bevCumulSp, float* const bevIdd, float* const bevRSigmaEff, float* const rayWeights, int* const firstInside, int* const firstOutside, int* const firstPassive, const FillIddAndSigmaParams params
+#if CUDART_VERSION >= 12000
+, cudaTextureObject_t cumulIddTex, cudaTextureObject_t rRadiationLengthTex
+#endif
+);
 #endif
 
 /**
