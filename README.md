@@ -19,7 +19,7 @@ REQUIREMENTS
 ------------
 - CUDA, CUDA-TOOLKIT, CUDA-SAMPLES
 - GDCM
-- ITK (if custom build, then with `-DITK_USE_SYSTEM_GDCM=ON`)
+- ITK (if custom build, then with `-DITK_USE_SYSTEM_GDCM=ON`, otherwise just `apt-get install libinsighttoolkit5-dev`)
 
 BUILDING
 --------

@@ -682,11 +682,11 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
 
         const unsigned int rayIddN = primRayDims.x*primRayDims.y*beam.getSteps();
 
+        #ifdef NUCLEAR_CORR
         // Extend nuclear PB map to make divisible by superpTileX and superpTileY, so we can use KS KF
         int3 nucRayDims = make_int3(roundTo(spotGridDims.x, superpTileX), roundTo(spotGridDims.y, superpTileY), spotGridDims.z);
-
         int nucIddN = nucRayDims.x * nucRayDims.y * beam.getSteps();
-
+        #endif
 
         //const int3 iddDim = make_int3(beam.getWeights()->getDims().x, beam.getWeights()->getDims().y, beam.getSteps());
         dim3 tracerBlock(32, 8); // Both desktop and laptop
@@ -763,7 +763,7 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
         float *devNucRSigmaEff; // Reciprocal of effective nuclear sigmas
         cudaErrchk(cudaMalloc((void**)&devNucRSigmaEff, nucIddN*sizeof(float)));
 
-        int *devNucSpotIdx; // Map of nuclear PB indices corresponding to the indeces of computational PBs
+        int *devNucSpotIdx; // Map of nuclear PB indices corresponding to the indices of computational PBs
         cudaErrchk(cudaMalloc((void**)&devNucSpotIdx, primRayDims.x*primRayDims.y*sizeof(int)));
 
         int *devTileNucRadCtrs; // tilePrimRadCtrs[rad] holds the number of tiles with max radius rad
@@ -942,7 +942,7 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
             float spotDistInRays = beam.getSpotIdxToGantry().getDelta().x / beam.getRaySpacing().x;
             unsigned int localAfterLastStep = findFirstLargerOrdered<float> (weplMin, BP_DEPTH_CUTOFF*peakDepths[layerNo]);
             unsigned int afterLastStep = min(localAfterLastStep, beamFirstGuaranteedPassive);
-            FillIddAndSigmaParams fillParams(energyIdcs[layerNo], energyScaleFacts[layerNo], peakDepths[layerNo], entrySigmas[layerNo].x*entrySigmas[layerNo].x, iddData.rRlScaleFact, spotDistInRays, nucRayDims.x*nucRayDims.y, beamFirstInside, afterLastStep, rayIdxToImIdx);
+            FillIddAndSigmaParams fillParams(energyIdcs[layerNo], energyScaleFacts[layerNo], peakDepths[layerNo], entrySigmas[layerNo].x*entrySigmas[layerNo].x, iddData.rRlScaleFact, spotDistInRays, 0, beamFirstInside, afterLastStep, rayIdxToImIdx);
 #ifdef NUCLEAR_CORR
             fillIddAndSigma <<<tracerGrid, tracerBlock >>>(devBevDensity, devBevWepl, devPrimIdd, devPrimRSigmaEff, devPrimRayWeights + layerNo*primRayDims.x*primRayDims.y, devNucIdd, devNucRSigmaEff, devNucRayWeights + layerNo*nucRayDims.x*nucRayDims.y, devNucSpotIdx, devRayFirstInside, devRayFirstOutside, devRayFirstPassive, fillParams
             #if CUDART_VERSION >= 12000
