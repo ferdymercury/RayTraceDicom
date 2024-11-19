@@ -20,6 +20,7 @@ REQUIREMENTS
 - CUDA, CUDA-TOOLKIT, CUDA-SAMPLES
 - GDCM
 - ITK (if custom build, then with `-DITK_USE_SYSTEM_GDCM=ON`, otherwise just `apt-get install libinsighttoolkit5-dev`)
+- Clone https://github.com/ferdymercury/cmake-modules into /opt
 
 BUILDING
 --------
