@@ -41,8 +41,13 @@ RUNNING
 
 NOTES
 -----
-- You might need for old Tesla C2070 commands such as:
+You might need for old Tesla C2070 commands such as:
+- Install patched nvidia-390 driver on Ubuntu 22: https://launchpad.net/%7Edtl131/+archive/ubuntu/nvidiaexp
+- Install gcc5 and cuda8: https://askubuntu.com/questions/1442001/cuda-8-and-gcc-5-on-ubuntu-22-04-for-tesla-c2070
+- Error with stncpy: https://stackoverflow.com/questions/76531467/nvcc-cuda8-gcc-5-3-no-longer-compiles-with-o1-on-ubuntu-22-04
+- Error with float128: https://askubuntu.com/questions/1442001/cuda-8-and-gcc-5-on-ubuntu-22-04-for-tesla-c2070
 - `cmake ../ -DCOMPILE_SM20=ON -DCOMPILE_SM35=OFF -DWATER_CUBE_TEST=ON -DCUDA_HOST_COMPILER=/opt/gcc5/gcc -DSEPARATE_COMPILATION=OFF -DCMAKE_CXX_COMPILER=/opt/gcc5/g++ -DCMAKE_C_COMPILER=/opt/gcc5/gcc -DCMAKE_CXX_STANDARD=11`
+- This might also be needed depending on the platform or CMake version: `export PATH=/opt/gcc5:$PATH`
 - Need to fine-tune QtCreator adding a new custom compiler /opt/cuda-8.0/bin/nvcc and edit .config/clangd/config.yaml file with
 ```
 CompileFlags:
