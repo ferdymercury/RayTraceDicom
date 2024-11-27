@@ -86,7 +86,7 @@ __global__ void primTransfDiv(float* const result, TransferParamStructDiv3 param
             #if CUDART_VERSION < 12000
             tex3D(bevPrimDoseTex, pos.x, pos.y, pos.z);
             #else
-            tex3D<float>(bevPrimDoseTex, pos.x, pos.y, pos.z, nullptr);
+            tex3D<float>(bevPrimDoseTex, pos.x, pos.y, pos.z);
             #endif
             if (tmp > 0.0f) { // Only write to global memory if non-zero
                 *res += tmp;
@@ -116,7 +116,7 @@ __global__ void nucTransfDiv(float* const result, const TransferParamStructDiv3 
             #ifdef CUDART_VERSION < 12000
             tex3D(bevNucDoseTex, pos.x, pos.y, pos.z);
             #else
-            tex3D<float>(bevNucDoseTex, pos.x, pos.y, pos.z, nullptr);
+            tex3D<float>(bevNucDoseTex, pos.x, pos.y, pos.z);
             #endif
             if (tmp > 0.0f) { // Only write to global memory if non-zero
                 *res += tmp;
@@ -154,7 +154,7 @@ __global__ void fillBevDensityAndSp(float* const bevDensity, float* const bevCum
         #if CUDART_VERSION < 12000
             tex3D(imVolTex, pos.x, pos.y, pos.z);
         #else
-            tex3D<float>(imVolTex, pos.x, pos.y, pos.z, nullptr);
+            tex3D<float>(imVolTex, pos.x, pos.y, pos.z);
         #endif
         cumulHuPlus1000 += huPlus1000;
         bevDensity[idx] = 
@@ -324,7 +324,7 @@ __global__ void fillIddAndSigma(float* const bevDensity, float* const bevCumulSp
                 #if CUDART_VERSION < 12000
                 tex2D(nucWeightTex, HALF*(cumulSp+cumulSpOld)*params.getEnergyScaleFact() + HALF, params.getEnergyIdx() + HALF);
                 #else
-                tex2D<float>(nucWeightTex, HALF*(cumulSp+cumulSpOld)*params.getEnergyScaleFact() + HALF, params.getEnergyIdx() + HALF, nullptr);
+                tex2D<float>(nucWeightTex, HALF*(cumulSp+cumulSpOld)*params.getEnergyScaleFact() + HALF, params.getEnergyIdx() + HALF);
                 #endif
                 res = (1.0f - nucWeight) * rayWeight * (cumulDose-cumulDoseOld) / mass;
                 nucRes = nucWeight * nucRayWeight * (cumulDose-cumulDoseOld) / (mass*params.getSpotDist()*params.getSpotDist());
@@ -335,7 +335,7 @@ __global__ void fillIddAndSigma(float* const bevDensity, float* const bevCumulSp
                 #if CUDART_VERSION < 12000
                 tex2D(nucSqSigmaTex, HALF*(cumulSp+cumulSpOld)*params.getEnergyScaleFact() + HALF, params.getEnergyIdx() + HALF);
                 #else
-                tex2D<float>(nucSqSigmaTex, HALF*(cumulSp+cumulSpOld)*params.getEnergyScaleFact() + HALF, params.getEnergyIdx() + HALF, nullptr);
+                tex2D<float>(nucSqSigmaTex, HALF*(cumulSp+cumulSpOld)*params.getEnergyScaleFact() + HALF, params.getEnergyIdx() + HALF);
                 #endif
                 nucRSigmaEff = HALF * params.getSpotDist() *(params.voxelWidth(stepNo).x + params.voxelWidth(stepNo).y) / (sqrt2 * sqrtf(sigmaSq + nucSqSigma + params.getEntrySigmaSq()));
             }
