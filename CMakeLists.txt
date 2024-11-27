@@ -116,9 +116,9 @@ if (COMPILE_SM75)
 endif()
 
 ### Volta GPUs
-set (COMPILE_SM90 OFF CACHE BOOL "Support Volta GPUs")
-if (COMPILE_SM90)
-    set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -gencode arch=compute_90,code=sm_90)
+set (COMPILE_SM86 OFF CACHE BOOL "Support Volta GPUs")
+if (COMPILE_SM86)
+    set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -gencode arch=compute_86,code=[compute_86,sm_86])
 endif()
 
 ### Set release mode as default build type
