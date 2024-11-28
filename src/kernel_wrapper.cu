@@ -450,7 +450,7 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
     texDesc.addressMode[1] = cudaAddressModeBorder;
     texDesc.addressMode[2] = cudaAddressModeBorder;
     cudaTextureObject_t imVolTex=0;
-    cudaCreateTextureObject(&imVolTex, &resDesc, &texDesc, NULL);
+    cudaErrchk(cudaCreateTextureObject(&imVolTex, &resDesc, &texDesc, NULL));
     #endif
 
     cudaArray *devCumulIddArr;
@@ -476,7 +476,7 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
     texDesc.addressMode[0] = cudaAddressModeClamp;
     texDesc.addressMode[1] = cudaAddressModeClamp;
     cudaTextureObject_t cumulIddTex=0;
-    cudaCreateTextureObject(&cumulIddTex, &resDesc, &texDesc, NULL);
+    cudaErrchk(cudaCreateTextureObject(&cumulIddTex, &resDesc, &texDesc, NULL));
     #endif
 
     cudaArray *devDensityArr;
@@ -500,7 +500,7 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
     texDesc.filterMode = cudaFilterModeLinear;
     texDesc.addressMode[0] = cudaAddressModeClamp;
     cudaTextureObject_t densityTex=0;
-    cudaCreateTextureObject(&densityTex, &resDesc, &texDesc, NULL);
+    cudaErrchk(cudaCreateTextureObject(&densityTex, &resDesc, &texDesc, NULL));
     #endif
     
     cudaArray *devStoppingPowerArr;
@@ -524,7 +524,7 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
     texDesc.filterMode = cudaFilterModeLinear;
     texDesc.addressMode[0] = cudaAddressModeClamp;
     cudaTextureObject_t stoppingPowerTex=0;
-    cudaCreateTextureObject(&stoppingPowerTex, &resDesc, &texDesc, NULL);
+    cudaErrchk(cudaCreateTextureObject(&stoppingPowerTex, &resDesc, &texDesc, NULL));
     #endif
 
     cudaArray *devReciprocalRadiationLengthArr;
@@ -548,7 +548,7 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
     texDesc.filterMode = cudaFilterModeLinear;
     texDesc.addressMode[0] = cudaAddressModeClamp;
     cudaTextureObject_t rRadiationLengthTex=0;
-    cudaCreateTextureObject(&rRadiationLengthTex, &resDesc, &texDesc, NULL);
+    cudaErrchk(cudaCreateTextureObject(&rRadiationLengthTex, &resDesc, &texDesc, NULL));
     #endif
 
     float *devDoseBox;
@@ -580,7 +580,7 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
     texDesc.addressMode[0] = cudaAddressModeClamp;
     texDesc.addressMode[1] = cudaAddressModeClamp;
     cudaTextureObject_t nucWeightTex=0;
-    cudaCreateTextureObject(&nucWeightTex, &resDesc, &texDesc, NULL);
+    cudaErrchk(cudaCreateTextureObject(&nucWeightTex, &resDesc, &texDesc, NULL));
     #endif
 
     cudaArray *devNucSqSigmaArr;
@@ -606,7 +606,7 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
     texDesc.addressMode[0] = cudaAddressModeClamp;
     texDesc.addressMode[1] = cudaAddressModeClamp;
     cudaTextureObject_t nucSqSigmaTex=0;
-    cudaCreateTextureObject(&nucSqSigmaTex, &resDesc, &texDesc, NULL);
+    cudaErrchk(cudaCreateTextureObject(&nucSqSigmaTex, &resDesc, &texDesc, NULL));
     #endif
 #endif // NUCLEAR_CORR
 
@@ -1157,7 +1157,7 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
         texDesc.addressMode[1] = cudaAddressModeBorder;
         texDesc.addressMode[2] = cudaAddressModeBorder;
         cudaTextureObject_t bevPrimDoseTex=0;
-        cudaCreateTextureObject(&bevPrimDoseTex, &resDesc, &texDesc, NULL);
+        cudaErrchk(cudaCreateTextureObject(&bevPrimDoseTex, &resDesc, &texDesc, NULL));
         #endif
         cudaErrchk(cudaMemcpy3D(&primDoseCopyParams));
         #if CUDART_VERSION < 12000
@@ -1194,7 +1194,7 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
         texDesc.addressMode[1] = cudaAddressModeBorder;
         texDesc.addressMode[2] = cudaAddressModeBorder;
         cudaTextureObject_t bevNucDoseTex=0;
-        cudaCreateTextureObject(&bevNucDoseTex, &resDesc, &texDesc, NULL);
+        cudaErrchk(cudaCreateTextureObject(&bevNucDoseTex, &resDesc, &texDesc, NULL));
         #endif
         cudaErrchk(cudaMemcpy3D(&nucDoseCopyParams));
         #if CUDART_VERSION < 12000
