@@ -435,22 +435,19 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
     cudaErrchk(cudaBindTextureToArray(imVolTex, devImVolArr, floatChannelDesc));
     #else
     cudaResourceDesc resDesc;
-    memset(&resDesc, 0, sizeof(resDesc));
-    resDesc.resType = cudaResourceTypeLinear;
-    resDesc.res.linear.devPtr = devImVolArr;
-    resDesc.res.linear.desc.f = cudaChannelFormatKindFloat;
-    resDesc.res.linear.desc.x = 32; // bits per channel
-    resDesc.res.linear.sizeInBytes = imExt.width*imExt.height*imExt.depth*sizeof(float);
+    memset(&resDesc, 0, sizeof(cudaResourceDesc));
+    resDesc.resType = cudaResourceTypeArray;
+    resDesc.res.array.array = devImVolArr;
     cudaTextureDesc texDesc;
     memset(&texDesc, 0, sizeof(texDesc));
-    texDesc.readMode = cudaReadModeElementType;
+    texDesc.readMode = cudaReadModeElementType; // cudaReadModeNormalizedFloat;
     texDesc.normalizedCoords = false;
     texDesc.filterMode = cudaFilterModeLinear;
-    texDesc.addressMode[0] = cudaAddressModeBorder;
+    texDesc.addressMode[0] = cudaAddressModeBorder; // cudaAddressModeWrap
     texDesc.addressMode[1] = cudaAddressModeBorder;
     texDesc.addressMode[2] = cudaAddressModeBorder;
     cudaTextureObject_t imVolTex=0;
-    cudaErrchk(cudaCreateTextureObject(&imVolTex, &resDesc, &texDesc, NULL));
+    cudaErrchk(cudaCreateTextureObject(&imVolTex, &resDesc, &texDesc, NULL));  
     #endif
 
     cudaArray *devCumulIddArr;
@@ -463,19 +460,16 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
     cumulIddTex.addressMode[1] = cudaAddressModeClamp;
     cudaErrchk(cudaBindTextureToArray(cumulIddTex, devCumulIddArr, floatChannelDesc));
     #else
-    memset(&resDesc, 0, sizeof(resDesc));
-    resDesc.resType = cudaResourceTypeLinear;
-    resDesc.res.linear.devPtr = devCumulIddArr;
-    resDesc.res.linear.desc.f = cudaChannelFormatKindFloat;
-    resDesc.res.linear.desc.x = 32; // bits per channel
-    resDesc.res.linear.sizeInBytes = iddData.nEnergySamples*iddData.nEnergies*sizeof(float);
+    memset(&resDesc, 0, sizeof(cudaResourceDesc));
+    resDesc.resType = cudaResourceTypeArray;
+    resDesc.res.array.array = devCumulIddArr;
     memset(&texDesc, 0, sizeof(texDesc));
     texDesc.readMode = cudaReadModeElementType;
     texDesc.normalizedCoords = false;
     texDesc.filterMode = cudaFilterModeLinear;
-    texDesc.addressMode[0] = cudaAddressModeClamp;
+    texDesc.addressMode[0] = cudaAddressModeClamp; // cudaAddressModeWrap
     texDesc.addressMode[1] = cudaAddressModeClamp;
-    cudaTextureObject_t cumulIddTex=0;
+    cudaTextureObject_t cumulIddTex;
     cudaErrchk(cudaCreateTextureObject(&cumulIddTex, &resDesc, &texDesc, NULL));
     #endif
 
@@ -488,12 +482,9 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
     densityTex.addressMode[0] = cudaAddressModeClamp;
     cudaErrchk(cudaBindTextureToArray(densityTex, devDensityArr, floatChannelDesc));
     #else
-    memset(&resDesc, 0, sizeof(resDesc));
-    resDesc.resType = cudaResourceTypeLinear;
-    resDesc.res.linear.devPtr = devDensityArr;
-    resDesc.res.linear.desc.f = cudaChannelFormatKindFloat;
-    resDesc.res.linear.desc.x = 32; // bits per channel
-    resDesc.res.linear.sizeInBytes = iddData.nDensitySamples*sizeof(float);
+    memset(&resDesc, 0, sizeof(cudaResourceDesc));
+    resDesc.resType = cudaResourceTypeArray;
+    resDesc.res.array.array = devDensityArr;
     memset(&texDesc, 0, sizeof(texDesc));
     texDesc.readMode = cudaReadModeElementType;
     texDesc.normalizedCoords = false;
@@ -512,12 +503,9 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
     stoppingPowerTex.addressMode[0] = cudaAddressModeClamp;
     cudaErrchk(cudaBindTextureToArray(stoppingPowerTex, devStoppingPowerArr, floatChannelDesc));
     #else
-    memset(&resDesc, 0, sizeof(resDesc));
-    resDesc.resType = cudaResourceTypeLinear;
-    resDesc.res.linear.devPtr = devStoppingPowerArr;
-    resDesc.res.linear.desc.f = cudaChannelFormatKindFloat;
-    resDesc.res.linear.desc.x = 32; // bits per channel
-    resDesc.res.linear.sizeInBytes = iddData.nSpSamples*sizeof(float);
+    memset(&resDesc, 0, sizeof(cudaResourceDesc));
+    resDesc.resType = cudaResourceTypeArray;
+    resDesc.res.array.array = devStoppingPowerArr;
     memset(&texDesc, 0, sizeof(texDesc));
     texDesc.readMode = cudaReadModeElementType;
     texDesc.normalizedCoords = false;
@@ -536,12 +524,9 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
     rRadiationLengthTex.addressMode[0] = cudaAddressModeClamp;
     cudaErrchk(cudaBindTextureToArray(rRadiationLengthTex, devReciprocalRadiationLengthArr, floatChannelDesc));
     #else
-    memset(&resDesc, 0, sizeof(resDesc));
-    resDesc.resType = cudaResourceTypeLinear;
-    resDesc.res.linear.devPtr = devReciprocalRadiationLengthArr;
-    resDesc.res.linear.desc.f = cudaChannelFormatKindFloat;
-    resDesc.res.linear.desc.x = 32; // bits per channel
-    resDesc.res.linear.sizeInBytes = iddData.nRRlSamples*sizeof(float);
+    memset(&resDesc, 0, sizeof(cudaResourceDesc));
+    resDesc.resType = cudaResourceTypeArray;
+    resDesc.res.array.array = devReciprocalRadiationLengthArr;
     memset(&texDesc, 0, sizeof(texDesc));
     texDesc.readMode = cudaReadModeElementType;
     texDesc.normalizedCoords = false;
@@ -567,12 +552,9 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
     nucWeightTex.addressMode[1] = cudaAddressModeClamp;
     cudaErrchk(cudaBindTextureToArray(nucWeightTex, devNucWeightArr, floatChannelDesc));
     #else
-    memset(&resDesc, 0, sizeof(resDesc));
+    memset(&resDesc, 0, sizeof(cudaResourceDesc));
     resDesc.resType = cudaResourceTypeLinear;
-    resDesc.res.linear.devPtr = devNucWeightArr;
-    resDesc.res.linear.desc.f = cudaChannelFormatKindFloat;
-    resDesc.res.linear.desc.x = 32; // bits per channel
-    resDesc.res.linear.sizeInBytes = iddData.nEnergySamples*iddData.nEnergies*sizeof(float);
+    resDesc.res.array.array = devNucWeightArr;
     memset(&texDesc, 0, sizeof(texDesc));
     texDesc.readMode = cudaReadModeElementType;
     texDesc.normalizedCoords = false;
@@ -593,12 +575,9 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
     nucSqSigmaTex.addressMode[1] = cudaAddressModeClamp;
     cudaErrchk(cudaBindTextureToArray(nucSqSigmaTex, devNucSqSigmaArr, floatChannelDesc));
     #else
-    memset(&resDesc, 0, sizeof(resDesc));
+    memset(&resDesc, 0, sizeof(cudaResourceDesc));
     resDesc.resType = cudaResourceTypeLinear;
-    resDesc.res.linear.devPtr = devNucSqSigmaArr;
-    resDesc.res.linear.desc.f = cudaChannelFormatKindFloat;
-    resDesc.res.linear.desc.x = 32; // bits per channel
-    resDesc.res.linear.sizeInBytes = iddData.nEnergySamples*iddData.nEnergies*sizeof(float);
+    resDesc.res.array.array = devNucSqSigmaArr;
     memset(&texDesc, 0, sizeof(texDesc));
     texDesc.readMode = cudaReadModeElementType;
     texDesc.normalizedCoords = false;
@@ -1142,12 +1121,9 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
         #else
         // create texture object
         cudaResourceDesc resDesc;
-        memset(&resDesc, 0, sizeof(resDesc));
-        resDesc.resType = cudaResourceTypeLinear;
-        resDesc.res.linear.devPtr = devBevPrimDoseArr;
-        resDesc.res.linear.desc.f = cudaChannelFormatKindFloat;
-        resDesc.res.linear.desc.x = 32; // bits per channel
-        resDesc.res.linear.sizeInBytes = bevPrimDoseExt.width*bevPrimDoseExt.height*bevPrimDoseExt.depth*sizeof(float);
+        memset(&resDesc, 0, sizeof(cudaResourceDesc));
+        resDesc.resType = cudaResourceTypeArray;
+        resDesc.res.array.array = devBevPrimDoseArr;
         cudaTextureDesc texDesc;
         memset(&texDesc, 0, sizeof(texDesc));
         texDesc.readMode = cudaReadModeElementType;
@@ -1180,9 +1156,9 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
         bevNucDoseTex.addressMode[1] = cudaAddressModeBorder;
         bevNucDoseTex.addressMode[2] = cudaAddressModeBorder;
         #else
-        memset(&resDesc, 0, sizeof(resDesc));
+        memset(&resDesc, 0, sizeof(cudaResourceDesc));
         resDesc.resType = cudaResourceTypeLinear;
-        resDesc.res.linear.devPtr = devBevNucDoseArr;
+        resDesc.res.array.array = devBevNucDoseArr;
         resDesc.res.linear.desc.f = cudaChannelFormatKindFloat;
         resDesc.res.linear.desc.x = 32; // bits per channel
         resDesc.res.linear.sizeInBytes = bevNucDoseExt.width*bevNucDoseExt.height*bevNucDoseExt.depth*sizeof(float);
