@@ -97,8 +97,8 @@ __global__ void primTransfDiv(float* const result, TransferParamStructDiv3 param
 }
 
 #ifdef NUCLEAR_CORR
-__global__ void nucTransfDiv(float* const result, const TransferParamStructDiv3 params, const int3 startIdx, const int maxZ, const uint3 doseDims
-#ifdef CUDART_VERSION >= 12000
+__global__ void nucTransfDiv(float* const result, TransferParamStructDiv3 params, const int3 startIdx, const int maxZ, const uint3 doseDims
+#if CUDART_VERSION >= 12000
 , cudaTextureObject_t bevNucDoseTex
 #endif
 )
@@ -106,14 +106,14 @@ __global__ void nucTransfDiv(float* const result, const TransferParamStructDiv3 
     unsigned int x = startIdx.x + blockDim.x*blockIdx.x + threadIdx.x;
     unsigned int y = startIdx.y + blockDim.y*blockIdx.y + threadIdx.y;
 
-    if (x >=0 && y >= 0 && x < doseDims.x && y < doseDims.y)
+    if (/*x >=0 && y >= 0 &&*/ x < doseDims.x && y < doseDims.y)
     {
         params.init(x, y); // Initiate object with current index position
         float *res = result + startIdx.z*doseDims.x*doseDims.y + y*doseDims.x + x;
         for (int z = startIdx.z; z<=maxZ; ++z) {
             float3 pos = params.getFanIdx(z) + make_float3(HALF, HALF, HALF); // Compensate for voxel value sitting at centre of voxel
             float tmp =
-            #ifdef CUDART_VERSION < 12000
+            #if CUDART_VERSION < 12000
             tex3D(bevNucDoseTex, pos.x, pos.y, pos.z);
             #else
             tex3D<float>(bevNucDoseTex, pos.x, pos.y, pos.z);
@@ -160,15 +160,15 @@ __global__ void fillBevDensityAndSp(float* const bevDensity, float* const bevCum
         bevDensity[idx] = 
         #if CUDART_VERSION < 12000
             tex1D(densityTex, huPlus1000*params.getDensityScale() + HALF);
-        #else 
-            tex1Dfetch<float>(densityTex, huPlus1000*params.getDensityScale() + HALF);
+        #else
+            tex1D<float>(densityTex, huPlus1000*params.getDensityScale() + HALF);
         #endif
 
         cumulSp += 
         #if CUDART_VERSION < 12000
             stepLen * tex1D(stoppingPowerTex, huPlus1000*params.getSpScale() + HALF);
         #else
-            stepLen * tex1Dfetch<float>(stoppingPowerTex, huPlus1000*params.getSpScale() + HALF);
+            stepLen * tex1D<float>(stoppingPowerTex, huPlus1000*params.getSpScale() + HALF);
         #endif
 
         if (cumulHuPlus1000 < 150.0f) {
@@ -187,7 +187,7 @@ __global__ void fillBevDensityAndSp(float* const bevDensity, float* const bevCum
 }
 
 #ifdef NUCLEAR_CORR
-__global__ void fillIddAndSigma(float* const bevDensity, float* const bevCumulSp, float* const bevIdd, float* const bevRSigmaEff, float* const rayWeights, float* const bevNucIdd, float* const bevNucRSigmaEff, float* const nucRayWeights, int* const nucIdcs, int* const firstInside, int* const firstOutside, int* const firstPassive, const FillIddAndSigmaParams params
+__global__ void fillIddAndSigma(float* const bevDensity, float* const bevCumulSp, float* const bevIdd, float* const bevRSigmaEff, float* const rayWeights, float* const bevNucIdd, float* const bevNucRSigmaEff, float* const nucRayWeights, int* const nucIdcs, int* const firstInside, int* const firstOutside, int* const firstPassive, FillIddAndSigmaParams params
 #else
 __global__ void fillIddAndSigma(float* const bevDensity, float* const bevCumulSp, float* const bevIdd, float* const bevRSigmaEff, float* const rayWeights, int* const firstInside, int* const firstOutside, int* const firstPassive, FillIddAndSigmaParams params
 #endif
@@ -286,7 +286,7 @@ __global__ void fillIddAndSigma(float* const bevDensity, float* const bevCumulSp
                 #if CUDART_VERSION < 12000
                     density * tex1D(rRadiationLengthTex, density*params.getRRlScale() + HALF);
                 #else
-                    density * tex1Dfetch<float>(rRadiationLengthTex, density*params.getRRlScale() + HALF);
+                    density * tex1D<float>(rRadiationLengthTex, density*params.getRRlScale() + HALF);
                 #endif
                 float thetaSq = eRefSq/(betaP*betaP) * params.getStepLength() * rRl;
 
@@ -446,7 +446,7 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
     texDesc.addressMode[0] = cudaAddressModeBorder; // cudaAddressModeWrap
     texDesc.addressMode[1] = cudaAddressModeBorder;
     texDesc.addressMode[2] = cudaAddressModeBorder;
-    cudaTextureObject_t imVolTex=0;
+    cudaTextureObject_t imVolTex;
     cudaErrchk(cudaCreateTextureObject(&imVolTex, &resDesc, &texDesc, NULL));  
     #endif
 
@@ -490,7 +490,7 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
     texDesc.normalizedCoords = false;
     texDesc.filterMode = cudaFilterModeLinear;
     texDesc.addressMode[0] = cudaAddressModeClamp;
-    cudaTextureObject_t densityTex=0;
+    cudaTextureObject_t densityTex;
     cudaErrchk(cudaCreateTextureObject(&densityTex, &resDesc, &texDesc, NULL));
     #endif
     
@@ -511,7 +511,7 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
     texDesc.normalizedCoords = false;
     texDesc.filterMode = cudaFilterModeLinear;
     texDesc.addressMode[0] = cudaAddressModeClamp;
-    cudaTextureObject_t stoppingPowerTex=0;
+    cudaTextureObject_t stoppingPowerTex;
     cudaErrchk(cudaCreateTextureObject(&stoppingPowerTex, &resDesc, &texDesc, NULL));
     #endif
 
@@ -532,7 +532,7 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
     texDesc.normalizedCoords = false;
     texDesc.filterMode = cudaFilterModeLinear;
     texDesc.addressMode[0] = cudaAddressModeClamp;
-    cudaTextureObject_t rRadiationLengthTex=0;
+    cudaTextureObject_t rRadiationLengthTex;
     cudaErrchk(cudaCreateTextureObject(&rRadiationLengthTex, &resDesc, &texDesc, NULL));
     #endif
 
@@ -553,7 +553,7 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
     cudaErrchk(cudaBindTextureToArray(nucWeightTex, devNucWeightArr, floatChannelDesc));
     #else
     memset(&resDesc, 0, sizeof(cudaResourceDesc));
-    resDesc.resType = cudaResourceTypeLinear;
+    resDesc.resType = cudaResourceTypeArray;
     resDesc.res.array.array = devNucWeightArr;
     memset(&texDesc, 0, sizeof(texDesc));
     texDesc.readMode = cudaReadModeElementType;
@@ -561,7 +561,7 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
     texDesc.filterMode = cudaFilterModeLinear;
     texDesc.addressMode[0] = cudaAddressModeClamp;
     texDesc.addressMode[1] = cudaAddressModeClamp;
-    cudaTextureObject_t nucWeightTex=0;
+    cudaTextureObject_t nucWeightTex;
     cudaErrchk(cudaCreateTextureObject(&nucWeightTex, &resDesc, &texDesc, NULL));
     #endif
 
@@ -576,7 +576,7 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
     cudaErrchk(cudaBindTextureToArray(nucSqSigmaTex, devNucSqSigmaArr, floatChannelDesc));
     #else
     memset(&resDesc, 0, sizeof(cudaResourceDesc));
-    resDesc.resType = cudaResourceTypeLinear;
+    resDesc.resType = cudaResourceTypeArray;
     resDesc.res.array.array = devNucSqSigmaArr;
     memset(&texDesc, 0, sizeof(texDesc));
     texDesc.readMode = cudaReadModeElementType;
@@ -584,7 +584,7 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
     texDesc.filterMode = cudaFilterModeLinear;
     texDesc.addressMode[0] = cudaAddressModeClamp;
     texDesc.addressMode[1] = cudaAddressModeClamp;
-    cudaTextureObject_t nucSqSigmaTex=0;
+    cudaTextureObject_t nucSqSigmaTex;
     cudaErrchk(cudaCreateTextureObject(&nucSqSigmaTex, &resDesc, &texDesc, NULL));
     #endif
 #endif // NUCLEAR_CORR
@@ -880,10 +880,10 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
         fillDevMem<float> <<<bevNucDoseN/256, 256>>> (devBevNucDose, bevNucDoseN, 0.0f);
 
         std::vector<int> nucSpotIdx( primRayDims.x*primRayDims.y, -1);
-        for (int spotIdxY=0; spotIdxY<spotGridDims.y; ++spotIdxY) {
+        for (unsigned int spotIdxY=0; spotIdxY<spotGridDims.y; ++spotIdxY) {
             float gantryPosY = spotIdxY * beam.getSpotIdxToGantry().getDelta().y + beam.getSpotIdxToGantry().getOffset().y;
             int rayIdxY = (int) round( ( gantryPosY - primRayIdxToGantry.getOffset().y ) / primRayIdxToGantry.getDelta().y );
-            for (int spotIdxX=0; spotIdxX<spotGridDims.x; ++spotIdxX) {
+            for (unsigned int spotIdxX=0; spotIdxX<spotGridDims.x; ++spotIdxX) {
                 float gantryPosX = spotIdxX * beam.getSpotIdxToGantry().getDelta().x + beam.getSpotIdxToGantry().getOffset().x;
                 int rayIdxX = (int) round( ( gantryPosX - primRayIdxToGantry.getOffset().x ) / primRayIdxToGantry.getDelta().x );
                 nucSpotIdx[primRayDims.x * rayIdxY + rayIdxX] = nucRayDims.x * spotIdxY + spotIdxX;
@@ -984,7 +984,7 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
 
             if (tileNucRadCtrs[maxSuperpR+1] > 0) { throw("Found larger than allowed kernel superposition radius"); }
             int layerMaxNucSuperpR = 0;
-            for (int i=0; i<maxSuperpR+2; ++i) { if( tileNucRadCtrs[i]>0 ) { layerMaxNucSuperpR=i; }  }
+            for (unsigned int i=0; i<maxSuperpR+2; ++i) { if( tileNucRadCtrs[i]>0 ) { layerMaxNucSuperpR=i; }  }
             int recNucRad = layerMaxNucSuperpR;
             std::vector<int> batchedNucTileRadCtrs(maxSuperpR+1, 0);
             batchedNucTileRadCtrs[0] = tileNucRadCtrs[0];
@@ -1132,7 +1132,7 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
         texDesc.addressMode[0] = cudaAddressModeBorder;
         texDesc.addressMode[1] = cudaAddressModeBorder;
         texDesc.addressMode[2] = cudaAddressModeBorder;
-        cudaTextureObject_t bevPrimDoseTex=0;
+        cudaTextureObject_t bevPrimDoseTex;
         cudaErrchk(cudaCreateTextureObject(&bevPrimDoseTex, &resDesc, &texDesc, NULL));
         #endif
         cudaErrchk(cudaMemcpy3D(&primDoseCopyParams));
@@ -1157,11 +1157,8 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
         bevNucDoseTex.addressMode[2] = cudaAddressModeBorder;
         #else
         memset(&resDesc, 0, sizeof(cudaResourceDesc));
-        resDesc.resType = cudaResourceTypeLinear;
+        resDesc.resType = cudaResourceTypeArray;
         resDesc.res.array.array = devBevNucDoseArr;
-        resDesc.res.linear.desc.f = cudaChannelFormatKindFloat;
-        resDesc.res.linear.desc.x = 32; // bits per channel
-        resDesc.res.linear.sizeInBytes = bevNucDoseExt.width*bevNucDoseExt.height*bevNucDoseExt.depth*sizeof(float);
         memset(&texDesc, 0, sizeof(texDesc));
         texDesc.readMode = cudaReadModeElementType;
         texDesc.normalizedCoords = false;
@@ -1169,7 +1166,7 @@ void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D
         texDesc.addressMode[0] = cudaAddressModeBorder;
         texDesc.addressMode[1] = cudaAddressModeBorder;
         texDesc.addressMode[2] = cudaAddressModeBorder;
-        cudaTextureObject_t bevNucDoseTex=0;
+        cudaTextureObject_t bevNucDoseTex;
         cudaErrchk(cudaCreateTextureObject(&bevNucDoseTex, &resDesc, &texDesc, NULL));
         #endif
         cudaErrchk(cudaMemcpy3D(&nucDoseCopyParams));

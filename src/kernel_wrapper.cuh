@@ -70,8 +70,13 @@ __global__  void primTransfDiv(float* const result, TransferParamStructDiv3 para
  * \param startIdx the starting 3D point (indices)
  * \param maxZ the maximum index in Z
  * \param doseDims the 3D dimensions of the dose matrix
+ * \param bevNucDoseTex 3D matrix containing nuclear dose for each voxel xyz
  */
-__global__  void nucTransfDiv(float* const result, const TransferParamStructDiv3 params, const int3 startIdx, const int maxZ, const uint3 doseDims);
+__global__  void nucTransfDiv(float* const result, TransferParamStructDiv3 params, const int3 startIdx, const int maxZ, const uint3 doseDims
+#if CUDART_VERSION >= 12000
+, cudaTextureObject_t bevNucDoseTex
+#endif
+);
 #endif
 
 /**
