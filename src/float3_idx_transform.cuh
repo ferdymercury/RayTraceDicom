@@ -6,9 +6,10 @@
 #define FLOAT3_IDX_TRANSFORM_CUH
 
 #include "cuda_member.cuh"
+#include "vector_types.h"
 
 /**
- * \brief Transform ...
+ * \brief Transform indices to float3 coordinate system
  */
 class Float3IdxTransform {
 private:
@@ -48,7 +49,7 @@ public:
     CUDA_CALLABLE_MEMBER float3 transformPoint(const float3 in) const;
 
     /**
-     * \brief ...
+     * \brief Inverse transform
      * \return an instance of the inverse transform
      */
     Float3IdxTransform inverse() const;
@@ -61,14 +62,13 @@ public:
     Float3IdxTransform shiftOffset(const float3 shift) const;
 
     /**
-     * \brief ...
-     * \return void
+     * \brief Activate start-at-one counting convention
+     * \param toIdx true to activate start-at-one convention, false to do the opposite
      */
     void oneBasedToZeroBased(const bool toIdx);
 
     /**
      * \brief Prints the stored delta and the stored offset
-     * \return void
      */
     void print() const;
 };

@@ -1,7 +1,8 @@
+build/
 doc/CMakeCache.txt
 doc/CMakeFiles/
 doc/Makefile
 doc/_docs/
 doc/cmake.dox
 doc/cmake_install.cmake
-CMakeLists.txt.user
+CMakeLists.txt.user*

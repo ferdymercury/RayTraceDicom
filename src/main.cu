@@ -13,7 +13,9 @@
 #include "dicom_reader.h"
 #include "config.h"
 
+#ifndef WATER_CUBE_TEST
 #include <rti/base/rti_treatment_session.hpp>
+#endif
 
 int main(int argc, char **argv)
 {
@@ -211,7 +213,7 @@ int main(int argc, char **argv)
     fout.close();
     std::cout << "Written " << config.output_directory << "/dose.dat with size " << dim.x << "x" << dim.y << "x" << dim.z <<  "\n\n";
 
-    //std::cout << doseData[512*512*25 + 512*275 + 275] << '\n';
+    std::cout << "Max:" << *std::max_element(doseData.begin(),doseData.end()) << std::endl;
 
     //cudaWrapper(&imageData[0], dim, fanIdxToImIdx, cumulEnergyData);
 

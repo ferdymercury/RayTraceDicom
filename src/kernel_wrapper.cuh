@@ -12,6 +12,16 @@
 #include "transfer_param_struct_div3.cuh"
 #include "density_and_sp_tracer_params.cuh"
 #include "fill_idd_and_sigma_params.cuh"
+#include "vector_functions.hpp"
+
+#include <ostream>
+
+#include "device_launch_parameters.h"
+/*#ifndef __CUDACC__
+#define __CUDACC__
+#include "device_functions.h" // needed due to a bug in clangd not recognizing __synchthreads
+#include "math_functions.h" // needed due to a bug in clangd not recognizing sqrt errf (not in helper_math.h either the host version)
+#endif*/
 
 const unsigned int maxSuperpR = 32; ///< Largest superposition radius in pixels
 const int superpTileX = 32;         ///< Must be equal to warp size!
@@ -19,118 +29,146 @@ const int superpTileY = 8;          ///< Desktop and laptop
 const int minTilesInBatch = 16;     ///< Minimum number of tiles in each KS batch
 
 /**
- * \brief ...
- * \param val ...
- * \param multiple ...
- * \return ...
+ * \brief Integer Rounding function (wrt to a multiple).
+ * \param val the value
+ * \param multiple the rounding step
+ * \return the rounded integer
  */
 int roundTo(const int val, const int multiple);
 
+#ifdef NUCLEAR_CORR
 /**
- * \brief ...
- * \param in ...
- * \param out ...
- * \param inDims ...
- * \return void
+ * \brief Function to extend and pad with zeros the nuclear 3D PB map to be divisible by superpTileX and superpTileY
+ * \note not all nuclear PBs necesarily map to a computational PB
+ * \param in input 3D array (linearized, not owned)
+ * \param out output 3D array (linearized, not owned)
+ * \param inDims 3D dimensions associated with the input array
  */
 __global__  void extendAndPadd(float* const in, float* const out, const uint3 inDims);
+#endif
 
 /**
- * \brief ...
- * \param result ...
- * \param params ...
- * \param startIdx ...
- * \param maxZ ...
- * \param doseDims ...
- * \return void
+ * \brief Kernel transferring from fan index to dose index
+ * \param result where the resulting 3D array is stored, preallocated, not owned, linearized
+ * \param params the settings of the transfer kernel
+ * \param startIdx the starting 3D point (indices)
+ * \param maxZ the maximum index in Z
+ * \param doseDims the 3D dimensions of the dose matrix
+ * \param bevPrimDoseTex 3D dose texture matrix
  */
-__global__  void primTransfDiv(float* const result, TransferParamStructDiv3 params, const int3 startIdx, const int maxZ, const uint3 doseDims);
+__global__  void primTransfDiv(float* const result, TransferParamStructDiv3 params, const int3 startIdx, const int maxZ, const uint3 doseDims
+#if CUDART_VERSION >= 12000
+, cudaTextureObject_t bevPrimDoseTex
+#endif
+);
+
+#ifdef NUCLEAR_CORR
+/**
+ * \brief Kernel transferring from nuclear index to dose index
+ * \param result where the resulting 3D array is stored, preallocated, not owned, linearized
+ * \param params the settings of the transfer kernel
+ * \param startIdx the starting 3D point (indices)
+ * \param maxZ the maximum index in Z
+ * \param doseDims the 3D dimensions of the dose matrix
+ * \param bevNucDoseTex 3D matrix containing nuclear dose for each voxel xyz
+ */
+__global__  void nucTransfDiv(float* const result, TransferParamStructDiv3 params, const int3 startIdx, const int maxZ, const uint3 doseDims
+#if CUDART_VERSION >= 12000
+, cudaTextureObject_t bevNucDoseTex
+#endif
+);
+#endif
 
 /**
- * \brief ...
- * \param result ...
- * \param params ...
- * \param startIdx ...
- * \param maxZ ...
- * \param doseDims ...
- * \return void
+ * \brief Kernel to fill density and stopping power matrices
+ * \param bevDensity Linearized 3D array (rX*rY*nSteps), not owned, of mass density at voxel centre
+ * \param bevCumulSp Linearized 3D array (rX*rY*nSteps), not owned, of WEPL to far end of voxel
+ * \param beamFirstInside first step where the beam reaches the phantom
+ * \param firstStepOutside first step outside volume
+ * \param params density and stopping power tracing parameters
+ * \param imVolTex HU per voxel 3D matrix
+ * \param densityTex density 1D array as function of HU
+ * \param stoppingPowerTex 1D array with stopping power as function of HU number
  */
-__global__  void nucTransfDiv(float* const result, const TransferParamStructDiv3 params, const int3 startIdx, const int maxZ, const uint3 doseDims);
-
-/**
- * \brief ...
- * \param bevDensity ...
- * \param bevCumulSp ...
- * \param beamFirstInside ...
- * \param firstStepOutside ...
- * \param params ...
- * \return void
- */
-__global__  void fillBevDensityAndSp(float* const bevDensity, float* const bevCumulSp, int* const beamFirstInside, int* const firstStepOutside, const DensityAndSpTracerParams params);
+__global__  void fillBevDensityAndSp(float* const bevDensity, float* const bevCumulSp, int* const beamFirstInside, int* const firstStepOutside, const DensityAndSpTracerParams params
+#if CUDART_VERSION >= 12000
+, cudaTextureObject_t imVolTex, cudaTextureObject_t densityTex, cudaTextureObject_t stoppingPowerTex
+#endif
+);
 
 #ifdef NUCLEAR_CORR
 /**
  * \brief Calculate sigma as described in M. Soukup, M. Fippel, and M. Alber
  * A pencil beam algorithm for intensity modulated proton therapy derived from  Monte Carlo simulations.,
  * Physics in medicine and biology, vol. 50, no. 21. pp. 5089--104, 2005.
- * \param bevDensity ...
- * \param bevCumulSp ...
- * \param bevIdd ...
- * \param bevRSigmaEff ...
- * \param rayWeights ...
- * \param bevNucIdd ...
- * \param bevNucRSigmaEff ...
- * \param nucRayWeights ...
- * \param nucIdcs ...
- * \param firstInside ...
- * \param firstOutside ...
- * \param firstPassive ...
- * \param params ...
- * \return void
+ * \param bevDensity Linearized 3D array (rX*rY*nSteps), not owned, of mass density at voxel centre
+ * \param bevCumulSp Linearized 3D array (rX*rY*nSteps), not owned, of WEPL to far end of voxel
+ * \param bevIdd Linearized 3D array (rX*rY*nSteps), not owned, of ray dose before kernel superposition
+ * \param bevRSigmaEff Linearized 3D array (rX*rY*nSteps), not owned, of reciprocal of effective sigmas
+ * \param rayWeights Linearized 3D array (rX*rY*nSpots), not owned, of ray weights
+ * \param bevNucIdd Linearized 3D array (nrX*nrY*nSteps), not owned, of dose 'nuclear' rays before kernel superposition
+ * \param bevNucRSigmaEff Linearized 3D array (nrX*nrY*nSteps), not owned, of reciprocal of effective nuclear sigmas
+ * \param nucRayWeights Linearized 3D array (nrX*nrY*nSteps), not owned, of weights 'nuclear' rays
+ * \param nucIdcs Linearized 2D array (nrX*nrY), not owned, with map of nuclear PB indices corresponding to the indices of computational PBs
+ * \param firstInside Linearized 2D array (rX*rY), not owned, of step number (compared to the global entry depth) where each ray first enters the patient
+ * \param firstOutside Linearized 2D array (rX*rY), not owned, of step number (compared to the global entry depth) where each ray exits the patient
+ * \param firstPassive Linearized 2D array (rX*rY), not owned, of step number (compared to the global entry depth) where each ray is no longer live
+ * \param params kernel filling parameters
+ * \param cumulIddTex 2D matrix with the cumulative depth-dose profile as a function of depth and initial proton energy
+ * \param rRadiationLengthTex 1D array with radiation length as function of density
+ * \param nucWeightTex 2D matrix with the nuclear correction factor as function of cumulative stopping power and energy
+ * \param nucSqSigmaTex 2D matrix with the nuclear variance? as function of cumulative stopping power and energy
  * \warning This function is a bit of a mine field, only rearrange expressions if clear that they do not (explicitly or implicitly) affect subsequent expressions etc.
  */
-__global__  void fillIddAndSigma(float* const bevDensity, float* const bevCumulSp, float* const bevIdd, float* const bevRSigmaEff, float* const rayWeights, float* const bevNucIdd, float* const bevNucRSigmaEff, float* const nucRayWeights, int* const nucIdcs, int* const firstInside, int* const firstOutside, int* const firstPassive, FillIddAndSigmaParams params);
+__global__  void fillIddAndSigma(float* const bevDensity, float* const bevCumulSp, float* const bevIdd, float* const bevRSigmaEff, float* const rayWeights, float* const bevNucIdd, float* const bevNucRSigmaEff, float* const nucRayWeights, int* const nucIdcs, int* const firstInside, int* const firstOutside, int* const firstPassive, FillIddAndSigmaParams params
+#if CUDART_VERSION >= 12000
+, cudaTextureObject_t cumulIddTex, cudaTextureObject_t rRadiationLengthTex, cudaTextureObject_t nucWeightTex, cudaTextureObject_t nucSqSigmaTex
+#endif
+);
 #else // NUCLEAR_CORR
 /**
  * \brief Calculate sigma as described in M. Soukup, M. Fippel, and M. Alber
  * A pencil beam algorithm for intensity modulated proton therapy derived from  Monte Carlo simulations.,
  * Physics in medicine and biology, vol. 50, no. 21. pp. 5089--104, 2005.
- * \param bevDensity ...
- * \param bevCumulSp ...
- * \param bevIdd ...
- * \param bevRSigmaEff ...
- * \param rayWeights ...
- * \param firstInside ...
- * \param firstOutside ...
- * \param firstPassive ...
- * \param params ...
- * \return void
+ * \param bevDensity Linearized 3D array (rX*rY*nSteps), not owned, of mass density at voxel centre
+ * \param bevCumulSp Linearized 3D array (rX*rY*nSteps), not owned, of WEPL to far end of voxel
+ * \param bevIdd Linearized 3D array (rX*rY*nSteps), not owned, of ray dose before kernel superposition
+ * \param bevRSigmaEff Linearized 3D array (rX*rY*nSteps), not owned, of reciprocal of effective sigmas
+ * \param rayWeights Linearized 3D array (rX*rY*nSpots), not owned, of ray weights
+ * \param firstInside Linearized 2D array (rX*rY), not owned, of step number (compared to the global entry depth) where each ray first enters the patient
+ * \param firstOutside Linearized 2D array (rX*rY), not owned, of step number (compared to the global entry depth) where each ray exits the patient
+ * \param firstPassive Linearized 2D array (rX*rY), not owned, of step number (compared to the global entry depth) where each ray is no longer live
+ * \param params kernel filling parameters
+ * \param cumulIddTex 2D matrix with the cumulative depth-dose profile as a function of depth and initial proton energy
+ * \param rRadiationLengthTex 1D array with radiation length as function of density
  * \warning This function is a bit of a mine field, only rearrange expressions if clear that they do not (explicitly or implicitly) affect subsequent expressions etc.
  */
-__global__  void fillIddAndSigma(float* const bevDensity, float* const bevCumulSp, float* const bevIdd, float* const bevRSigmaEff, float* const rayWeights, int* const firstInside, int* const firstOutside, int* const firstPassive, const FillIddAndSigmaParams params);
+__global__  void fillIddAndSigma(float* const bevDensity, float* const bevCumulSp, float* const bevIdd, float* const bevRSigmaEff, float* const rayWeights, int* const firstInside, int* const firstOutside, int* const firstPassive, const FillIddAndSigmaParams params
+#if CUDART_VERSION >= 12000
+, cudaTextureObject_t cumulIddTex, cudaTextureObject_t rRadiationLengthTex
+#endif
+);
 #endif
 
 /**
- * \brief ...
- * \param imVol not-owning pointer to the matrix where the patient CT is stored
- * \param doseVol not-owning pointer to the matrix where the calculated dose will be stored
- * \param beams ...
- * \param iddData ...
- * \param outStream ...
- * \return void
+ * \brief Main wrapper function calling the CUDA kernels internally
+ * \param imVol non-owning pointer to the matrix where the patient CT is stored
+ * \param doseVol non-owning pointer to the matrix where the calculated dose will be stored
+ * \param beams the vector of irradiated beams
+ * \param iddData the integral depth dose beam model
+ * \param outStream stream where to write log messages
  */
 void cudaWrapperProtons(HostPinnedImage3D<float>* const imVol, HostPinnedImage3D<float>* const doseVol, const std::vector<BeamSettings> beams, const EnergyStruct iddData, std::ostream &outStream);
 
 /**
  * \brief Finds the largest value in each slice of devIn
- * \tparam T ...
+ * \tparam T the array data type
  * \tparam blockSize must divide n and be equal to blockDim.x
- * \param devIn ...
- * \param devResult ...
+ * \param devIn the input array, not owned, preallocated
+ * \param devResult the array of resulting largest value per slice, not owned, preallocated
  * \param n the total number of elements in each slice (i.e. dim.x*dim.y)
  * \note blockDim.y, gridDim.x and gridDim.y must all be equal to 1.
  * \note gridDim.z must be equal to the number of slices.
- * \return void
  */
 template <typename T, unsigned int blockSize>
 __global__  void sliceMaxVar(T* const devIn, T* const devResult, const unsigned int n)
@@ -166,14 +204,13 @@ __global__  void sliceMaxVar(T* const devIn, T* const devResult, const unsigned 
 
 /**
  * \brief Finds the smallest value in each slice of devIn
- * \tparam T ...
+ * \tparam T the array data type
  * \tparam blockSize must divide n and be equal to blockDim.x
- * \param devIn ...
- * \param devResult ...
+ * \param devIn the input array, not owned, preallocated
+ * \param devResult the array of resulting minimum value per slice, not owned, preallocated
  * \param n the total number of elements in each slice (i.e. dim.x*dim.y)
  * \note blockDim.y and gridDim.y must both be equal to 1.
  * \note gridDim.z must be equal to the number of slices.
- * \return void
  */
 template <typename T, unsigned int blockSize>
 __global__  void sliceMinVar(T* const devIn, T* const devResult, const unsigned int n)
@@ -208,12 +245,12 @@ __global__  void sliceMinVar(T* const devIn, T* const devResult, const unsigned 
 
 /**
  * \brief Finds the smallest value in each tile of devIn
- * \tparam blockY ...
- * \param devIn ...
- * \param startZ ...
- * \param tilePrimRadCtrs ...
- * \param inOutIdcs ...
- * \param noTiles ...
+ * \tparam blockY block dimension in Y
+ * \param devIn the input array, not owned, preallocated
+ * \param startZ starting slice in Z
+ * \param tilePrimRadCtrs pointer to counter arrays, to be added atomically
+ * \param inOutIdcs 2D array, not owned, preallocated, mapping input to output indices
+ * \param noTiles number of tiles
  * \note blockDim.x must be equal to superpTileX and blockDim.y must be an even power of 2 and divide superpTileY.
  */
 template <unsigned int blockY>
@@ -276,11 +313,11 @@ __global__  void tileRadCalc(float* const devIn, const int startZ, int* const ti
 }
 
 /**
- * \brief ...
- * \tparam T ...
- * \param devMem ...
- * \param N ...
- * \param val ...
+ * \brief Fill device memory with all elements having the same value
+ * \tparam T the underlying data type of the array
+ * \param devMem the pointer to the array to be filled, preallocated, not owned
+ * \param N the number of elements to fill, <= array size.
+ * \param val the value to fill
  */
 template<typename T>
 __global__  void fillDevMem(T* const devMem, const unsigned int N, const T val)
@@ -297,11 +334,11 @@ __global__  void fillDevMem(T* const devMem, const unsigned int N, const T val)
 //template <int rad>
 //
 //brief Handles different source distances for x and y, ~15 % slower ...
-//param inDose ...
-//param inRSigmaEff ...
-//param outDose ...
-//param zFirst ...
-//return void
+//param inDose input dose linearized 3D array, not owned, preallocated
+//param inRSigmaEff the sigma of the Gaussian kernel
+//param outDose resulting output dose linearized 3D array, not owned, preallocated
+//param zFirst starting index in z
+//*/
 //note Requires blockDim.x to be equal to (or smaller than?) the warp size!
 //Otherwise requires atomicAdd when incrementing tile[row+i][threadIdx.x+j]
 //note blockDim.x must also be equal to superpTileX
@@ -378,16 +415,15 @@ __global__  void fillDevMem(T* const devMem, const unsigned int N, const T val)
 //}
 
 /**
- * \brief ...
- * \tparam rad ...
- * \param inDose ...
- * \param inRSigmaEff ...
- * \param outDose ...
- * \param inDosePitch ...
- * \param inOutIdcs ...
- * \param inOutIdxPitch ...
- * \param tileCtrs ...
- * \return void
+ * \brief Overlay dose with Gaussian kernel in a given radius
+ * \tparam rad the radius in pixels
+ * \param inDose input dose linearized 3D array, not owned, preallocated
+ * \param inRSigmaEff the sigma of the Gaussian kernel
+ * \param outDose resulting output dose linearized 3D array, not owned, preallocated
+ * \param inDosePitch input dose matrix pitch
+ * \param inOutIdcs output dose matrix
+ * \param inOutIdxPitch input to ouput indices mapping
+ * \param tileCtrs tile counters
  * \note Requires blockDim.x to be equal to (or smaller than?) the wrap size
  * Otherwise requires atomicAdd when incrementing tile[row+i][threadIdx.x+j]
  * \note blockDim.x must also be equal to superpTileX

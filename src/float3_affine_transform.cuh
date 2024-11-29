@@ -37,29 +37,28 @@ public:
     Float3AffineTransform(const Float3AffineTransform& in);
 
     /**
-     * \brief ...
-     * \param point ...
+     * \brief Transform a point according to internal affine matrix
+     * \param point the 3D point to transform
      * \return transformed point as float3
      */
     CUDA_CALLABLE_MEMBER float3 transformPoint(const float3 point) const;
 
     /**
-     * \brief ...
-     * \param vector ...
+     * \brief Transform a vector according to internal affine matrix
+     * \param vector the 3D vector to transform
      * \return transformed vector as float3
      */
     CUDA_CALLABLE_MEMBER float3 transformVector(const float3 vector) const;
 
     /**
-     * \brief ...
+     * \brief Calculate the inverse of current transform
      * \return an instance of the inverse affine transform
      */
     Float3AffineTransform inverse() const;
 
     /**
-     * \brief ...
-     * \param toIdx ...
-     * \return void
+     * \brief Activate the index from start-at-one counting convention to start-at-zero
+     * \param toIdx true to change from 1 to 0, false to do the opposite
      */
     void oneBasedToZeroBased(const bool toIdx);
 
@@ -77,14 +76,13 @@ public:
 
     /**
      * \brief Print affine transformation to console
-     * \return void
      */
     void print() const;
 
     /**
      * \brief Concatenate two affine transforms
-     * \param t1 ...
-     * \param t2 ...
+     * \param t1 first transform
+     * \param t2 second transform
      * \return Resulting affine transform instance
      */
     friend Float3AffineTransform concatFloat3AffineTransform(const Float3AffineTransform t1, const Float3AffineTransform t2);

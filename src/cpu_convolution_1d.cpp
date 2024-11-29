@@ -1,6 +1,6 @@
 /**
  * \file
- * \brief CPU 1D Convolution function implementations
+ * \brief CPU 1D (2D linearized) Convolution function implementations
  */
 #include "cpu_convolution_1d.h"
 #include <cmath>
@@ -33,7 +33,7 @@
 //    return float(sign*y);
 //}
 
-void xConvCpu(const float* const in, float* const out, const float rSigmaEff, const unsigned int rad, const int inWidth, const int outWidth, const int height, const int inOutOffset)
+void xConvCpu(const float* const in, float* const out, const float rSigmaEff, const unsigned int rad, const unsigned int inWidth, const unsigned int outWidth, const unsigned int height, const int inOutOffset)
 {
     std::vector<float> erfDiffs(rad+1);
     float erfNew = std::erf(rSigmaEff*HALF);
@@ -44,10 +44,10 @@ void xConvCpu(const float* const in, float* const out, const float rSigmaEff, co
         erfNew = std::erf(rSigmaEff*(float(i)+HALF));
         erfDiffs[i] = HALF*(erfNew - erfOld);
     }
-    for (int y=0; y<height; ++y) {
-        int yOffsetOut = y*outWidth;
-        int yOffsetIn = y*inWidth;
-        for (int xOut=0; xOut<outWidth; ++xOut) {
+    for (unsigned int y=0; y<height; ++y) {
+        unsigned int yOffsetOut = y*outWidth;
+        unsigned int yOffsetIn = y*inWidth;
+        for (unsigned int xOut=0; xOut<outWidth; ++xOut) {
             float res = 0.0;
             for (long i=-static_cast<long>(rad); i<rad+1; ++i) {
                 long xIn = xOut - inOutOffset + i;
@@ -88,9 +88,9 @@ void xConvCpuScat(const float* const in, float* const out, const float rSigmaEff
     }
 }
 
-void xConvCpuSparse(const float* const in, float* const out, const float rSigmaEff, const unsigned int rad, const unsigned int inWidth, const unsigned int outWidth, const unsigned int height, const unsigned int inOutOffset, const unsigned int inOutDelta)
+void xConvCpuSparse(const float* const in, float* const out, const float rSigmaEff, const unsigned int rad, const unsigned int inWidth, const unsigned int outWidth, const unsigned int height, const int inOutOffset, const int inOutDelta)
 {
-    if (rad > inOutOffset) {
+    if (static_cast<int>(rad) > inOutOffset) {
         std::cout << "Error: rad > inOutOffset in xConvCpuSparse" << std::endl;
         exit (1);
     }
@@ -142,9 +142,9 @@ void xConvCpuSparse(const float* const in, float* const out, const float rSigmaE
 //  }
 //}
 
-void yConvCpu(const float* const in, float* const out, const float rSigmaEff, const unsigned int rad, const unsigned int inHeight, const unsigned int width, const unsigned int inOutOffset)
+void yConvCpu(const float* const in, float* const out, const float rSigmaEff, const unsigned int rad, const unsigned int inHeight, const unsigned int width, const int inOutOffset)
 {
-    if (rad > inOutOffset) {
+    if (static_cast<int>(rad) > inOutOffset) {
         std::cout << "Error: rad > inOutOffset in yConvCpu" << std::endl;
         exit (1);
     }
@@ -170,9 +170,9 @@ void yConvCpu(const float* const in, float* const out, const float rSigmaEff, co
     }
 }
 
-void yConvCpuSparse(const float* const in, float* const out, const float rSigmaEff, const unsigned int rad, const unsigned int inHeight, const unsigned int width, const unsigned int inOutOffset, const unsigned int inOutDelta)
+void yConvCpuSparse(const float* const in, float* const out, const float rSigmaEff, const unsigned int rad, const unsigned int inHeight, const unsigned int width, const int inOutOffset, const int inOutDelta)
 {
-    if (rad > inOutOffset) {
+    if (static_cast<int>(rad) > inOutOffset) {
         std::cout << "Error: rad > inOutOffset in yConvCpuSparse" << std::endl;
         exit (1);
     }

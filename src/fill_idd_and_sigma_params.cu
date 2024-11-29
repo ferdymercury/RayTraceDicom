@@ -4,11 +4,15 @@
  */
 #include "fill_idd_and_sigma_params.cuh"
 #include "float3_from_fan_transform.cuh"
-
+#include "vector_functions.hpp"
+/*#ifndef __CUDACC__
+#define __CUDACC__
+#include "math_functions.h" // needed due to a bug in clangd not recognizing sqrt errf (not in helper_math.h either the host version)
+#endif*/
 FillIddAndSigmaParams::FillIddAndSigmaParams(const float beamEnergyIdx, const float beamEnergyScaleFact, const float beamPeakDepth, const float beamEntrySigmaSq,
     const float rRlScaleFact, const float spotDistInRays, const unsigned int nucMemoryStep, const unsigned int firstStep, const unsigned int afterLastStep, const Float3FromFanTransform fanIdxToImIdx) :
-energyIdx(beamEnergyIdx), energyScaleFact(beamEnergyScaleFact), peakDepth(beamPeakDepth), entrySigmaSq(beamEntrySigmaSq), rRlScale(rRlScaleFact), spotDist(spotDistInRays),
-    nucMemStep(nucMemoryStep), first(firstStep), afterLast(afterLastStep)
+energyIdx(beamEnergyIdx), energyScaleFact(beamEnergyScaleFact), peakDepth(beamPeakDepth),  rRlScale(rRlScaleFact), first(firstStep), afterLast(afterLastStep), entrySigmaSq(beamEntrySigmaSq), spotDist(spotDistInRays),
+nucMemStep(nucMemoryStep)
 {
     dist = fanIdxToImIdx.getSourceDist();
     corner = fanIdxToImIdx.getFanIdxToFan().getOffset();
@@ -21,7 +25,7 @@ energyIdx(beamEnergyIdx), energyScaleFact(beamEnergyScaleFact), peakDepth(beamPe
     volSq = abs(delta.x*delta.y*delta.z)*delta.z*delta.z/(dist.x*dist.y);
 }
 
-CUDA_CALLABLE_MEMBER void FillIddAndSigmaParams::initStepAndAirDiv(const unsigned int idxI, const unsigned int idxJ) {
+CUDA_CALLABLE_MEMBER void FillIddAndSigmaParams::initStepAndAirDiv() {/*const unsigned int idxI, const unsigned int idxJ*/
     //float deltaX = (corner.x + idxI*delta.x) / dist.x;
     //float deltaY = (corner.y + idxJ*delta.y) / dist.y;
     //float relStepLenSq = 1.0f + deltaX*deltaX + deltaY*deltaY;
@@ -67,7 +71,7 @@ CUDA_CALLABLE_MEMBER unsigned int FillIddAndSigmaParams::getAfterLastStep() cons
 
 CUDA_CALLABLE_MEMBER float FillIddAndSigmaParams::stepVol(const unsigned int k) const {return volConst + k*volLin + k*k*volSq;}
 
-__host__ __device__ float2 FillIddAndSigmaParams::sigmaSqAirCoefs(const float r0)
+CUDA_CALLABLE_MEMBER float2 FillIddAndSigmaParams::sigmaSqAirCoefs(const float r0)
 {
 #ifndef NO_NOZZLE
     // Coefficients from calcSigmaInAir.m (note change of sign of b to compensate for beam along negative z)

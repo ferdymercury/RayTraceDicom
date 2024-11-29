@@ -1,54 +1,4 @@
-## CMAKE_DOCUMENTATION_START CMakeLists.txt
-##
-## Main CMakeFile for compiling RayTraceDicom.
-## Following variables can be configured when running ccmake:
-## <table>
-## <caption id="config-cmake">Table of configurable CMake parameters</caption>
-## <tr><th>Variable             <th>Values                  <th>Description
-## <tr><td>CMAKE_BUILD_TYPE     <td>Release (Debug)         <td>Choose the type of build
-## <tr><td>COMPILE_SM20         <td>OFF (ON)                <td>Support Tesla C2075 GPUs
-## <tr><td>COMPILE_SM35         <td>ON (OFF)                <td>Support Tesla K40c GPUs
-## <tr><td>COMPILE_SM75         <td>OFF (ON)                <td>Support Turing GPUs
-## <tr><td>COMPILE_SM90         <td>OFF (ON)                <td>Support Volta GPUs
-## <tr><td>CUDA_SAMPLES_DIR     <td>samples/common/inc      <td>Path to headers of CUDA-samples
-## <tr><td>WATER_CUBE_TEST      <td>OFF (ON)                <td>Use a water cube as test phantom, ignore IMG_DATA_DIRECTORY
-## <tr><td>DOSE_TO_WATER        <td>ON (OFF)                <td>Calculate dose to water
-## <tr><td>FINE_GRAINED_TIMING  <td>OFF (ON)                <td>Unset it to get more accurate total time, reports up to 30 ms longer execution time
-## <tr><td>NOZZLE               <td>ON (OFF)                <td>Take into account air in the nozzle for sigma sq calculation
-## <tr><td>NUCLEAR_CORR         <td>OFF (ON)                <td>Nuclear correction, either OFF, or ON (Soukup or Fluka or Gaussian fit)
-## <tr><td>CUTOFF_BP_DEPTH      <td>1.05f                   <td>Depth cutoff as a percentage relative to the Bragg peak depth
-## <tr><td>CUTOFF_CONV_SIGMA    <td>3.0f                    <td>Cutoff value in sigmas for the pre-convolution
-## <tr><td>CUTOFF_KS_SIGMA      <td>3.0f                    <td>Cutoff value in sigmas for the kernel superposition
-## <tr><td>CUTOFF_RAY_WEIGHT    <td>1.0f                    <td>Only trace rays with weight (particle number) above the cutoff
-## <tr><td>PHYS_DATA_DIRECTORY  <td>LUTs/                   <td>Directory where the LUTs are stored
-## <tr><td>DEVICE_DEBUGGING     <td>OFF (ON)                <td>Debug code run on device
-## <tr><td>EXECUTABLE_NAME      <td>RayTraceDicom           <td>Compiled binary name
-## <tr><td>FAST_MATH            <td>ON (OFF)                <td>If use_fast_math is turned on/off
-## <tr><td>REGISTERS_INFO       <td>OFF (ON)                <td>Outputs register per thread and memory information per kernel
-## <tr><td>SEPARATE_COMPILATION <td>ON (OFF)                <td>Compile each source file separately. Results in less optimized code but good for debugging. OFF not working currently.
-## <tr><td>ITK_DIR              <td>/usr/lib/cmake/ITK-4.10 <td>Path to itk shared library directory
-## </table>
-##
-## Some parameters depend on each other, for example if you set release mode
-## then the SEPARATE_COMPILATION is set to OFF. In debug mode, it is set to
-## ON, and also DEVICE_DEBUGGING is activated. However, this cross-correlations
-## only work if you run "cmake -D...". If you run ccmake, they are overriden.
-## In relase mode, use-fast-math is activated by FindCUDA, CUDA_WRAP_SRCS
-##
-## The parameters that do not need to be changed are:
-## <table>
-## <caption id="other-cmake">Table of residual CMake parameters</caption>
-## <tr><th>Variable                     <th>Value
-## <tr><td>CMAKE_INSTALL_PREFIX         <td>/usr/local
-## <tr><td>CUDA_HOST_COMPILER           <td>/usr/bin/cc
-## <tr><td>CUDA_SDK_ROOT_DIR            <td>CUDA_SDK_ROOT_DIR-NOTFOUND
-## <tr><td>CUDA_TOOLKIT_ROOT_DIR        <td>/usr/local/cuda
-## <tr><td>CUDA_USE_STATIC_CUDA_RUNTIME <td>ON (OFF)
-## <tr><td>CUDA_rt_LIBRARY              <td>usr/lib/x86_64-linux-gnu/librt.so
-## </table>
-##
-## CMAKE_DOCUMENTATION_END
-## See https://www.stack.nl/~dimitri/doxygen/manual/tables.html
+
 
 cmake_minimum_required(VERSION 3.5)
 project(RayTraceDicom)
@@ -166,9 +116,9 @@ if (COMPILE_SM75)
 endif()
 
 ### Volta GPUs
-set (COMPILE_SM90 OFF CACHE BOOL "Support Volta GPUs")
-if (COMPILE_SM90)
-    set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -gencode arch=compute_90,code=sm_90)
+set (COMPILE_SM86 OFF CACHE BOOL "Support Volta GPUs")
+if (COMPILE_SM86)
+    set(CUDA_NVCC_FLAGS ${CUDA_NVCC_FLAGS} -gencode arch=compute_86,code=[compute_86,sm_86])
 endif()
 
 ### Set release mode as default build type
@@ -198,64 +148,12 @@ endif()
 add_subdirectory(extern/CLI11)
 add_subdirectory(extern/dicom-interface)
 
-#~ if (SEPARATE_COMPILATION)
-set(CUDA_SEPARABLE_COMPILATION ON)
+add_subdirectory(src)
 
-set(headers
-    beam_settings.h
-    config.h
-    constants.h
-    cpu_convolution_1d.h
-    cuda_errchk.cuh
-    cuda_member.cuh
-    density_and_sp_tracer_params.cuh
-    dicom_reader.h
-    energy_reader.h
-    energy_struct.h
-    fill_idd_and_sigma_params.cuh
-    float3_affine_transform.cuh
-    float3_from_fan_transform.cuh
-    float3_idx_transform.cuh
-    float3_to_fan_transform.cuh
-    gpu_convolution_2d.cuh
-    helper_float3.cuh
-    host_image_3d.cuh
-    kernel_wrapper.cuh
-    matrix_3x3.cuh
-    tracer_param_struct_div3.cuh
-    tracer_param_struct3.h
-    transfer_param_struct_div3.cuh
-    vector_find.h
-    vector_interpolate.h
-    )
-set(sources
-    beam_settings.cpp
-    config.cpp
-    cpu_convolution_1d.cpp
-    cuda_errchk.cu
-    density_and_sp_tracer_params.cu
-    dicom_reader.cpp
-    energy_reader.cpp
-    fill_idd_and_sigma_params.cu
-    float3_affine_transform.cu
-    float3_from_fan_transform.cu
-    float3_idx_transform.cu
-    float3_to_fan_transform.cu
-    gpu_convolution_2d.cu
-    helper_float3.cu
-    kernel_wrapper.cu
-    main.cu
-    matrix_3x3.cu
-    tracer_param_struct_div3.cu
-    transfer_param_struct_div3.cu
-    )
-cuda_add_executable(${EXECUTABLE_NAME} "${sources}" "${headers}")
-#~ else()
-    #~ add_definitions(-DALL_IN_ONE_COMPILATION )
-    #~ set(CUDA_SEPARABLE_COMPILATION OFF)
-    #~ cuda_add_executable(${EXECUTABLE_NAME} main.cu)
-#~ endif()
+### cmake-modules
+if(NOT DEFINED CMAKEMODULES_DIR)
+set (CMAKEMODULES_DIR "/opt/cmake-modules" CACHE STRING "rpavlik cmake-modules git repository")
+endif()
+list(APPEND CMAKE_MODULE_PATH "${CMAKEMODULES_DIR}")
 
-### Add libraries
-#cuda_add_cublas_to_target(${EXECUTABLE_NAME})
-target_link_libraries(${EXECUTABLE_NAME} ${CUDA_LIBRARIES} ${ITK_LIBRARIES} CLI11 dicom_interface)
+add_subdirectory(doc)#Later to know all the headers
