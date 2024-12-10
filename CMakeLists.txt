@@ -1,5 +1,3 @@
-
-
 cmake_minimum_required(VERSION 3.5)
 project(RayTraceDicom)
 if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.9.2)
@@ -145,7 +143,7 @@ if (DEVICE_DEBUGGING)
     set(CUDA_NVCC_FLAGS -G -g -Xcompiler -Wall ${CUDA_NVCC_FLAGS})#-rdynamic
 endif()
 
-add_subdirectory(extern/CLI11)
+find_package(CLI11 REQUIRED CONFIG)
 add_subdirectory(extern/dicom-interface)
 
 add_subdirectory(src)

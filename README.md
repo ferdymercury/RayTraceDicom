@@ -19,9 +19,10 @@ REQUIREMENTS
 ------------
 - CUDA, CUDA-TOOLKIT, CUDA-SAMPLES
 - GDCM
-- ITK (if custom build, then with `-DITK_USE_SYSTEM_GDCM=ON`, otherwise just `apt-get install libinsighttoolkit5-dev`)
+- ITK (if custom build, then with `-DITK_USE_SYSTEM_GDCM=ON`, otherwise just `apt install libinsighttoolkit5-dev`)
 - `git clone https://github.com/ferdymercury/cmake-modules` into `/opt`
 - qhelpgenerator (`sudo apt install qhelpgenerator-qt5`)
+- CLI11 (`apt install libcli11-dev`)
 
 BUILDING
 --------

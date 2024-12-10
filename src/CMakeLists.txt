@@ -58,4 +58,4 @@ cuda_add_executable(${EXECUTABLE_NAME} "${sources}" "${headers}")
 
 ### Add libraries
 #cuda_add_cublas_to_target(${EXECUTABLE_NAME})
-target_link_libraries(${EXECUTABLE_NAME} ${CUDA_LIBRARIES} ${ITK_LIBRARIES} CLI11 dicom_interface)
+target_link_libraries(${EXECUTABLE_NAME} ${CUDA_LIBRARIES} ${ITK_LIBRARIES} CLI11::CLI11 dicom_interface)
